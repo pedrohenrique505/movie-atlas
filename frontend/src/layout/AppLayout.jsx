@@ -6,12 +6,23 @@ export function AppLayout() {
   const location = useLocation()
   const [searchParams] = useSearchParams()
   const [query, setQuery] = useState(searchParams.get('q') ?? '')
+  const [isSearchFocused, setIsSearchFocused] = useState(false)
+  const [placeholderIndex, setPlaceholderIndex] = useState(0)
+  const placeholders = ['Buscar filmes', 'Buscar series', 'Buscar pessoas']
 
   useEffect(() => {
     if (location.pathname === '/search') {
       setQuery(searchParams.get('q') ?? '')
     }
   }, [location.pathname, searchParams])
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setPlaceholderIndex((currentIndex) => (currentIndex + 1) % placeholders.length)
+    }, 2400)
+
+    return () => window.clearInterval(intervalId)
+  }, [placeholders.length])
 
   function handleSearchSubmit(event) {
     event.preventDefault()
@@ -55,15 +66,44 @@ export function AppLayout() {
         </nav>
 
         <div className="topbar-tools">
-          <form className="search-shell" role="search" onSubmit={handleSearchSubmit}>
-            <input
-              type="search"
-              name="global-search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Buscar titulos"
-              aria-label="Buscar"
-            />
+          <form
+            className={`search-shell ${isSearchFocused || query ? 'search-shell--expanded' : ''}`.trim()}
+            role="search"
+            onSubmit={handleSearchSubmit}
+          >
+            <div className="search-shell__field">
+              <span className="search-shell__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" className="search-shell__icon-svg">
+                  <circle
+                    cx="11"
+                    cy="11"
+                    r="6.5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  />
+                  <path
+                    d="M16 16L20 20"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </span>
+
+              <input
+                type="search"
+                name="global-search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                onFocus={() => setIsSearchFocused(true)}
+                onBlur={() => setIsSearchFocused(false)}
+                placeholder={placeholders[placeholderIndex]}
+                aria-label="Buscar"
+              />
+            </div>
+
             <button type="submit">Buscar</button>
           </form>
         </div>
