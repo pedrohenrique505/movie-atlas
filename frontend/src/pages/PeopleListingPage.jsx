@@ -1,4 +1,5 @@
 import { PeopleListSection } from '../components/PeopleListSection'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { useMovieCollection } from '../hooks/useMovieCollection'
 
 export function PeopleListingPage({
@@ -8,6 +9,8 @@ export function PeopleListingPage({
   fetchPeople,
   errorMessageFallback,
 }) {
+  useDocumentTitle(`${title} | Movie Atlas`)
+
   const people = useMovieCollection(fetchPeople, errorMessageFallback)
 
   return (

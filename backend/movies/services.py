@@ -11,6 +11,21 @@ class MovieServiceError(Exception):
     pass
 
 
+PRODUCTION_STATUS_LABELS = {
+    'released': 'Lancado',
+    'post production': 'Pos-producao',
+    'in production': 'Em producao',
+    'planned': 'Planejado',
+    'rumored': 'Rumor',
+    'canceled': 'Cancelado',
+    'cancelled': 'Cancelado',
+    'ended': 'Encerrado',
+    'returning series': 'Serie em andamento',
+    'pilot': 'Piloto',
+    'unreleased': 'Nao lancado',
+}
+
+
 @dataclass
 class TMDbMovieService:
     base_url: str = 'https://api.themoviedb.org/3'
@@ -83,6 +98,25 @@ class TMDbMovieService:
             },
         )
         return self._normalize_movie_details_payload(payload)
+
+    def search_movies(self, query):
+        if not query.strip():
+            return {'results': []}
+
+        payload = self._request(
+            '/search/movie',
+            {
+                'language': self.language,
+                'query': query.strip(),
+                'page': 1,
+                'include_adult': 'false',
+            },
+        )
+
+        return self._normalize_media_list_payload(
+            payload,
+            status_label='search_result',
+        )
 
     def get_person_details(self, person_id):
         payload = self._request(
@@ -240,7 +274,7 @@ class TMDbMovieService:
             'release_date': payload.get('release_date') or '',
             'runtime': payload.get('runtime'),
             'genres': [genre.get('name') for genre in payload.get('genres', []) if genre.get('name')],
-            'status': payload.get('status') or '',
+            'status': self._normalize_production_status(payload.get('status')),
             'vote_average': self._normalize_vote_average(payload.get('vote_average')),
             'poster_image': self._build_image_url(payload.get('poster_path'), 'w780'),
             'backdrop_image': self._build_image_url(payload.get('backdrop_path'), 'w1280'),
@@ -408,6 +442,12 @@ class TMDbMovieService:
         if value in (None, ''):
             return None
         return round(float(value), 1)
+
+    def _normalize_production_status(self, value):
+        if not value:
+            return ''
+
+        return PRODUCTION_STATUS_LABELS.get(value.lower(), value)
 
     def _pick_first_value(self, payload, fields):
         for field in fields:

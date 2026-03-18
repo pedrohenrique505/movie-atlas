@@ -5,6 +5,7 @@ from .views import (
     MovieCategoriesView,
     NowPlayingMoviesView,
     PersonDetailsView,
+    SearchMoviesView,
     PopularActorsView,
     PopularDirectorsView,
     PopularMoviesView,
@@ -14,6 +15,7 @@ from .views import (
 )
 
 urlpatterns = [
+    path('search', SearchMoviesView.as_view(), name='movies-search'),
     path('movies/categories', MovieCategoriesView.as_view(), name='movies-categories'),
     path('movies/trending', TrendingMoviesView.as_view(), name='movies-trending'),
     path('movies/popular', PopularMoviesView.as_view(), name='movies-popular'),

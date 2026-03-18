@@ -48,6 +48,10 @@ export const api = {
     const data = await request('/people/directors')
     return data.results ?? []
   },
+  async searchMovies(query) {
+    const data = await request(`/search?q=${encodeURIComponent(query)}`)
+    return data.results ?? []
+  },
   getMovieDetails(id) {
     return request(`/movies/${id}`)
   },

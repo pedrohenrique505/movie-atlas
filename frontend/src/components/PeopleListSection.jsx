@@ -1,5 +1,6 @@
 import { CastCard } from './CastCard'
 import { CollectionFeedback } from './CollectionFeedback'
+import { formatDepartmentLabel } from '../utils/movieLabels'
 
 export function PeopleListSection({
   people,
@@ -26,7 +27,9 @@ export function PeopleListSection({
           key={person.id}
           person={{
             ...person,
-            character: person.known_for_titles?.join(', ') || person.known_for_department,
+            character:
+              person.known_for_titles?.join(', ') ||
+              formatDepartmentLabel(person.known_for_department),
           }}
         />
       ))}

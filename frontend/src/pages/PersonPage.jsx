@@ -2,13 +2,17 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
 import { ProjectList } from '../components/ProjectList'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { api } from '../services/api'
+import { formatDepartmentLabel } from '../utils/movieLabels'
 
 export function PersonPage() {
   const { id } = useParams()
   const [person, setPerson] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
+
+  useDocumentTitle(person?.name ? `${person.name} | Movie Atlas` : 'Pessoa | Movie Atlas')
 
   useEffect(() => {
     let isMounted = true
@@ -52,7 +56,7 @@ export function PersonPage() {
     <main className="app-shell">
       <div className="details-page__actions">
         <Link to="/" className="button-link">
-          Voltar para home
+          Voltar para inicio
         </Link>
       </div>
 
@@ -83,7 +87,9 @@ export function PersonPage() {
 
               <div className="details-hero__meta">
                 {person.known_for_department ? (
-                  <span className="details-hero__meta-item">{person.known_for_department}</span>
+                  <span className="details-hero__meta-item">
+                    {formatDepartmentLabel(person.known_for_department)}
+                  </span>
                 ) : null}
                 {person.birthday ? (
                   <span className="details-hero__meta-item">Nascimento: {person.birthday}</span>

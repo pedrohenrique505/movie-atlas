@@ -1,8 +1,23 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 
 export function AppLayout() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [searchParams] = useSearchParams()
+  const [query, setQuery] = useState(searchParams.get('q') ?? '')
+
+  useEffect(() => {
+    if (location.pathname === '/search') {
+      setQuery(searchParams.get('q') ?? '')
+    }
+  }, [location.pathname, searchParams])
+
   function handleSearchSubmit(event) {
     event.preventDefault()
+
+    const normalizedQuery = query.trim()
+    navigate(normalizedQuery ? `/search?q=${encodeURIComponent(normalizedQuery)}` : '/search')
   }
 
   return (
@@ -17,12 +32,12 @@ export function AppLayout() {
             to="/upcoming"
             className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
           >
-            Upcoming
+            Lancamentos
           </NavLink>
         </nav>
 
         <div className="topbar-tools">
-          <div className="filter-row" aria-label="Categorias">
+          <div className="filter-row" aria-label="Explorar">
             <NavLink
               to="/movies"
               className={({ isActive }) => (isActive ? 'filter-chip active' : 'filter-chip')}
@@ -33,13 +48,19 @@ export function AppLayout() {
               to="/tv-shows"
               className={({ isActive }) => (isActive ? 'filter-chip active' : 'filter-chip')}
             >
-              Shows de TV
+              Series
             </NavLink>
             <NavLink
-              to="/people"
+              to="/actors"
               className={({ isActive }) => (isActive ? 'filter-chip active' : 'filter-chip')}
             >
-              Pessoas
+              Atores
+            </NavLink>
+            <NavLink
+              to="/directors"
+              className={({ isActive }) => (isActive ? 'filter-chip active' : 'filter-chip')}
+            >
+              Diretores
             </NavLink>
           </div>
 
@@ -47,7 +68,9 @@ export function AppLayout() {
             <input
               type="search"
               name="global-search"
-              placeholder="Buscar filmes, series e nomes"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Buscar titulos"
               aria-label="Buscar"
             />
             <button type="submit">Buscar</button>

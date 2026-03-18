@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom'
 
+import { formatMediaTypeLabel } from '../utils/movieLabels'
+
 function formatProjectMeta(project) {
   const parts = []
 
   if (project.media_type) {
-    parts.push(project.media_type === 'tv' ? 'TV' : 'Filme')
+    parts.push(formatMediaTypeLabel(project.media_type))
   }
 
   if (project.release_date) {

@@ -5,6 +5,7 @@ import App from './App'
 
 describe('App routes', () => {
   it('renders the home page', async () => {
+    document.title = 'Movie Atlas'
     global.fetch = vi.fn((url) => {
       const payloads = {
         'http://localhost:8000/api/movies/trending': {
@@ -62,7 +63,7 @@ describe('App routes', () => {
 
     expect(
       screen.getByRole('heading', {
-        name: /descubra filmes em tendencia, em cartaz e os proximos lancamentos/i,
+        name: /descubra filmes em alta, em cartaz e os proximos lancamentos/i,
       }),
     ).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /^home$/i })).not.toBeInTheDocument()
@@ -73,6 +74,7 @@ describe('App routes', () => {
     expect(await screen.findByAltText(/poster de trending one/i)).toBeInTheDocument()
     expect(await screen.findByText(/^NP$/i)).toBeInTheDocument()
     expect(await screen.findByText(/data prevista de estreia: 2026-03-21/i)).toBeInTheDocument()
+    expect(document.title).toBe('Movie Atlas')
   })
 
   it('renders the upcoming page', async () => {
@@ -109,6 +111,7 @@ describe('App routes', () => {
     ).toBeInTheDocument()
     expect(await screen.findByText(/devoradores de estrelas/i)).toBeInTheDocument()
     expect(await screen.findByText(/data prevista de estreia: 2026-03-19/i)).toBeInTheDocument()
+    expect(document.title).toBe('Proximos lancamentos | Movie Atlas')
   })
 
   it('renders the movie details page', async () => {
@@ -167,8 +170,9 @@ describe('App routes', () => {
     expect(await screen.findByText(/elenco/i)).toBeInTheDocument()
     expect(await screen.findByText(/matt damon/i)).toBeInTheDocument()
     expect(await screen.findByText(/christopher nolan/i)).toBeInTheDocument()
-    expect(await screen.findByText(/assista o trailer/i)).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: /assista o trailer/i })).toBeInTheDocument()
     expect(screen.queryByText(/nota 7.3/i)).not.toBeInTheDocument()
+    expect(document.title).toBe('The Odyssey | Movie Atlas')
   })
 
   it('renders the movies page with api content', async () => {
@@ -204,6 +208,7 @@ describe('App routes', () => {
       }),
     ).toBeInTheDocument()
     expect(await screen.findByText(/filme popular/i)).toBeInTheDocument()
+    expect(document.title).toBe('Filmes | Movie Atlas')
   })
 
   it('renders the tv shows page with api content', async () => {
@@ -235,10 +240,11 @@ describe('App routes', () => {
 
     expect(
       await screen.findByRole('heading', {
-        name: /shows de tv populares/i,
+        name: /series populares/i,
       }),
     ).toBeInTheDocument()
     expect(await screen.findByText(/serie popular/i)).toBeInTheDocument()
+    expect(document.title).toBe('Series | Movie Atlas')
   })
 
   it('redirects removed routes to the people page', async () => {
@@ -268,13 +274,14 @@ describe('App routes', () => {
 
     expect(
       await screen.findByRole('heading', {
-        name: /pessoas/i,
+        name: /diretores/i,
       }),
     ).toBeInTheDocument()
     expect(await screen.findByText(/person example/i)).toBeInTheDocument()
+    expect(document.title).toBe('Diretores | Movie Atlas')
   })
 
-  it('renders the people page with api content', async () => {
+  it('renders the actors page with api content', async () => {
     global.fetch = vi.fn(() =>
       Promise.resolve({
         ok: true,
@@ -294,17 +301,18 @@ describe('App routes', () => {
     )
 
     render(
-      <MemoryRouter initialEntries={['/people']}>
+      <MemoryRouter initialEntries={['/actors']}>
         <App />
       </MemoryRouter>,
     )
 
     expect(
       await screen.findByRole('heading', {
-        name: /pessoas/i,
+        name: /atores/i,
       }),
     ).toBeInTheDocument()
     expect(await screen.findByText(/person example/i)).toBeInTheDocument()
+    expect(document.title).toBe('Atores | Movie Atlas')
   })
 
   it('renders the person details page', async () => {
@@ -344,8 +352,9 @@ describe('App routes', () => {
         name: /christopher nolan/i,
       }),
     ).toBeInTheDocument()
-    expect(await screen.findByText(/directing/i)).toBeInTheDocument()
+    expect(await screen.findByText(/direcao/i)).toBeInTheDocument()
     expect(await screen.findByText(/inception/i)).toBeInTheDocument()
+    expect(document.title).toBe('Christopher Nolan | Movie Atlas')
   })
 
   it('opens the trailer in a modal on the movie page', async () => {
@@ -391,5 +400,50 @@ describe('App routes', () => {
     fireEvent.click(await screen.findByRole('button', { name: /assista o trailer/i }))
 
     expect(await screen.findByRole('dialog', { name: /trailer oficial/i })).toBeInTheDocument()
+  })
+
+  it('searches movies and renders results', async () => {
+    document.title = 'Movie Atlas'
+    global.fetch = vi.fn((url) => {
+      if (url === 'http://localhost:8000/api/search?q=blade') {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              results: [
+                {
+                  id: '909',
+                  title: 'Blade Runner',
+                  release_date: '1982-06-25',
+                  status: 'search_result',
+                  synopsis: 'Neo-noir de ficcao cientifica.',
+                  poster_image: 'https://image.tmdb.org/t/p/w780/blade-runner.jpg',
+                  has_trailer: false,
+                },
+              ],
+            }),
+        })
+      }
+
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ results: [] }),
+      })
+    })
+
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    fireEvent.change(screen.getByRole('searchbox', { name: /buscar/i }), {
+      target: { value: 'blade' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /buscar/i }))
+
+    expect(await screen.findByRole('heading', { name: /resultados para "blade"/i })).toBeInTheDocument()
+    expect(await screen.findByText(/blade runner/i)).toBeInTheDocument()
+    expect(document.title).toBe('Busca: blade | Movie Atlas')
   })
 })

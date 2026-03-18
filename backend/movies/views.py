@@ -26,6 +26,10 @@ def build_upcoming_movies_example():
     return build_movie_list_example(status='upcoming')
 
 
+def build_search_movies_example():
+    return build_movie_list_example(status='search_result')
+
+
 def build_people_list_example(department='Acting'):
     return {
         'results': [
@@ -159,6 +163,58 @@ class UpcomingMoviesView(APIView):
 
         try:
             payload = service.get_upcoming_movies()
+        except MovieServiceError as exc:
+            return Response(
+                {'detail': str(exc)},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        return Response(payload)
+
+
+class SearchMoviesView(APIView):
+    @extend_schema(
+        operation_id='search_movies',
+        summary='Busca filmes por titulo',
+        description='Consulta a API externa para buscar filmes por titulo.',
+        responses={
+            200: OpenApiResponse(
+                response={
+                    'type': 'object',
+                    'properties': {
+                        'results': {
+                            'type': 'array',
+                            'items': {
+                                'type': 'object',
+                                'properties': {
+                                    'id': {'type': 'string'},
+                                    'title': {'type': 'string'},
+                                    'release_date': {'type': 'string', 'format': 'date'},
+                                    'status': {'type': 'string'},
+                                    'synopsis': {'type': 'string'},
+                                    'poster_image': {'type': 'string', 'nullable': True},
+                                    'has_trailer': {'type': 'boolean'},
+                                },
+                            },
+                        }
+                    },
+                },
+                examples=[
+                    OpenApiExample(
+                        'Movie search response',
+                        value=build_search_movies_example(),
+                    )
+                ],
+            ),
+            503: OpenApiResponse(description='Falha de configuracao ou integracao com a API externa.'),
+        },
+    )
+    def get(self, request):
+        service = TMDbMovieService()
+        query = request.query_params.get('q', '')
+
+        try:
+            payload = service.search_movies(query)
         except MovieServiceError as exc:
             return Response(
                 {'detail': str(exc)},

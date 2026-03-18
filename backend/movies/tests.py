@@ -281,6 +281,43 @@ class TMDbMovieServiceTests(SimpleTestCase):
 
     @patch('movies.services.os.getenv', return_value='test-token')
     @patch('movies.services.request.urlopen')
+    def test_search_movies_normalizes_response(self, mock_urlopen, _mock_getenv):
+        response_data = {
+            'results': [
+                {
+                    'id': 909,
+                    'title': 'Blade Runner',
+                    'release_date': '1982-06-25',
+                    'overview': 'Neo-noir de ficcao cientifica.',
+                    'poster_path': '/blade-runner.jpg',
+                }
+            ]
+        }
+        mock_response = MagicMock()
+        mock_response.read.return_value = json.dumps(response_data).encode('utf-8')
+        mock_urlopen.return_value.__enter__.return_value = mock_response
+
+        payload = TMDbMovieService().search_movies('blade')
+
+        self.assertEqual(
+            payload,
+            {
+                'results': [
+                    {
+                        'id': '909',
+                        'title': 'Blade Runner',
+                        'release_date': '1982-06-25',
+                        'status': 'search_result',
+                        'synopsis': 'Neo-noir de ficcao cientifica.',
+                        'poster_image': 'https://image.tmdb.org/t/p/w780/blade-runner.jpg',
+                        'has_trailer': False,
+                    }
+                ]
+            },
+        )
+
+    @patch('movies.services.os.getenv', return_value='test-token')
+    @patch('movies.services.request.urlopen')
     def test_get_movie_details_normalizes_images_and_trailer(self, mock_urlopen, _mock_getenv):
         response_data = {
             'id': 101,
@@ -345,7 +382,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
         self.assertEqual(payload['title'], 'The Odyssey')
         self.assertEqual(payload['runtime'], 164)
         self.assertEqual(payload['genres'], ['Sci-Fi', 'Adventure'])
-        self.assertEqual(payload['status'], 'Released')
+        self.assertEqual(payload['status'], 'Lancado')
         self.assertEqual(payload['vote_average'], 7.3)
         self.assertEqual(payload['poster_image'], 'https://image.tmdb.org/t/p/w780/poster.jpg')
         self.assertEqual(
@@ -616,6 +653,29 @@ class TrendingMoviesIntegrationTests(APITestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), mock_get_trending_movies.return_value)
+
+
+class SearchMoviesIntegrationTests(APITestCase):
+    @patch('movies.views.TMDbMovieService.search_movies')
+    def test_search_movies_endpoint_returns_service_payload(self, mock_search_movies):
+        mock_search_movies.return_value = {
+            'results': [
+                {
+                    'id': '909',
+                    'title': 'Blade Runner',
+                    'release_date': '1982-06-25',
+                    'status': 'search_result',
+                    'synopsis': 'Neo-noir de ficcao cientifica.',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/blade-runner.jpg',
+                    'has_trailer': False,
+                }
+            ]
+        }
+
+        response = self.client.get('/api/search?q=blade')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), mock_search_movies.return_value)
 
 
 class PopularMoviesIntegrationTests(APITestCase):

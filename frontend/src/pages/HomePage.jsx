@@ -1,11 +1,14 @@
 import { MovieCarouselSection } from '../components/MovieCarouselSection'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { useMovieCollection } from '../hooks/useMovieCollection'
 import { api } from '../services/api'
 
 export function HomePage() {
+  useDocumentTitle('Movie Atlas')
+
   const trending = useMovieCollection(
     api.getTrendingMovies,
-    'Nao foi possivel carregar os filmes em tendencia.',
+    'Nao foi possivel carregar os filmes em alta.',
   )
   const nowPlaying = useMovieCollection(
     api.getNowPlayingMovies,
@@ -21,7 +24,7 @@ export function HomePage() {
       <section className="hero-panel">
         <div className="hero-copy">
           <p className="eyebrow">Movie Atlas</p>
-          <h1>Descubra filmes em tendencia, em cartaz e os proximos lancamentos.</h1>
+          <h1>Descubra filmes em alta, em cartaz e os proximos lancamentos.</h1>
           <p className="lead">
             A Home definitiva organiza o catalogo em trilhas horizontais com
             navegacao simples, foco no poster e acesso rapido aos detalhes.
@@ -35,12 +38,12 @@ export function HomePage() {
       </section>
 
       <MovieCarouselSection
-        title="Trending"
+        title="Em alta"
         eyebrow="Agora"
         movies={trending.movies}
         isLoading={trending.isLoading}
         errorMessage={trending.errorMessage}
-        emptyMessage="Nenhum filme em tendencia encontrado."
+        emptyMessage="Nenhum filme em alta encontrado."
       />
 
       <MovieCarouselSection
@@ -53,7 +56,7 @@ export function HomePage() {
       />
 
       <MovieCarouselSection
-        title="Upcoming"
+        title="Proximos lancamentos"
         eyebrow="Em breve"
         movies={upcoming.movies}
         isLoading={upcoming.isLoading}

@@ -1,8 +1,11 @@
 import { MovieListSection } from '../components/MovieListSection'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { useMovieCollection } from '../hooks/useMovieCollection'
 import { api } from '../services/api'
 
 export function MoviesPage() {
+  useDocumentTitle('Filmes | Movie Atlas')
+
   const movies = useMovieCollection(
     api.getPopularMovies,
     'Nao foi possivel carregar os filmes populares.',

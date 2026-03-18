@@ -1,7 +1,9 @@
 import { useRef } from 'react'
 
+import { useCarouselOverflow } from '../hooks/useCarouselOverflow'
 import { CollectionFeedback } from './CollectionFeedback'
 import { MoviePosterCard } from './MoviePosterCard'
+import { ArrowIcon } from './navigation/ArrowIcon'
 
 export function MovieCarouselSection({
   title,
@@ -13,6 +15,7 @@ export function MovieCarouselSection({
   datePrefix,
 }) {
   const trackRef = useRef(null)
+  const hasOverflow = useCarouselOverflow(trackRef, [movies])
 
   function scrollTrack(direction) {
     if (!trackRef.current) {
@@ -34,14 +37,26 @@ export function MovieCarouselSection({
           <h2>{title}</h2>
         </div>
 
-        <div className="carousel-controls" aria-label={`Navegacao de ${title}`}>
-          <button type="button" className="carousel-button" onClick={() => scrollTrack(-1)}>
-            Anterior
-          </button>
-          <button type="button" className="carousel-button" onClick={() => scrollTrack(1)}>
-            Proximo
-          </button>
-        </div>
+        {hasOverflow ? (
+          <div className="carousel-controls" aria-label={`Navegacao de ${title}`}>
+            <button
+              type="button"
+              className="carousel-button"
+              onClick={() => scrollTrack(-1)}
+              aria-label={`Anterior em ${title}`}
+            >
+              <ArrowIcon direction="left" />
+            </button>
+            <button
+              type="button"
+              className="carousel-button"
+              onClick={() => scrollTrack(1)}
+              aria-label={`Proximo em ${title}`}
+            >
+              <ArrowIcon direction="right" />
+            </button>
+          </div>
+        ) : null}
       </div>
 
       {isLoading || errorMessage || !movies.length ? (

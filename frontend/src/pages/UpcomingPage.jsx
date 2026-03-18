@@ -1,14 +1,17 @@
 import { MovieListSection } from '../components/MovieListSection'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { useUpcomingMovies } from '../hooks/useUpcomingMovies'
 
 export function UpcomingPage() {
+  useDocumentTitle('Proximos lancamentos | Movie Atlas')
+
   const { movies, isLoading, errorMessage } = useUpcomingMovies()
 
   return (
     <main className="app-shell">
       <section className="page-heading">
         <div className="page-copy">
-          <p className="eyebrow">Upcoming</p>
+          <p className="eyebrow">Em breve</p>
           <h1>Proximos lancamentos</h1>
           <p className="lead">
             Dados vindos do backend em <code>/api/movies/upcoming</code>.

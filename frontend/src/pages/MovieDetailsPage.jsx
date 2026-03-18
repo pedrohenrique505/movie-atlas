@@ -6,6 +6,7 @@ import { DetailsHero } from '../components/DetailsHero'
 import { HorizontalScroller } from '../components/HorizontalScroller'
 import { MovieMediaGallery } from '../components/MovieMediaGallery'
 import { MovieTrailer } from '../components/MovieTrailer'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { api } from '../services/api'
 
 export function MovieDetailsPage() {
@@ -14,6 +15,8 @@ export function MovieDetailsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
   const [isTrailerOpen, setIsTrailerOpen] = useState(false)
+
+  useDocumentTitle(movie?.title ? `${movie.title} | Movie Atlas` : 'Filme | Movie Atlas')
 
   useEffect(() => {
     let isMounted = true
@@ -58,7 +61,7 @@ export function MovieDetailsPage() {
     <main className="details-page">
       <div className="details-page__actions">
         <Link to="/upcoming" className="button-link">
-          Voltar para upcoming
+          Voltar para lancamentos
         </Link>
       </div>
 
