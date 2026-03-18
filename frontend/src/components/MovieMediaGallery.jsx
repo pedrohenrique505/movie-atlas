@@ -15,7 +15,7 @@ export function MovieMediaGallery({ title, backdropImage, images }) {
   }
 
   if (!galleryImages.length) {
-    return <p className="status-panel">Nenhuma imagem disponivel.</p>
+    return <p className="status-panel">Nenhuma imagem disponível.</p>
   }
 
   return (

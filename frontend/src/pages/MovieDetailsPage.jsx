@@ -40,7 +40,7 @@ export function MovieDetailsPage() {
           setErrorMessage(
             error instanceof Error
               ? error.message
-              : 'Nao foi possivel carregar os detalhes do filme.',
+              : 'Não foi possível carregar os detalhes do filme.',
           )
         }
       } finally {
@@ -81,7 +81,7 @@ export function MovieDetailsPage() {
                 ))}
               </HorizontalScroller>
             ) : (
-              <p className="status-panel">Elenco indisponivel.</p>
+              <p className="status-panel">Elenco indisponível.</p>
             )}
           </section>
 

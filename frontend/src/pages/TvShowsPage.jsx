@@ -4,35 +4,29 @@ import { useMovieCollection } from '../hooks/useMovieCollection'
 import { api } from '../services/api'
 
 export function TvShowsPage() {
-  useDocumentTitle('Series | Movie Atlas')
+  useDocumentTitle('Séries | Movie Atlas')
 
   const shows = useMovieCollection(
     api.getPopularTvShows,
-    'Nao foi possivel carregar as series populares.',
+    'Não foi possível carregar as séries populares.',
   )
 
   return (
     <main className="app-shell">
-      <section className="page-heading">
+      <section className="page-heading page-heading--compact">
         <div className="page-copy">
-          <p className="eyebrow">Series</p>
-          <h1>Series populares</h1>
-          <p className="lead">Conteudo real de series populares vindo da API.</p>
+          <h1>Séries populares</h1>
         </div>
-
-        <aside className="page-aside">
-          <p>Esta listagem ja esta pronta para evoluir para detalhes de series depois.</p>
-        </aside>
       </section>
 
       <MovieListSection
         movies={shows.movies}
         isLoading={shows.isLoading}
         errorMessage={shows.errorMessage}
-        emptyMessage="Nenhuma serie encontrada."
+        emptyMessage="Nenhuma série encontrada."
         variant="poster"
         gridClassName="movie-grid--five movie-grid--posters"
-        ariaLabel="Lista de series populares"
+        ariaLabel="Lista de séries populares"
         buildItemPath={() => null}
       />
     </main>

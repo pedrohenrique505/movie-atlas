@@ -8,21 +8,15 @@ export function MoviesPage() {
 
   const movies = useMovieCollection(
     api.getPopularMovies,
-    'Nao foi possivel carregar os filmes populares.',
+    'Não foi possível carregar os filmes populares.',
   )
 
   return (
     <main className="app-shell">
-      <section className="page-heading">
+      <section className="page-heading page-heading--compact">
         <div className="page-copy">
-          <p className="eyebrow">Filmes</p>
           <h1>Filmes populares</h1>
-          <p className="lead">Selecao real de filmes populares vinda da API e pronta para navegacao.</p>
         </div>
-
-        <aside className="page-aside">
-          <p>Os cards levam para a pagina de detalhes do filme.</p>
-        </aside>
       </section>
 
       <MovieListSection

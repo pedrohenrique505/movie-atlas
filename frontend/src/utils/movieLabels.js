@@ -1,20 +1,20 @@
 const STATUS_LABELS = {
   trending: 'Em alta',
   now_playing: 'Em cartaz',
-  upcoming: 'Proximos lancamentos',
+  upcoming: 'Próximos lançamentos',
   popular: 'Populares',
-  tv_show: 'Serie',
+  tv_show: 'Série',
   search_result: 'Resultado da busca',
 }
 
 const DEPARTMENT_LABELS = {
-  Acting: 'Atuacao',
-  Directing: 'Direcao',
+  Acting: 'Atuação',
+  Directing: 'Direção',
 }
 
 const MEDIA_TYPE_LABELS = {
   movie: 'Filme',
-  tv: 'Serie',
+  tv: 'Série',
 }
 
 export function formatMovieStatus(status) {

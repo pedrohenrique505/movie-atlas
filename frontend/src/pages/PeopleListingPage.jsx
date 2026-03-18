@@ -4,8 +4,6 @@ import { useMovieCollection } from '../hooks/useMovieCollection'
 
 export function PeopleListingPage({
   title,
-  eyebrow,
-  description,
   fetchPeople,
   errorMessageFallback,
 }) {
@@ -15,16 +13,10 @@ export function PeopleListingPage({
 
   return (
     <main className="app-shell">
-      <section className="page-heading">
+      <section className="page-heading page-heading--compact">
         <div className="page-copy">
-          <p className="eyebrow">{eyebrow}</p>
           <h1>{title}</h1>
-          <p className="lead">{description}</p>
         </div>
-
-        <aside className="page-aside">
-          <p>Os cards levam para a pagina individual de cada pessoa.</p>
-        </aside>
       </section>
 
       <PeopleListSection

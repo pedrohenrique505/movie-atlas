@@ -63,7 +63,7 @@ describe('App routes', () => {
 
     expect(
       screen.getByRole('heading', {
-        name: /descubra filmes em alta, em cartaz e os proximos lancamentos/i,
+        name: /descubra filmes em alta, em cartaz e os próximos lançamentos/i,
       }),
     ).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /^home$/i })).not.toBeInTheDocument()
@@ -106,12 +106,12 @@ describe('App routes', () => {
 
     expect(
       screen.getByRole('heading', {
-        name: /proximos lancamentos/i,
+        name: /próximos lançamentos/i,
       }),
     ).toBeInTheDocument()
     expect(await screen.findByText(/devoradores de estrelas/i)).toBeInTheDocument()
     expect(await screen.findByText(/data prevista de estreia: 2026-03-19/i)).toBeInTheDocument()
-    expect(document.title).toBe('Proximos lancamentos | Movie Atlas')
+    expect(document.title).toBe('Próximos lançamentos | Movie Atlas')
   })
 
   it('renders the movie details page', async () => {
@@ -220,10 +220,10 @@ describe('App routes', () => {
             results: [
               {
                 id: '801',
-                title: 'Serie Popular',
+                title: 'Série Popular',
                 release_date: '2025-10-01',
                 status: 'tv_show',
-                synopsis: 'Serie em destaque.',
+                synopsis: 'Série em destaque.',
                 poster_image: 'https://image.tmdb.org/t/p/w780/serie.jpg',
                 has_trailer: false,
               },
@@ -240,11 +240,11 @@ describe('App routes', () => {
 
     expect(
       await screen.findByRole('heading', {
-        name: /series populares/i,
+        name: /séries populares/i,
       }),
     ).toBeInTheDocument()
-    expect(await screen.findByText(/serie popular/i)).toBeInTheDocument()
-    expect(document.title).toBe('Series | Movie Atlas')
+    expect(await screen.findByText(/série popular/i)).toBeInTheDocument()
+    expect(document.title).toBe('Séries | Movie Atlas')
   })
 
   it('redirects removed routes to the people page', async () => {
@@ -353,7 +353,7 @@ describe('App routes', () => {
         name: /christopher nolan/i,
       }),
     ).toBeInTheDocument()
-    expect(await screen.findByText(/direcao/i)).toBeInTheDocument()
+    expect(await screen.findByText(/direção/i)).toBeInTheDocument()
     expect(await screen.findByRole('heading', { name: /obras/i })).toBeInTheDocument()
     expect(await screen.findByText(/inception/i)).toBeInTheDocument()
     expect(await screen.findByRole('link', { name: /poster de inception/i })).toHaveAttribute(

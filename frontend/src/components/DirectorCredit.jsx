@@ -18,7 +18,7 @@ export function DirectorCredit({ director }) {
 
   return (
     <Link to={`/person/${director.id}`} className="director-credit">
-      <span className="director-credit__label">Direcao: {director.name}</span>
+      <span className="director-credit__label">Direção: {director.name}</span>
 
       <span className="director-credit__preview" aria-hidden="true">
         {director.profile_image ? (

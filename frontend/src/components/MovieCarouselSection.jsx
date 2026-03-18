@@ -38,7 +38,7 @@ export function MovieCarouselSection({
         </div>
 
         {hasOverflow ? (
-          <div className="carousel-controls" aria-label={`Navegacao de ${title}`}>
+          <div className="carousel-controls" aria-label={`Navegação de ${title}`}>
             <button
               type="button"
               className="carousel-button"
@@ -51,7 +51,7 @@ export function MovieCarouselSection({
               type="button"
               className="carousel-button"
               onClick={() => scrollTrack(1)}
-              aria-label={`Proximo em ${title}`}
+              aria-label={`Próximo em ${title}`}
             >
               <ArrowIcon direction="right" />
             </button>

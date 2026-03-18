@@ -183,6 +183,13 @@
   border-top: none;
 }
 
+.page-heading--compact {
+  grid-template-columns: 1fr;
+  align-items: start;
+  gap: 0.5rem;
+  padding: 1.25rem 0 0.75rem;
+}
+
 .hero-copy,
 .page-copy {
   display: flex;

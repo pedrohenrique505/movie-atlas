@@ -41,7 +41,7 @@ export function SearchPage() {
           setErrorMessage(
             error instanceof Error
               ? error.message
-              : 'Nao foi possivel concluir a busca.',
+              : 'Não foi possível concluir a busca.',
           )
         }
       } finally {
@@ -60,28 +60,18 @@ export function SearchPage() {
 
   return (
     <main className="app-shell">
-      <section className="page-heading">
+      <section className="page-heading page-heading--compact">
         <div className="page-copy">
-          <p className="eyebrow">Busca</p>
           <h1>{query ? `Resultados para "${query}"` : 'Buscar filmes'}</h1>
-          <p className="lead">
-            {query
-              ? 'Resultados encontrados a partir do titulo pesquisado.'
-              : 'Digite um titulo no campo de busca para encontrar filmes.'}
-          </p>
         </div>
-
-        <aside className="page-aside">
-          <p>Os resultados direcionam para a pagina de detalhes quando houver rota disponivel.</p>
-        </aside>
       </section>
 
       {!query ? (
-        <CollectionFeedback
-          isLoading={false}
-          errorMessage=""
-          emptyMessage="Digite um titulo para iniciar a busca."
-        />
+          <CollectionFeedback
+            isLoading={false}
+            errorMessage=""
+            emptyMessage="Digite um título para iniciar a busca."
+          />
       ) : (
         <MovieListSection
           movies={results}

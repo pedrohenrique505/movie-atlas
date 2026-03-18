@@ -35,7 +35,7 @@ export function PersonPage() {
           setErrorMessage(
             error instanceof Error
               ? error.message
-              : 'Nao foi possivel carregar os detalhes da pessoa.',
+              : 'Não foi possível carregar os detalhes da pessoa.',
           )
         }
       } finally {

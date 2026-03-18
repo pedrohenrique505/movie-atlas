@@ -11,7 +11,7 @@ function buildFallbackLabel(title) {
 
 export function MoviePosterCard({ movie, datePrefix, to = `/movie/${movie.id}` }) {
   const fallbackLabel = buildFallbackLabel(movie.title)
-  const dateLabel = movie.release_date || 'Data indisponivel'
+  const dateLabel = movie.release_date || 'Data indisponível'
   const dateText = datePrefix ? `${datePrefix}: ${dateLabel}` : dateLabel
   const content = (
     <>

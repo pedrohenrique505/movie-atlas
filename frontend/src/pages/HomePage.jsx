@@ -8,15 +8,15 @@ export function HomePage() {
 
   const trending = useMovieCollection(
     api.getTrendingMovies,
-    'Nao foi possivel carregar os filmes em alta.',
+    'Não foi possível carregar os filmes em alta.',
   )
   const nowPlaying = useMovieCollection(
     api.getNowPlayingMovies,
-    'Nao foi possivel carregar os filmes em cartaz.',
+    'Não foi possível carregar os filmes em cartaz.',
   )
   const upcoming = useMovieCollection(
     api.getUpcomingMovies,
-    'Nao foi possivel carregar os proximos lancamentos.',
+    'Não foi possível carregar os próximos lançamentos.',
   )
 
   return (
@@ -24,16 +24,16 @@ export function HomePage() {
       <section className="hero-panel">
         <div className="hero-copy">
           <p className="eyebrow">Movie Atlas</p>
-          <h1>Descubra filmes em alta, em cartaz e os proximos lancamentos.</h1>
+          <h1>Descubra filmes em alta, em cartaz e os próximos lançamentos.</h1>
           <p className="lead">
-            A Home definitiva organiza o catalogo em trilhas horizontais com
-            navegacao simples, foco no poster e acesso rapido aos detalhes.
+            A Home definitiva organiza o catálogo em trilhas horizontais com
+            navegação simples, foco no pôster e acesso rápido aos detalhes.
           </p>
         </div>
 
         <aside className="hero-aside">
-          <p>Tres listas independentes, cada uma com ate 15 filmes.</p>
-          <p>Scroll horizontal com controles simples e layout alinhado a nova identidade visual.</p>
+          <p>Três listas independentes, cada uma com até 15 filmes.</p>
+          <p>Scroll horizontal com controles simples e layout alinhado à nova identidade visual.</p>
         </aside>
       </section>
 
@@ -56,12 +56,12 @@ export function HomePage() {
       />
 
       <MovieCarouselSection
-        title="Proximos lancamentos"
+        title="Próximos lançamentos"
         eyebrow="Em breve"
         movies={upcoming.movies}
         isLoading={upcoming.isLoading}
         errorMessage={upcoming.errorMessage}
-        emptyMessage="Nenhum proximo lancamento encontrado."
+        emptyMessage="Nenhum próximo lançamento encontrado."
         datePrefix="Data prevista de estreia"
       />
     </main>

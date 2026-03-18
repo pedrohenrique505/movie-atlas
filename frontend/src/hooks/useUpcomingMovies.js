@@ -4,6 +4,6 @@ import { useMovieCollection } from './useMovieCollection'
 export function useUpcomingMovies() {
   return useMovieCollection(
     api.getUpcomingMovies,
-    'Nao foi possivel carregar os proximos lancamentos.',
+    'Não foi possível carregar os próximos lançamentos.',
   )
 }

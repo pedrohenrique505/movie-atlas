@@ -10,7 +10,7 @@ export function AppLayout() {
   const [query, setQuery] = useState(searchParams.get('q') ?? '')
   const [isSearchFocused, setIsSearchFocused] = useState(false)
   const [placeholderIndex, setPlaceholderIndex] = useState(0)
-  const placeholders = ['Buscar filmes', 'Buscar series', 'Buscar pessoas']
+  const placeholders = ['Buscar filmes', 'Buscar séries', 'Buscar pessoas']
 
   useEffect(() => {
     if (location.pathname === '/search') {
@@ -51,7 +51,7 @@ export function AppLayout() {
             to="/tv-shows"
             className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
           >
-            Series
+            Séries
           </NavLink>
           <NavLink
             to="/people"
@@ -63,7 +63,7 @@ export function AppLayout() {
             to="/upcoming"
             className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
           >
-            Lancamentos
+            Lançamentos
           </NavLink>
         </nav>
 

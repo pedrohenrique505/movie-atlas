@@ -23,10 +23,8 @@ function App() {
           element={
             <PeopleListingPage
               title="Atores"
-              eyebrow="Atores"
-              description="Lista real de atores populares integrada ao backend."
               fetchPeople={api.getPopularActors}
-              errorMessageFallback="Nao foi possivel carregar os atores."
+              errorMessageFallback="Não foi possível carregar os atores."
             />
           }
         />
@@ -35,10 +33,8 @@ function App() {
           element={
             <PeopleListingPage
               title="Diretores"
-              eyebrow="Diretores"
-              description="Lista real de diretores populares integrada ao backend."
               fetchPeople={api.getPopularDirectors}
-              errorMessageFallback="Nao foi possivel carregar os diretores."
+              errorMessageFallback="Não foi possível carregar os diretores."
             />
           }
         />

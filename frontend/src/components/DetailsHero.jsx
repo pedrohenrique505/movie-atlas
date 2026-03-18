@@ -56,7 +56,7 @@ export function DetailsHero({ movie, onOpenTrailer }) {
               </button>
             ) : (
               <button className="button-link button-link--disabled" type="button" disabled>
-                Trailer indisponivel
+                Trailer indisponível
               </button>
             )}
           </div>

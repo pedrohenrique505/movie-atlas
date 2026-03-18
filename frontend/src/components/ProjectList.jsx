@@ -3,7 +3,7 @@ import { MoviePosterCard } from './MoviePosterCard'
 
 export function ProjectList({ projects }) {
   if (!projects?.length) {
-    return <p className="status-panel">Projetos indisponiveis.</p>
+    return <p className="status-panel">Projetos indisponíveis.</p>
   }
 
   return (

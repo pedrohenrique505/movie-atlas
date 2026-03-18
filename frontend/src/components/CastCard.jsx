@@ -25,7 +25,7 @@ export function CastCard({ person }) {
 
         <div className="cast-card__content">
           <h3>{person.name}</h3>
-          <p>{person.character || person.department || 'Pessoa nao informada'}</p>
+          <p>{person.character || person.department || 'Pessoa não informada'}</p>
         </div>
       </Link>
     </article>

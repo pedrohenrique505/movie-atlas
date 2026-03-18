@@ -14,7 +14,7 @@ export function MovieCard({ movie }) {
       <p>{movie.synopsis}</p>
 
       <div className="movie-card__footer">
-        <span>{movie.has_trailer ? 'Trailer disponivel' : 'Trailer ainda nao divulgado'}</span>
+        <span>{movie.has_trailer ? 'Trailer disponível' : 'Trailer ainda não divulgado'}</span>
         <Link to={`/movie/${movie.id}`} className="text-link">
           Ver detalhes
         </Link>

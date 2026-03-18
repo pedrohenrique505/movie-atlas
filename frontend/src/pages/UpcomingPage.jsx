@@ -3,34 +3,26 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { useUpcomingMovies } from '../hooks/useUpcomingMovies'
 
 export function UpcomingPage() {
-  useDocumentTitle('Proximos lancamentos | Movie Atlas')
+  useDocumentTitle('Próximos lançamentos | Movie Atlas')
 
   const { movies, isLoading, errorMessage } = useUpcomingMovies()
 
   return (
     <main className="app-shell">
-      <section className="page-heading">
+      <section className="page-heading page-heading--compact">
         <div className="page-copy">
-          <p className="eyebrow">Em breve</p>
-          <h1>Proximos lancamentos</h1>
-          <p className="lead">
-            Dados vindos do backend em <code>/api/movies/upcoming</code>.
-          </p>
+          <h1>Próximos lançamentos</h1>
         </div>
-
-        <aside className="page-aside">
-          <p>Listagem limpa, ampla e preparada para crescer com filtros e carrosseis.</p>
-        </aside>
       </section>
 
       <MovieListSection
         movies={movies}
         isLoading={isLoading}
         errorMessage={errorMessage}
-        emptyMessage="Nenhum proximo lancamento encontrado."
+        emptyMessage="Nenhum próximo lançamento encontrado."
         variant="poster"
         gridClassName="movie-grid--five movie-grid--posters"
-        ariaLabel="Lista de proximos lancamentos"
+        ariaLabel="Lista de próximos lançamentos"
         datePrefix="Data prevista de estreia"
       />
     </main>

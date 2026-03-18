@@ -19,7 +19,7 @@ export function MovieListSection({
         isLoading={isLoading}
         errorMessage={errorMessage}
         emptyMessage={!movies.length ? emptyMessage : ''}
-        loadingMessage="Carregando proximos filmes..."
+        loadingMessage="Carregando filmes..."
       />
     )
   }
