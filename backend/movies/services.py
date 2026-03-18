@@ -360,6 +360,7 @@ class TMDbMovieService:
                     'title': item.get('title') or item.get('name') or item.get('original_title') or '',
                     'release_date': item.get('release_date') or item.get('first_air_date') or '',
                     'media_type': item.get('media_type') or 'movie',
+                    'poster_image': self._build_image_url(item.get('poster_path'), 'w780'),
                     'credit': item.get('character') or 'Elenco',
                 }
             )
@@ -371,6 +372,7 @@ class TMDbMovieService:
                     'title': item.get('title') or item.get('name') or item.get('original_title') or '',
                     'release_date': item.get('release_date') or item.get('first_air_date') or '',
                     'media_type': item.get('media_type') or 'movie',
+                    'poster_image': self._build_image_url(item.get('poster_path'), 'w780'),
                     'credit': item.get('job') or item.get('department') or 'Equipe',
                 }
             )

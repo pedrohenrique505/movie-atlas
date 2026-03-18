@@ -108,6 +108,7 @@ def build_person_details_example():
                 'title': 'Gran Turismo 2',
                 'release_date': '2026-06-24',
                 'media_type': 'movie',
+                'poster_image': 'https://image.tmdb.org/t/p/w780/example-project-poster.jpg',
                 'credit': 'Director',
             },
             {
@@ -115,6 +116,7 @@ def build_person_details_example():
                 'title': 'Serie Exemplo',
                 'release_date': '2025-04-10',
                 'media_type': 'tv',
+                'poster_image': 'https://image.tmdb.org/t/p/w780/example-tv-poster.jpg',
                 'credit': 'Executive Producer',
             },
         ],
@@ -684,6 +686,7 @@ class PersonDetailsView(APIView):
                                     'title': {'type': 'string'},
                                     'release_date': {'type': 'string', 'format': 'date'},
                                     'media_type': {'type': 'string'},
+                                    'poster_image': {'type': 'string', 'nullable': True},
                                     'credit': {'type': 'string'},
                                 },
                             },

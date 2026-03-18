@@ -757,36 +757,6 @@
   width: 100%;
 }
 
-.project-list {
-  display: grid;
-  gap: 1px;
-  background: var(--line);
-  border: 1px solid var(--line);
-}
-
-.project-list__item {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: center;
-  padding: 1rem 1.1rem;
-  background: var(--surface);
-}
-
-.project-list__item h3 {
-  margin-bottom: 0.3rem;
-}
-
-.project-list__item p,
-.project-list__label {
-  color: var(--muted);
-  font-size: 0.94rem;
-}
-
-.project-list__label {
-  white-space: nowrap;
-}
-
 .people-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -984,11 +954,6 @@
 
   .person-page {
     grid-template-columns: 1fr;
-  }
-
-  .project-list__item {
-    flex-direction: column;
-    align-items: flex-start;
   }
 
   .details-hero__poster,

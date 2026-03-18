@@ -334,6 +334,7 @@ describe('App routes', () => {
                 title: 'Inception',
                 release_date: '2010-07-16',
                 media_type: 'movie',
+                poster_image: 'https://image.tmdb.org/t/p/w780/inception.jpg',
                 credit: 'Director',
               },
             ],
@@ -353,7 +354,12 @@ describe('App routes', () => {
       }),
     ).toBeInTheDocument()
     expect(await screen.findByText(/direcao/i)).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: /obras/i })).toBeInTheDocument()
     expect(await screen.findByText(/inception/i)).toBeInTheDocument()
+    expect(await screen.findByRole('link', { name: /poster de inception/i })).toHaveAttribute(
+      'href',
+      '/movie/101',
+    )
     expect(document.title).toBe('Christopher Nolan | Movie Atlas')
   })
 

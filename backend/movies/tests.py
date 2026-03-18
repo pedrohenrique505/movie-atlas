@@ -445,6 +445,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'title': 'Actor Credit',
                         'release_date': '2001-01-01',
                         'media_type': 'movie',
+                        'poster_path': '/actor-credit.jpg',
                         'character': 'Narrator',
                     }
                 ],
@@ -454,6 +455,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'title': 'Inception',
                         'release_date': '2010-07-16',
                         'media_type': 'movie',
+                        'poster_path': '/inception.jpg',
                         'job': 'Director',
                     },
                     {
@@ -461,6 +463,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'name': 'Westworld',
                         'first_air_date': '2016-10-02',
                         'media_type': 'tv',
+                        'poster_path': '/westworld.jpg',
                         'job': 'Executive Producer',
                     },
                 ],
@@ -488,6 +491,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'title': 'Westworld',
                         'release_date': '2016-10-02',
                         'media_type': 'tv',
+                        'poster_image': 'https://image.tmdb.org/t/p/w780/westworld.jpg',
                         'credit': 'Executive Producer',
                     },
                     {
@@ -495,6 +499,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'title': 'Inception',
                         'release_date': '2010-07-16',
                         'media_type': 'movie',
+                        'poster_image': 'https://image.tmdb.org/t/p/w780/inception.jpg',
                         'credit': 'Director',
                     },
                     {
@@ -502,6 +507,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'title': 'Actor Credit',
                         'release_date': '2001-01-01',
                         'media_type': 'movie',
+                        'poster_image': 'https://image.tmdb.org/t/p/w780/actor-credit.jpg',
                         'credit': 'Narrator',
                     },
                 ],
@@ -842,6 +848,7 @@ class PersonDetailsIntegrationTests(APITestCase):
                     'title': 'Inception',
                     'release_date': '2010-07-16',
                     'media_type': 'movie',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/inception.jpg',
                     'credit': 'Director',
                 }
             ],
