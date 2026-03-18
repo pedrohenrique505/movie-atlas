@@ -1,0 +1,848 @@
+import json
+from datetime import date
+from unittest.mock import MagicMock, patch
+from urllib.error import HTTPError
+
+from django.test import SimpleTestCase
+from rest_framework.test import APITestCase
+
+from .services import MovieServiceError, TMDbMovieService
+
+
+class TMDbMovieServiceTests(SimpleTestCase):
+    @patch('movies.services.os.getenv', return_value='test-token')
+    @patch('movies.services.request.urlopen')
+    def test_get_trending_movies_limits_results_to_15(self, mock_urlopen, _mock_getenv):
+        response_data = {
+            'results': [
+                {
+                    'id': item_id,
+                    'title': f'Filme {item_id}',
+                    'release_date': '2026-03-20',
+                    'overview': 'Descricao',
+                    'poster_path': f'/poster-{item_id}.jpg',
+                }
+                for item_id in range(1, 18)
+            ]
+        }
+        mock_response = MagicMock()
+        mock_response.read.return_value = json.dumps(response_data).encode('utf-8')
+        mock_urlopen.return_value.__enter__.return_value = mock_response
+
+        payload = TMDbMovieService().get_trending_movies()
+
+        self.assertEqual(len(payload['results']), 15)
+        self.assertEqual(payload['results'][0]['id'], '1')
+        self.assertEqual(
+            payload['results'][0]['poster_image'],
+            'https://image.tmdb.org/t/p/w780/poster-1.jpg',
+        )
+        self.assertEqual(payload['results'][-1]['id'], '15')
+
+    @patch('movies.services.os.getenv', return_value='test-token')
+    @patch('movies.services.request.urlopen')
+    def test_get_now_playing_movies_normalizes_response(self, mock_urlopen, _mock_getenv):
+        response_data = {
+            'results': [
+                {
+                    'id': 201,
+                    'title': 'Filme em Cartaz',
+                    'release_date': '2026-03-20',
+                    'overview': 'Em exibicao nos cinemas.',
+                    'poster_path': '/cartaz.jpg',
+                }
+            ]
+        }
+        mock_response = MagicMock()
+        mock_response.read.return_value = json.dumps(response_data).encode('utf-8')
+        mock_urlopen.return_value.__enter__.return_value = mock_response
+
+        payload = TMDbMovieService().get_now_playing_movies()
+
+        self.assertEqual(
+            payload,
+            {
+                'results': [
+                    {
+                        'id': '201',
+                        'title': 'Filme em Cartaz',
+                        'release_date': '2026-03-20',
+                        'status': 'now_playing',
+                        'synopsis': 'Em exibicao nos cinemas.',
+                        'poster_image': 'https://image.tmdb.org/t/p/w780/cartaz.jpg',
+                        'has_trailer': False,
+                    }
+                ]
+            },
+        )
+
+    @patch('movies.services.os.getenv', return_value='test-token')
+    @patch('movies.services.request.urlopen')
+    def test_get_popular_tv_shows_normalizes_response(self, mock_urlopen, _mock_getenv):
+        response_data = {
+            'results': [
+                {
+                    'id': 301,
+                    'name': 'Serie Exemplo',
+                    'first_air_date': '2025-10-01',
+                    'overview': 'Uma serie popular.',
+                    'poster_path': '/serie.jpg',
+                }
+            ]
+        }
+        mock_response = MagicMock()
+        mock_response.read.return_value = json.dumps(response_data).encode('utf-8')
+        mock_urlopen.return_value.__enter__.return_value = mock_response
+
+        payload = TMDbMovieService().get_popular_tv_shows()
+
+        self.assertEqual(
+            payload,
+            {
+                'results': [
+                    {
+                        'id': '301',
+                        'title': 'Serie Exemplo',
+                        'release_date': '2025-10-01',
+                        'status': 'tv_show',
+                        'synopsis': 'Uma serie popular.',
+                        'poster_image': 'https://image.tmdb.org/t/p/w780/serie.jpg',
+                        'has_trailer': False,
+                    }
+                ]
+            },
+        )
+
+    @patch('movies.services.os.getenv', return_value='test-token')
+    @patch('movies.services.request.urlopen')
+    def test_get_movie_categories_normalizes_response(self, mock_urlopen, _mock_getenv):
+        response_data = {
+            'genres': [
+                {'id': 28, 'name': 'Acao'},
+                {'id': 18, 'name': 'Drama'},
+            ]
+        }
+        mock_response = MagicMock()
+        mock_response.read.return_value = json.dumps(response_data).encode('utf-8')
+        mock_urlopen.return_value.__enter__.return_value = mock_response
+
+        payload = TMDbMovieService().get_movie_categories()
+
+        self.assertEqual(
+            payload,
+            {
+                'results': [
+                    {'id': '28', 'name': 'Acao'},
+                    {'id': '18', 'name': 'Drama'},
+                ]
+            },
+        )
+
+    @patch('movies.services.timezone.localdate', return_value=date(2026, 3, 19))
+    @patch('movies.services.os.getenv', return_value='test-token')
+    @patch('movies.services.request.urlopen')
+    def test_get_upcoming_movies_normalizes_external_response(
+        self,
+        mock_urlopen,
+        _mock_getenv,
+        _mock_localdate,
+    ):
+        response_data = {
+            'results': [
+                {
+                    'id': 101,
+                    'title': 'The Odyssey',
+                    'release_date': '2026-07-17',
+                    'overview': 'Uma nova adaptacao epica.',
+                    'poster_path': '/odyssey.jpg',
+                }
+            ]
+        }
+        mock_response = MagicMock()
+        mock_response.read.return_value = json.dumps(response_data).encode('utf-8')
+        mock_urlopen.return_value.__enter__.return_value = mock_response
+
+        payload = TMDbMovieService().get_upcoming_movies()
+
+        self.assertEqual(
+            payload,
+            {
+                'results': [
+                    {
+                        'id': '101',
+                        'title': 'The Odyssey',
+                        'release_date': '2026-07-17',
+                        'status': 'upcoming',
+                        'synopsis': 'Uma nova adaptacao epica.',
+                        'poster_image': 'https://image.tmdb.org/t/p/w780/odyssey.jpg',
+                        'has_trailer': False,
+                    }
+                ]
+            },
+        )
+
+    @patch('movies.services.os.getenv', return_value='')
+    def test_get_upcoming_movies_requires_token(self, _mock_getenv):
+        with self.assertRaisesMessage(
+            MovieServiceError,
+            'A variavel de ambiente TMDB_API_READ_ACCESS_TOKEN nao foi configurada.',
+        ):
+            TMDbMovieService().get_upcoming_movies()
+
+    @patch('movies.services.os.getenv', return_value='test-token')
+    @patch('movies.services.request.urlopen')
+    def test_get_upcoming_movies_handles_http_error(self, mock_urlopen, _mock_getenv):
+        mock_urlopen.side_effect = HTTPError(
+            url='https://api.themoviedb.org/3/movie/upcoming',
+            code=502,
+            msg='Bad Gateway',
+            hdrs=None,
+            fp=None,
+        )
+
+        with self.assertRaisesMessage(
+            MovieServiceError,
+            'Falha ao consultar a API externa de filmes: HTTP 502.',
+        ):
+            TMDbMovieService().get_upcoming_movies()
+
+    @patch('movies.services.timezone.localdate', return_value=date(2026, 3, 19))
+    @patch('movies.services.os.getenv', return_value='test-token')
+    @patch('movies.services.request.urlopen')
+    def test_get_upcoming_movies_filters_past_release_dates(
+        self,
+        mock_urlopen,
+        _mock_getenv,
+        _mock_localdate,
+    ):
+        response_data = {
+            'results': [
+                {
+                    'id': 100,
+                    'title': 'Filme Antigo',
+                    'release_date': '2026-03-18',
+                    'overview': 'Ja estreou.',
+                    'poster_path': '/antigo.jpg',
+                },
+                {
+                    'id': 101,
+                    'title': 'Filme de Hoje',
+                    'release_date': '2026-03-19',
+                    'overview': 'Estreia hoje.',
+                    'poster_path': '/hoje.jpg',
+                },
+                {
+                    'id': 102,
+                    'title': 'Filme Futuro',
+                    'release_date': '2026-03-20',
+                    'overview': 'Estreia amanha.',
+                    'poster_path': '/futuro.jpg',
+                },
+                {
+                    'id': 103,
+                    'title': 'Sem Data',
+                    'release_date': '',
+                    'overview': 'Sem data valida.',
+                    'poster_path': '/sem-data.jpg',
+                },
+            ]
+        }
+        mock_response = MagicMock()
+        mock_response.read.return_value = json.dumps(response_data).encode('utf-8')
+        mock_urlopen.return_value.__enter__.return_value = mock_response
+
+        payload = TMDbMovieService().get_upcoming_movies()
+
+        self.assertEqual(
+            payload,
+            {
+                'results': [
+                    {
+                        'id': '101',
+                        'title': 'Filme de Hoje',
+                        'release_date': '2026-03-19',
+                        'status': 'upcoming',
+                        'synopsis': 'Estreia hoje.',
+                        'poster_image': 'https://image.tmdb.org/t/p/w780/hoje.jpg',
+                        'has_trailer': False,
+                    },
+                    {
+                        'id': '102',
+                        'title': 'Filme Futuro',
+                        'release_date': '2026-03-20',
+                        'status': 'upcoming',
+                        'synopsis': 'Estreia amanha.',
+                        'poster_image': 'https://image.tmdb.org/t/p/w780/futuro.jpg',
+                        'has_trailer': False,
+                    },
+                ]
+            },
+        )
+
+    @patch('movies.services.os.getenv', return_value='test-token')
+    @patch('movies.services.request.urlopen')
+    def test_get_movie_details_normalizes_images_and_trailer(self, mock_urlopen, _mock_getenv):
+        response_data = {
+            'id': 101,
+            'title': 'The Odyssey',
+            'release_date': '2026-07-17',
+            'runtime': 164,
+            'genres': [{'id': 1, 'name': 'Sci-Fi'}, {'id': 2, 'name': 'Adventure'}],
+            'status': 'Released',
+            'vote_average': 7.28,
+            'overview': 'Uma nova adaptacao epica.',
+            'poster_path': '/poster.jpg',
+            'backdrop_path': '/backdrop.jpg',
+            'videos': {
+                'results': [
+                    {
+                        'name': 'Teaser',
+                        'site': 'YouTube',
+                        'type': 'Teaser',
+                        'official': False,
+                        'key': 'teaser123',
+                    },
+                    {
+                        'name': 'Trailer oficial',
+                        'site': 'YouTube',
+                        'type': 'Trailer',
+                        'official': True,
+                        'key': 'trailer123',
+                    },
+                ]
+            },
+            'images': {
+                'backdrops': [{'file_path': '/img-1.jpg'}],
+                'posters': [{'file_path': '/img-2.jpg'}],
+            },
+            'credits': {
+                'crew': [
+                    {
+                        'id': 777,
+                        'name': 'Christopher Nolan',
+                        'job': 'Director',
+                        'department': 'Directing',
+                        'profile_path': '/director.jpg',
+                    }
+                ],
+                'cast': [
+                    {
+                        'id': 501,
+                        'name': 'Matt Damon',
+                        'character': 'Ryland Grace',
+                        'profile_path': '/cast-1.jpg',
+                    }
+                ]
+            },
+        }
+        mock_response = MagicMock()
+        mock_response.read.return_value = json.dumps(response_data).encode('utf-8')
+        mock_urlopen.return_value.__enter__.return_value = mock_response
+
+        payload = TMDbMovieService().get_movie_details('101')
+
+        self.assertEqual(payload['id'], '101')
+        self.assertEqual(payload['title'], 'The Odyssey')
+        self.assertEqual(payload['runtime'], 164)
+        self.assertEqual(payload['genres'], ['Sci-Fi', 'Adventure'])
+        self.assertEqual(payload['status'], 'Released')
+        self.assertEqual(payload['vote_average'], 7.3)
+        self.assertEqual(payload['poster_image'], 'https://image.tmdb.org/t/p/w780/poster.jpg')
+        self.assertEqual(
+            payload['backdrop_image'],
+            'https://image.tmdb.org/t/p/w1280/backdrop.jpg',
+        )
+        self.assertEqual(
+            payload['images'],
+            [
+                'https://image.tmdb.org/t/p/w780/img-1.jpg',
+                'https://image.tmdb.org/t/p/w780/img-2.jpg',
+            ],
+        )
+        self.assertEqual(
+            payload['cast'],
+            [
+                {
+                    'id': '501',
+                    'name': 'Matt Damon',
+                    'character': 'Ryland Grace',
+                    'profile_image': 'https://image.tmdb.org/t/p/w300/cast-1.jpg',
+                }
+            ],
+        )
+        self.assertEqual(
+            payload['directors'],
+            [
+                {
+                    'id': '777',
+                    'name': 'Christopher Nolan',
+                    'department': 'Directing',
+                    'profile_image': 'https://image.tmdb.org/t/p/w300/director.jpg',
+                }
+            ],
+        )
+        self.assertEqual(
+            payload['trailer'],
+            {
+                'name': 'Trailer oficial',
+                'youtube_key': 'trailer123',
+                'embed_url': 'https://www.youtube.com/embed/trailer123',
+            },
+        )
+
+    @patch('movies.services.os.getenv', return_value='test-token')
+    @patch('movies.services.request.urlopen')
+    def test_get_person_details_normalizes_response(self, mock_urlopen, _mock_getenv):
+        response_data = {
+            'id': 777,
+            'name': 'Christopher Nolan',
+            'biography': 'Biografia resumida.',
+            'known_for_department': 'Directing',
+            'birthday': '1970-07-30',
+            'place_of_birth': 'London, England, UK',
+            'profile_path': '/person.jpg',
+            'combined_credits': {
+                'cast': [
+                    {
+                        'id': 201,
+                        'title': 'Actor Credit',
+                        'release_date': '2001-01-01',
+                        'media_type': 'movie',
+                        'character': 'Narrator',
+                    }
+                ],
+                'crew': [
+                    {
+                        'id': 101,
+                        'title': 'Inception',
+                        'release_date': '2010-07-16',
+                        'media_type': 'movie',
+                        'job': 'Director',
+                    },
+                    {
+                        'id': 102,
+                        'name': 'Westworld',
+                        'first_air_date': '2016-10-02',
+                        'media_type': 'tv',
+                        'job': 'Executive Producer',
+                    },
+                ],
+            },
+        }
+        mock_response = MagicMock()
+        mock_response.read.return_value = json.dumps(response_data).encode('utf-8')
+        mock_urlopen.return_value.__enter__.return_value = mock_response
+
+        payload = TMDbMovieService().get_person_details('777')
+
+        self.assertEqual(
+            payload,
+            {
+                'id': '777',
+                'name': 'Christopher Nolan',
+                'biography': 'Biografia resumida.',
+                'known_for_department': 'Directing',
+                'birthday': '1970-07-30',
+                'place_of_birth': 'London, England, UK',
+                'profile_image': 'https://image.tmdb.org/t/p/w780/person.jpg',
+                'projects': [
+                    {
+                        'id': '102',
+                        'title': 'Westworld',
+                        'release_date': '2016-10-02',
+                        'media_type': 'tv',
+                        'credit': 'Executive Producer',
+                    },
+                    {
+                        'id': '101',
+                        'title': 'Inception',
+                        'release_date': '2010-07-16',
+                        'media_type': 'movie',
+                        'credit': 'Director',
+                    },
+                    {
+                        'id': '201',
+                        'title': 'Actor Credit',
+                        'release_date': '2001-01-01',
+                        'media_type': 'movie',
+                        'credit': 'Narrator',
+                    },
+                ],
+            },
+        )
+
+    @patch('movies.services.os.getenv', return_value='test-token')
+    @patch('movies.services.request.urlopen')
+    def test_get_popular_people_filters_by_department(self, mock_urlopen, _mock_getenv):
+        def build_mock_response(payload):
+            mock_response = MagicMock()
+            mock_response.read.return_value = json.dumps(payload).encode('utf-8')
+            context_manager = MagicMock()
+            context_manager.__enter__.return_value = mock_response
+            context_manager.__exit__.return_value = False
+            return context_manager
+
+        mock_urlopen.side_effect = [
+            build_mock_response(
+                {
+                    'results': [
+                        {
+                            'id': 701,
+                            'name': 'Actor Example',
+                            'known_for_department': 'Acting',
+                            'profile_path': '/actor.jpg',
+                            'known_for': [{'title': 'Film A'}, {'name': 'Show B'}],
+                        },
+                        {
+                            'id': 702,
+                            'name': 'Director Example',
+                            'known_for_department': 'Directing',
+                            'profile_path': '/director.jpg',
+                            'known_for': [{'title': 'Film C'}],
+                        },
+                    ]
+                }
+            ),
+            build_mock_response({'results': []}),
+            build_mock_response(
+                {
+                    'results': [
+                        {
+                            'id': 701,
+                            'name': 'Actor Example',
+                            'known_for_department': 'Acting',
+                            'profile_path': '/actor.jpg',
+                            'known_for': [{'title': 'Film A'}, {'name': 'Show B'}],
+                        },
+                        {
+                            'id': 702,
+                            'name': 'Director Example',
+                            'known_for_department': 'Directing',
+                            'profile_path': '/director.jpg',
+                            'known_for': [{'title': 'Film C'}],
+                        },
+                    ]
+                }
+            ),
+            build_mock_response({'results': []}),
+        ]
+
+        actors_payload = TMDbMovieService().get_popular_actors()
+        directors_payload = TMDbMovieService().get_popular_directors()
+
+        self.assertEqual(
+            actors_payload,
+            {
+                'results': [
+                    {
+                        'id': '701',
+                        'name': 'Actor Example',
+                        'known_for_department': 'Acting',
+                        'profile_image': 'https://image.tmdb.org/t/p/w300/actor.jpg',
+                        'known_for_titles': ['Film A', 'Show B'],
+                    }
+                ]
+            },
+        )
+        self.assertEqual(
+            directors_payload,
+            {
+                'results': [
+                    {
+                        'id': '702',
+                        'name': 'Director Example',
+                        'known_for_department': 'Directing',
+                        'profile_image': 'https://image.tmdb.org/t/p/w300/director.jpg',
+                        'known_for_titles': ['Film C'],
+                    }
+                ]
+            },
+        )
+
+
+class UpcomingMoviesIntegrationTests(APITestCase):
+    @patch('movies.views.TMDbMovieService.get_upcoming_movies')
+    def test_upcoming_movies_endpoint_returns_service_payload(self, mock_get_upcoming_movies):
+        mock_get_upcoming_movies.return_value = {
+            'results': [
+                {
+                    'id': '101',
+                    'title': 'The Odyssey',
+                    'release_date': '2026-07-17',
+                    'status': 'upcoming',
+                    'synopsis': 'Uma nova adaptacao epica.',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/poster.jpg',
+                    'has_trailer': False,
+                }
+            ]
+        }
+
+        response = self.client.get('/api/movies/upcoming')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), mock_get_upcoming_movies.return_value)
+
+    @patch('movies.views.TMDbMovieService.get_upcoming_movies')
+    def test_upcoming_movies_endpoint_returns_503_when_service_fails(
+        self,
+        mock_get_upcoming_movies,
+    ):
+        mock_get_upcoming_movies.side_effect = MovieServiceError('API externa indisponivel.')
+
+        response = self.client.get('/api/movies/upcoming')
+
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.json(), {'detail': 'API externa indisponivel.'})
+
+
+class TrendingMoviesIntegrationTests(APITestCase):
+    @patch('movies.views.TMDbMovieService.get_trending_movies')
+    def test_trending_movies_endpoint_returns_service_payload(self, mock_get_trending_movies):
+        mock_get_trending_movies.return_value = {
+            'results': [
+                {
+                    'id': '301',
+                    'title': 'Filme em Tendencia',
+                    'release_date': '2026-03-20',
+                    'status': 'trending',
+                    'synopsis': 'Popular agora.',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/trending.jpg',
+                    'has_trailer': False,
+                }
+            ]
+        }
+
+        response = self.client.get('/api/movies/trending')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), mock_get_trending_movies.return_value)
+
+
+class PopularMoviesIntegrationTests(APITestCase):
+    @patch('movies.views.TMDbMovieService.get_popular_movies')
+    def test_popular_movies_endpoint_returns_service_payload(self, mock_get_popular_movies):
+        mock_get_popular_movies.return_value = {
+            'results': [
+                {
+                    'id': '901',
+                    'title': 'Filme Popular',
+                    'release_date': '2026-05-22',
+                    'status': 'popular',
+                    'synopsis': 'Filme popular do momento.',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/popular.jpg',
+                    'has_trailer': False,
+                }
+            ]
+        }
+
+        response = self.client.get('/api/movies/popular')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), mock_get_popular_movies.return_value)
+
+
+class NowPlayingMoviesIntegrationTests(APITestCase):
+    @patch('movies.views.TMDbMovieService.get_now_playing_movies')
+    def test_now_playing_movies_endpoint_returns_service_payload(
+        self,
+        mock_get_now_playing_movies,
+    ):
+        mock_get_now_playing_movies.return_value = {
+            'results': [
+                {
+                    'id': '401',
+                    'title': 'Filme em Cartaz',
+                    'release_date': '2026-03-20',
+                    'status': 'now_playing',
+                    'synopsis': 'Popular nos cinemas.',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/now-playing.jpg',
+                    'has_trailer': False,
+                }
+            ]
+        }
+
+        response = self.client.get('/api/movies/now-playing')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), mock_get_now_playing_movies.return_value)
+
+
+class PopularTvShowsIntegrationTests(APITestCase):
+    @patch('movies.views.TMDbMovieService.get_popular_tv_shows')
+    def test_popular_tv_shows_endpoint_returns_service_payload(
+        self,
+        mock_get_popular_tv_shows,
+    ):
+        mock_get_popular_tv_shows.return_value = {
+            'results': [
+                {
+                    'id': '801',
+                    'title': 'Serie Popular',
+                    'release_date': '2025-10-01',
+                    'status': 'tv_show',
+                    'synopsis': 'Serie em destaque.',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/serie.jpg',
+                    'has_trailer': False,
+                }
+            ]
+        }
+
+        response = self.client.get('/api/tv-shows/popular')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), mock_get_popular_tv_shows.return_value)
+
+
+class MovieCategoriesIntegrationTests(APITestCase):
+    @patch('movies.views.TMDbMovieService.get_movie_categories')
+    def test_movie_categories_endpoint_returns_service_payload(self, mock_get_movie_categories):
+        mock_get_movie_categories.return_value = {
+            'results': [
+                {'id': '28', 'name': 'Acao'},
+                {'id': '18', 'name': 'Drama'},
+            ]
+        }
+
+        response = self.client.get('/api/movies/categories')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), mock_get_movie_categories.return_value)
+
+
+class MovieDetailsIntegrationTests(APITestCase):
+    @patch('movies.views.TMDbMovieService.get_movie_details')
+    def test_movie_details_endpoint_returns_service_payload(self, mock_get_movie_details):
+        mock_get_movie_details.return_value = {
+            'id': '101',
+            'title': 'The Odyssey',
+            'synopsis': 'Uma nova adaptacao epica.',
+            'release_date': '2026-07-17',
+            'runtime': 164,
+            'genres': ['Sci-Fi', 'Adventure'],
+            'status': 'Released',
+            'vote_average': 7.3,
+            'poster_image': 'https://image.tmdb.org/t/p/w780/poster.jpg',
+            'backdrop_image': 'https://image.tmdb.org/t/p/w1280/backdrop.jpg',
+            'images': ['https://image.tmdb.org/t/p/w780/img-1.jpg'],
+            'cast': [
+                {
+                    'id': '501',
+                    'name': 'Matt Damon',
+                    'character': 'Ryland Grace',
+                    'profile_image': 'https://image.tmdb.org/t/p/w300/cast-1.jpg',
+                }
+            ],
+            'directors': [
+                {
+                    'id': '777',
+                    'name': 'Christopher Nolan',
+                    'department': 'Directing',
+                    'profile_image': 'https://image.tmdb.org/t/p/w300/director.jpg',
+                }
+            ],
+            'trailer': {
+                'name': 'Trailer oficial',
+                'youtube_key': 'trailer123',
+                'embed_url': 'https://www.youtube.com/embed/trailer123',
+            },
+        }
+
+        response = self.client.get('/api/movies/101')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), mock_get_movie_details.return_value)
+
+    @patch('movies.views.TMDbMovieService.get_movie_details')
+    def test_movie_details_endpoint_returns_503_when_service_fails(
+        self,
+        mock_get_movie_details,
+    ):
+        mock_get_movie_details.side_effect = MovieServiceError('Filme nao encontrado.')
+
+        response = self.client.get('/api/movies/999999')
+
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.json(), {'detail': 'Filme nao encontrado.'})
+
+
+class PersonDetailsIntegrationTests(APITestCase):
+    @patch('movies.views.TMDbMovieService.get_person_details')
+    def test_person_details_endpoint_returns_service_payload(self, mock_get_person_details):
+        mock_get_person_details.return_value = {
+            'id': '777',
+            'name': 'Christopher Nolan',
+            'biography': 'Biografia resumida.',
+            'known_for_department': 'Directing',
+            'birthday': '1970-07-30',
+            'place_of_birth': 'London, England, UK',
+            'profile_image': 'https://image.tmdb.org/t/p/w780/person.jpg',
+            'projects': [
+                {
+                    'id': '101',
+                    'title': 'Inception',
+                    'release_date': '2010-07-16',
+                    'media_type': 'movie',
+                    'credit': 'Director',
+                }
+            ],
+        }
+
+        response = self.client.get('/api/people/777')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), mock_get_person_details.return_value)
+
+    @patch('movies.views.TMDbMovieService.get_person_details')
+    def test_person_details_endpoint_returns_503_when_service_fails(
+        self,
+        mock_get_person_details,
+    ):
+        mock_get_person_details.side_effect = MovieServiceError('Pessoa nao encontrada.')
+
+        response = self.client.get('/api/people/999999')
+
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.json(), {'detail': 'Pessoa nao encontrada.'})
+
+
+class PopularPeopleIntegrationTests(APITestCase):
+    @patch('movies.views.TMDbMovieService.get_popular_actors')
+    def test_popular_actors_endpoint_returns_service_payload(self, mock_get_popular_actors):
+        mock_get_popular_actors.return_value = {
+            'results': [
+                {
+                    'id': '111',
+                    'name': 'Actor Example',
+                    'known_for_department': 'Acting',
+                    'profile_image': 'https://image.tmdb.org/t/p/w300/actor.jpg',
+                    'known_for_titles': ['Film A'],
+                }
+            ]
+        }
+
+        response = self.client.get('/api/people/actors')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), mock_get_popular_actors.return_value)
+
+    @patch('movies.views.TMDbMovieService.get_popular_directors')
+    def test_popular_directors_endpoint_returns_service_payload(
+        self,
+        mock_get_popular_directors,
+    ):
+        mock_get_popular_directors.return_value = {
+            'results': [
+                {
+                    'id': '222',
+                    'name': 'Director Example',
+                    'known_for_department': 'Directing',
+                    'profile_image': 'https://image.tmdb.org/t/p/w300/director.jpg',
+                    'known_for_titles': ['Film B'],
+                }
+            ]
+        }
+
+        response = self.client.get('/api/people/directors')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), mock_get_popular_directors.return_value)
