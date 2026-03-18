@@ -100,6 +100,9 @@ export const api = {
   getMovieDetails(id) {
     return request(`/movies/${id}`)
   },
+  getTvShowDetails(id) {
+    return request(`/tv-shows/${id}`)
+  },
   getPersonDetails(id) {
     return request(`/people/${id}`)
   },

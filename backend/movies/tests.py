@@ -485,6 +485,118 @@ class TMDbMovieServiceTests(SimpleTestCase):
 
     @patch('movies.services.os.getenv', return_value='test-token')
     @patch('movies.services.request.urlopen')
+    def test_get_tv_show_details_normalizes_images_trailer_and_creators(
+        self,
+        mock_urlopen,
+        _mock_getenv,
+    ):
+        response_data = {
+            'id': 85552,
+            'name': 'Silo',
+            'first_air_date': '2023-05-04',
+            'episode_run_time': [49],
+            'genres': [{'id': 18, 'name': 'Drama'}, {'id': 10765, 'name': 'Sci-Fi'}],
+            'status': 'Returning Series',
+            'vote_average': 8.24,
+            'overview': 'Uma serie distopica.',
+            'poster_path': '/tv-poster.jpg',
+            'backdrop_path': '/tv-backdrop.jpg',
+            'number_of_seasons': 2,
+            'number_of_episodes': 20,
+            'production_companies': [{'name': 'AMC Studios'}],
+            'created_by': [
+                {
+                    'id': 123,
+                    'name': 'Graham Yost',
+                    'profile_path': '/creator.jpg',
+                }
+            ],
+            'videos': {
+                'results': [
+                    {
+                        'name': 'Trailer oficial',
+                        'site': 'YouTube',
+                        'type': 'Trailer',
+                        'official': True,
+                        'key': 'silo123',
+                    }
+                ]
+            },
+            'images': {
+                'backdrops': [{'file_path': '/tv-img-1.jpg'}],
+                'posters': [{'file_path': '/tv-img-2.jpg'}],
+            },
+            'aggregate_credits': {
+                'cast': [
+                    {
+                        'id': 501,
+                        'name': 'Rebecca Ferguson',
+                        'roles': [{'character': 'Juliette'}],
+                        'profile_path': '/tv-cast.jpg',
+                    }
+                ]
+            },
+            'credits': {
+                'crew': [
+                    {
+                        'id': 123,
+                        'name': 'Graham Yost',
+                        'job': 'Creator',
+                        'department': 'Writing',
+                        'profile_path': '/creator.jpg',
+                    }
+                ]
+            },
+        }
+        mock_response = MagicMock()
+        mock_response.read.return_value = json.dumps(response_data).encode('utf-8')
+        mock_urlopen.return_value.__enter__.return_value = mock_response
+
+        payload = TMDbMovieService().get_tv_show_details('85552')
+
+        self.assertEqual(payload['id'], '85552')
+        self.assertEqual(payload['title'], 'Silo')
+        self.assertEqual(payload['release_date'], '2023-05-04')
+        self.assertEqual(payload['runtime'], 49)
+        self.assertEqual(payload['genres'], ['Drama', 'Sci-Fi'])
+        self.assertEqual(payload['status'], 'Serie em andamento')
+        self.assertEqual(payload['vote_average'], 8.2)
+        self.assertEqual(payload['number_of_seasons'], 2)
+        self.assertEqual(payload['number_of_episodes'], 20)
+        self.assertEqual(payload['production_companies'], ['AMC Studios'])
+        self.assertEqual(
+            payload['cast'],
+            [
+                {
+                    'id': '501',
+                    'name': 'Rebecca Ferguson',
+                    'character': 'Juliette',
+                    'profile_image': 'https://image.tmdb.org/t/p/w300/tv-cast.jpg',
+                }
+            ],
+        )
+        self.assertEqual(
+            payload['creators'],
+            [
+                {
+                    'id': '123',
+                    'name': 'Graham Yost',
+                    'department': 'Writing',
+                    'profile_image': 'https://image.tmdb.org/t/p/w300/creator.jpg',
+                }
+            ],
+        )
+        self.assertEqual(
+            payload['trailer'],
+            {
+                'name': 'Trailer oficial',
+                'youtube_key': 'silo123',
+                'embed_url': 'https://www.youtube.com/embed/silo123',
+            },
+        )
+
+    @patch('movies.services.os.getenv', return_value='test-token')
+    @patch('movies.services.request.urlopen')
     def test_get_person_details_normalizes_response(self, mock_urlopen, _mock_getenv):
         response_data = {
             'id': 777,
@@ -897,6 +1009,53 @@ class MovieDetailsIntegrationTests(APITestCase):
 
         self.assertEqual(response.status_code, 503)
         self.assertEqual(response.json(), {'detail': 'Filme nao encontrado.'})
+
+
+class TvShowDetailsIntegrationTests(APITestCase):
+    @patch('movies.views.TMDbMovieService.get_tv_show_details')
+    def test_tv_show_details_endpoint_returns_service_payload(self, mock_get_tv_show_details):
+        mock_get_tv_show_details.return_value = {
+            'id': '85552',
+            'title': 'Silo',
+            'synopsis': 'Uma serie distopica.',
+            'release_date': '2023-05-04',
+            'runtime': 49,
+            'genres': ['Drama', 'Sci-Fi'],
+            'status': 'Serie em andamento',
+            'vote_average': 8.2,
+            'poster_image': 'https://image.tmdb.org/t/p/w780/tv-poster.jpg',
+            'backdrop_image': 'https://image.tmdb.org/t/p/w1280/tv-backdrop.jpg',
+            'images': ['https://image.tmdb.org/t/p/w780/tv-img-1.jpg'],
+            'cast': [
+                {
+                    'id': '501',
+                    'name': 'Rebecca Ferguson',
+                    'character': 'Juliette',
+                    'profile_image': 'https://image.tmdb.org/t/p/w300/tv-cast.jpg',
+                }
+            ],
+            'creators': [
+                {
+                    'id': '123',
+                    'name': 'Graham Yost',
+                    'department': 'Writing',
+                    'profile_image': 'https://image.tmdb.org/t/p/w300/creator.jpg',
+                }
+            ],
+            'trailer': {
+                'name': 'Trailer oficial',
+                'youtube_key': 'silo123',
+                'embed_url': 'https://www.youtube.com/embed/silo123',
+            },
+            'number_of_seasons': 2,
+            'number_of_episodes': 20,
+            'production_companies': ['AMC Studios'],
+        }
+
+        response = self.client.get('/api/tv-shows/85552')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), mock_get_tv_show_details.return_value)
 
 
 class PersonDetailsIntegrationTests(APITestCase):

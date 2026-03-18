@@ -112,6 +112,49 @@ def build_movie_details_example():
     }
 
 
+def build_tv_show_details_example():
+    return {
+        'id': '85552',
+        'title': 'Silo',
+        'synopsis': 'Exemplo de detalhes de uma serie.',
+        'release_date': '2023-05-04',
+        'runtime': 49,
+        'genres': ['Drama', 'Sci-Fi'],
+        'status': 'Serie em andamento',
+        'vote_average': 8.2,
+        'poster_image': 'https://image.tmdb.org/t/p/w780/example-tv-poster.jpg',
+        'backdrop_image': 'https://image.tmdb.org/t/p/w1280/example-tv-backdrop.jpg',
+        'images': [
+            'https://image.tmdb.org/t/p/w780/example-tv-image-1.jpg',
+            'https://image.tmdb.org/t/p/w780/example-tv-image-2.jpg',
+        ],
+        'cast': [
+            {
+                'id': '10',
+                'name': 'Atriz Exemplo',
+                'character': 'Juliette',
+                'profile_image': 'https://image.tmdb.org/t/p/w300/example-tv-cast.jpg',
+            }
+        ],
+        'creators': [
+            {
+                'id': '11',
+                'name': 'Criador Exemplo',
+                'department': 'Creator',
+                'profile_image': 'https://image.tmdb.org/t/p/w300/example-tv-creator.jpg',
+            }
+        ],
+        'trailer': {
+            'name': 'Trailer oficial',
+            'youtube_key': 'def456',
+            'embed_url': 'https://www.youtube.com/embed/def456',
+        },
+        'number_of_seasons': 2,
+        'number_of_episodes': 20,
+        'production_companies': ['AMC Studios'],
+    }
+
+
 def build_person_details_example():
     return {
         'id': '2',
@@ -627,6 +670,89 @@ class MovieDetailsView(APIView):
 
         try:
             payload = service.get_movie_details(movie_id)
+        except MovieServiceError as exc:
+            return Response(
+                {'detail': str(exc)},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        return Response(payload)
+
+
+class TvShowDetailsView(APIView):
+    @extend_schema(
+        operation_id='retrieve_tv_show_details',
+        summary='Retorna detalhes de uma serie por id',
+        description='Consulta a API externa para buscar dados completos de uma serie.',
+        responses={
+            200: OpenApiResponse(
+                response={
+                    'type': 'object',
+                    'properties': {
+                        'id': {'type': 'string'},
+                        'title': {'type': 'string'},
+                        'synopsis': {'type': 'string'},
+                        'release_date': {'type': 'string', 'format': 'date'},
+                        'runtime': {'type': 'integer', 'nullable': True},
+                        'genres': {'type': 'array', 'items': {'type': 'string'}},
+                        'status': {'type': 'string'},
+                        'vote_average': {'type': 'number', 'nullable': True},
+                        'poster_image': {'type': 'string', 'nullable': True},
+                        'backdrop_image': {'type': 'string', 'nullable': True},
+                        'images': {'type': 'array', 'items': {'type': 'string'}},
+                        'cast': {
+                            'type': 'array',
+                            'items': {
+                                'type': 'object',
+                                'properties': {
+                                    'id': {'type': 'string'},
+                                    'name': {'type': 'string'},
+                                    'character': {'type': 'string'},
+                                    'profile_image': {'type': 'string', 'nullable': True},
+                                },
+                            },
+                        },
+                        'creators': {
+                            'type': 'array',
+                            'items': {
+                                'type': 'object',
+                                'properties': {
+                                    'id': {'type': 'string'},
+                                    'name': {'type': 'string'},
+                                    'department': {'type': 'string'},
+                                    'profile_image': {'type': 'string', 'nullable': True},
+                                },
+                            },
+                        },
+                        'trailer': {
+                            'type': 'object',
+                            'nullable': True,
+                            'properties': {
+                                'name': {'type': 'string'},
+                                'youtube_key': {'type': 'string'},
+                                'embed_url': {'type': 'string'},
+                            },
+                        },
+                        'number_of_seasons': {'type': 'integer', 'nullable': True},
+                        'number_of_episodes': {'type': 'integer', 'nullable': True},
+                        'production_companies': {'type': 'array', 'items': {'type': 'string'}},
+                    },
+                },
+                examples=[
+                    OpenApiExample(
+                        'TV show details response',
+                        value=build_tv_show_details_example(),
+                    )
+                ],
+            ),
+            503: OpenApiResponse(description='Falha de configuracao ou integracao com a API externa.'),
+        },
+    )
+    def get(self, request, tv_show_id):
+        service = TMDbMovieService()
+
+        try:
+            payload = service.get_tv_show_details(tv_show_id)
         except MovieServiceError as exc:
             return Response(
                 {'detail': str(exc)},

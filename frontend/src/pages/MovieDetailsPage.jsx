@@ -9,6 +9,15 @@ import { MovieTrailer } from '../components/MovieTrailer'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { api } from '../services/api'
 
+function buildMovieMetadata(movie) {
+  return [
+    movie.release_date,
+    movie.runtime ? `${movie.runtime} min` : null,
+    movie.genres?.length ? movie.genres.join(', ') : null,
+    movie.status || null,
+  ].filter(Boolean)
+}
+
 export function MovieDetailsPage() {
   const { id } = useParams()
   const [movie, setMovie] = useState(null)
@@ -69,7 +78,17 @@ export function MovieDetailsPage() {
 
       {!isLoading && !errorMessage && movie ? (
         <>
-          <DetailsHero movie={movie} onOpenTrailer={() => setIsTrailerOpen(true)} />
+          <DetailsHero
+            title={movie.title}
+            synopsis={movie.synopsis}
+            posterImage={movie.poster_image}
+            backdropImage={movie.backdrop_image}
+            trailer={movie.trailer}
+            metadataItems={buildMovieMetadata(movie)}
+            primaryCredit={movie.directors?.[0] ?? null}
+            creditLabel="Direção"
+            onOpenTrailer={() => setIsTrailerOpen(true)}
+          />
 
           <section className="details-section" aria-label="Elenco">
             {movie.cast?.length ? (

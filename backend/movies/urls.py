@@ -11,6 +11,7 @@ from .views import (
     PopularMoviesView,
     PopularTvShowsView,
     TrendingMoviesView,
+    TvShowDetailsView,
     UpcomingMoviesView,
 )
 
@@ -23,6 +24,7 @@ urlpatterns = [
     path('movies/upcoming', UpcomingMoviesView.as_view(), name='movies-upcoming'),
     path('movies/<str:movie_id>', MovieDetailsView.as_view(), name='movie-details'),
     path('tv-shows/popular', PopularTvShowsView.as_view(), name='tv-shows-popular'),
+    path('tv-shows/<str:tv_show_id>', TvShowDetailsView.as_view(), name='tv-show-details'),
     path('people/actors', PopularActorsView.as_view(), name='people-actors'),
     path('people/directors', PopularDirectorsView.as_view(), name='people-directors'),
     path('people/<str:person_id>', PersonDetailsView.as_view(), name='person-details'),

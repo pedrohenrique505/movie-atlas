@@ -101,6 +101,17 @@ class TMDbMovieService:
         )
         return self._normalize_movie_details_payload(payload)
 
+    def get_tv_show_details(self, tv_show_id):
+        payload = self._request(
+            f'/tv/{tv_show_id}',
+            {
+                'language': self.language,
+                'append_to_response': 'videos,images,aggregate_credits,credits',
+                'include_image_language': f'{self.language},null,en',
+            },
+        )
+        return self._normalize_tv_show_details_payload(payload)
+
     def search_movies(self, query):
         if not query.strip():
             return {'results': []}
@@ -324,6 +335,37 @@ class TMDbMovieService:
             'trailer': trailer,
         }
 
+    def _normalize_tv_show_details_payload(self, payload):
+        videos = payload.get('videos', {}).get('results', [])
+        images = payload.get('images', {})
+        aggregate_credits = payload.get('aggregate_credits', {})
+        credits = payload.get('credits', {})
+        trailer = self._pick_trailer(videos)
+
+        return {
+            'id': str(payload['id']),
+            'title': payload.get('name') or payload.get('original_name') or '',
+            'synopsis': payload.get('overview') or 'Sinopse ainda nao disponivel.',
+            'release_date': payload.get('first_air_date') or '',
+            'runtime': self._pick_episode_runtime(payload.get('episode_run_time', [])),
+            'genres': [genre.get('name') for genre in payload.get('genres', []) if genre.get('name')],
+            'status': self._normalize_production_status(payload.get('status')),
+            'vote_average': self._normalize_vote_average(payload.get('vote_average')),
+            'poster_image': self._build_image_url(payload.get('poster_path'), 'w780'),
+            'backdrop_image': self._build_image_url(payload.get('backdrop_path'), 'w1280'),
+            'images': self._normalize_images(images),
+            'cast': self._normalize_tv_cast(aggregate_credits, credits),
+            'creators': self._normalize_creators(payload, credits),
+            'trailer': trailer,
+            'number_of_seasons': payload.get('number_of_seasons'),
+            'number_of_episodes': payload.get('number_of_episodes'),
+            'production_companies': [
+                company.get('name')
+                for company in payload.get('production_companies', [])
+                if company.get('name')
+            ],
+        }
+
     def _normalize_cast(self, credits_payload):
         cast = []
 
@@ -367,6 +409,82 @@ class TMDbMovieService:
             unique_directors.append(director)
 
         return unique_directors[:5]
+
+    def _normalize_tv_cast(self, aggregate_credits_payload, credits_payload):
+        cast = []
+        raw_cast = aggregate_credits_payload.get('cast') or credits_payload.get('cast') or []
+
+        for person in raw_cast[:15]:
+            roles = person.get('roles') or []
+            character = person.get('character') or ''
+            if not character and roles:
+                character = roles[0].get('character') or ''
+
+            cast.append(
+                {
+                    'id': str(person['id']),
+                    'name': person.get('name') or '',
+                    'character': character,
+                    'profile_image': self._build_image_url(person.get('profile_path'), 'w300'),
+                }
+            )
+
+        return cast
+
+    def _normalize_creators(self, payload, credits_payload):
+        creators = []
+        crew_lookup = {
+            str(person['id']): person
+            for person in credits_payload.get('crew', [])
+            if person.get('id') is not None
+        }
+
+        for person in payload.get('created_by', []):
+            person_id = str(person['id'])
+            crew_person = crew_lookup.get(person_id, {})
+            creators.append(
+                {
+                    'id': person_id,
+                    'name': person.get('name') or '',
+                    'department': crew_person.get('known_for_department')
+                    or crew_person.get('department')
+                    or 'Creator',
+                    'profile_image': self._build_image_url(
+                        person.get('profile_path') or crew_person.get('profile_path'),
+                        'w300',
+                    ),
+                }
+            )
+
+        if creators:
+            return creators[:5]
+
+        fallback_creators = []
+        for person in credits_payload.get('crew', []):
+            if person.get('job') not in {'Creator', 'Executive Producer', 'Director'}:
+                continue
+
+            fallback_creators.append(
+                {
+                    'id': str(person['id']),
+                    'name': person.get('name') or '',
+                    'department': person.get('known_for_department')
+                    or person.get('department')
+                    or person.get('job')
+                    or 'Creator',
+                    'profile_image': self._build_image_url(person.get('profile_path'), 'w300'),
+                }
+            )
+
+        unique_creators = []
+        seen_ids = set()
+        for creator in fallback_creators:
+            if creator['id'] in seen_ids:
+                continue
+            seen_ids.add(creator['id'])
+            unique_creators.append(creator)
+
+        return unique_creators[:5]
 
     def _normalize_person_details_payload(self, payload):
         return {
@@ -484,6 +602,11 @@ class TMDbMovieService:
         if value in (None, ''):
             return None
         return round(float(value), 1)
+
+    def _pick_episode_runtime(self, runtimes):
+        if not runtimes:
+            return None
+        return runtimes[0] or None
 
     def _normalize_production_status(self, value):
         if not value:

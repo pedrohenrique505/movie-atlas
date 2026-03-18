@@ -13,7 +13,11 @@ export function ProjectList({ projects }) {
           <div key={`${project.id}-${project.credit}`} className="horizontal-slide">
             <MoviePosterCard
               movie={project}
-              to={project.media_type === 'movie' ? `/movie/${project.id}` : null}
+              to={
+                project.media_type === 'tv'
+                  ? `/tv-show/${project.id}`
+                  : `/movie/${project.id}`
+              }
             />
           </div>
         ))}

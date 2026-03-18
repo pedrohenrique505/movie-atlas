@@ -8,6 +8,7 @@ import { PeopleListingPage } from './pages/PeopleListingPage'
 import { PersonPage } from './pages/PersonPage'
 import { SearchPage } from './pages/SearchPage'
 import { TvShowsPage } from './pages/TvShowsPage'
+import { TvShowDetailsPage } from './pages/TvShowDetailsPage'
 import { UpcomingPage } from './pages/UpcomingPage'
 import { api } from './services/api'
 
@@ -43,6 +44,7 @@ function App() {
         <Route path="/search" element={<SearchPage />} />
         <Route path="/upcoming" element={<UpcomingPage />} />
         <Route path="/movie/:id" element={<MovieDetailsPage />} />
+        <Route path="/tv-show/:id" element={<TvShowDetailsPage />} />
         <Route path="/person/:id" element={<PersonPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

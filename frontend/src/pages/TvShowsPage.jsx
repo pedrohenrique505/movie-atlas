@@ -28,7 +28,7 @@ export function TvShowsPage() {
         variant="poster"
         gridClassName="movie-grid--five movie-grid--posters"
         ariaLabel="Lista de séries populares"
-        buildItemPath={() => null}
+        buildItemPath={(show) => `/tv-show/${show.id}`}
       />
 
       <LoadMoreSection

@@ -9,20 +9,22 @@ function buildInitials(name) {
     .join('')
 }
 
-export function DirectorCredit({ director }) {
-  if (!director) {
+export function DirectorCredit({ person, label = 'Direção' }) {
+  if (!person) {
     return null
   }
 
-  const initials = buildInitials(director.name)
+  const initials = buildInitials(person.name)
 
   return (
-    <Link to={`/person/${director.id}`} className="director-credit">
-      <span className="director-credit__label">Direção: {director.name}</span>
+    <Link to={`/person/${person.id}`} className="director-credit">
+      <span className="director-credit__label">
+        {label}: {person.name}
+      </span>
 
       <span className="director-credit__preview" aria-hidden="true">
-        {director.profile_image ? (
-          <img src={director.profile_image} alt="" />
+        {person.profile_image ? (
+          <img src={person.profile_image} alt="" />
         ) : (
           <span className="director-credit__fallback">{initials || 'DR'}</span>
         )}

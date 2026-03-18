@@ -174,7 +174,7 @@ describe('App routes', () => {
     expect(await screen.findByText(/elenco/i)).toBeInTheDocument()
     expect(await screen.findByText(/matt damon/i)).toBeInTheDocument()
     expect(await screen.findByText(/christopher nolan/i)).toBeInTheDocument()
-    expect(await screen.findByRole('button', { name: /assista o trailer/i })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: /assista ao trailer/i })).toBeInTheDocument()
     expect(screen.queryByText(/nota 7.3/i)).not.toBeInTheDocument()
     expect(document.title).toBe('The Odyssey | Movie Atlas')
   })
@@ -250,7 +250,70 @@ describe('App routes', () => {
       }),
     ).toBeInTheDocument()
     expect(await screen.findByText(/série popular/i)).toBeInTheDocument()
+    expect(await screen.findByRole('link', { name: /poster de série popular/i })).toHaveAttribute(
+      'href',
+      '/tv-show/801',
+    )
     expect(document.title).toBe('Séries | Movie Atlas')
+  })
+
+  it('renders the tv show details page', async () => {
+    global.fetch = vi.fn(() =>
+      Promise.resolve({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            id: '85552',
+            title: 'Silo',
+            synopsis: 'Uma série distópica.',
+            release_date: '2023-05-04',
+            runtime: 49,
+            genres: ['Drama', 'Sci-Fi'],
+            status: 'Série em andamento',
+            vote_average: 8.2,
+            poster_image: 'https://image.tmdb.org/t/p/w780/tv-poster.jpg',
+            backdrop_image: 'https://image.tmdb.org/t/p/w1280/tv-backdrop.jpg',
+            images: ['https://image.tmdb.org/t/p/w780/tv-img-1.jpg'],
+            cast: [
+              {
+                id: '501',
+                name: 'Rebecca Ferguson',
+                character: 'Juliette',
+                profile_image: 'https://image.tmdb.org/t/p/w300/tv-cast.jpg',
+              },
+            ],
+            creators: [
+              {
+                id: '123',
+                name: 'Graham Yost',
+                department: 'Writing',
+                profile_image: 'https://image.tmdb.org/t/p/w300/creator.jpg',
+              },
+            ],
+            trailer: {
+              name: 'Trailer oficial',
+              youtube_key: 'silo123',
+              embed_url: 'https://www.youtube.com/embed/silo123',
+            },
+            number_of_seasons: 2,
+            number_of_episodes: 20,
+            production_companies: ['AMC Studios'],
+          }),
+      }),
+    )
+
+    render(
+      <MemoryRouter initialEntries={['/tv-show/85552']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(await screen.findByRole('heading', { name: /silo/i })).toBeInTheDocument()
+    expect(await screen.findByText(/2 temporadas/i)).toBeInTheDocument()
+    expect(await screen.findByText(/20 episódios/i)).toBeInTheDocument()
+    expect(await screen.findByText(/graham yost/i)).toBeInTheDocument()
+    expect(await screen.findByText(/amc studios/i)).toBeInTheDocument()
+    expect(document.title).toBe('Silo | Movie Atlas')
   })
 
   it('redirects removed routes to the people page', async () => {
@@ -412,7 +475,7 @@ describe('App routes', () => {
       </MemoryRouter>,
     )
 
-    fireEvent.click(await screen.findByRole('button', { name: /assista o trailer/i }))
+    fireEvent.click(await screen.findByRole('button', { name: /assista ao trailer/i }))
 
     expect(await screen.findByRole('dialog', { name: /trailer oficial/i })).toBeInTheDocument()
   })
