@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 
+import { SearchIcon } from '../components/navigation/SearchIcon'
+
 export function AppLayout() {
   const navigate = useNavigate()
   const location = useLocation()
@@ -73,23 +75,7 @@ export function AppLayout() {
           >
             <div className="search-shell__field">
               <span className="search-shell__icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" className="search-shell__icon-svg">
-                  <circle
-                    cx="11"
-                    cy="11"
-                    r="6.5"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  />
-                  <path
-                    d="M16 16L20 20"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
+                <SearchIcon />
               </span>
 
               <input
@@ -104,7 +90,9 @@ export function AppLayout() {
               />
             </div>
 
-            <button type="submit">Buscar</button>
+            <button type="submit" aria-label="Buscar">
+              <SearchIcon />
+            </button>
           </form>
         </div>
       </header>

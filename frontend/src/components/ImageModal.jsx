@@ -1,5 +1,7 @@
 import { useEffect } from 'react'
 
+import { CloseIcon } from './navigation/CloseIcon'
+
 export function ImageModal({ isOpen, imageUrl, alt, onClose }) {
   useEffect(() => {
     if (!isOpen) {
@@ -25,8 +27,13 @@ export function ImageModal({ isOpen, imageUrl, alt, onClose }) {
       <div className="image-modal__backdrop" onClick={onClose} aria-hidden="true" />
 
       <div className="image-modal__content">
-        <button type="button" className="carousel-button image-modal__close" onClick={onClose}>
-          Fechar
+        <button
+          type="button"
+          className="carousel-button image-modal__close"
+          onClick={onClose}
+          aria-label="Fechar imagem"
+        >
+          <CloseIcon />
         </button>
 
         <img src={imageUrl} alt={alt} className="image-modal__image" />

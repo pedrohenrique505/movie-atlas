@@ -1,5 +1,7 @@
 import { useEffect } from 'react'
 
+import { CloseIcon } from './navigation/CloseIcon'
+
 export function MovieTrailer({ trailer, isOpen, onClose }) {
   useEffect(() => {
     if (!isOpen) {
@@ -30,8 +32,13 @@ export function MovieTrailer({ trailer, isOpen, onClose }) {
             <h2>{trailer.name || 'Trailer'}</h2>
           </div>
 
-          <button type="button" className="carousel-button" onClick={onClose}>
-            Fechar
+          <button
+            type="button"
+            className="carousel-button"
+            onClick={onClose}
+            aria-label="Fechar trailer"
+          >
+            <CloseIcon />
           </button>
         </div>
 

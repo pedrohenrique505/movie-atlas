@@ -6,6 +6,10 @@
   --secondary: #6272a4;
   --text: #f8f8f2;
   --muted: rgba(248, 248, 242, 0.68);
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --transition-base: 180ms ease;
   --sans: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   --heading: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
