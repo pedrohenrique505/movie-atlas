@@ -267,6 +267,12 @@
   gap: 1rem;
 }
 
+.home-grid-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
 .carousel-controls {
   display: flex;
   gap: 0.55rem;

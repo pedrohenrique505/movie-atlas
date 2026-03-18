@@ -1,4 +1,4 @@
-import { MovieCarouselSection } from '../components/MovieCarouselSection'
+import { MovieGridSection } from '../components/MovieGridSection'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { useMovieCollection } from '../hooks/useMovieCollection'
 import { api } from '../services/api'
@@ -37,7 +37,7 @@ export function HomePage() {
         </aside>
       </section>
 
-      <MovieCarouselSection
+      <MovieGridSection
         title="Em alta"
         eyebrow="Agora"
         movies={trending.movies}
@@ -46,7 +46,7 @@ export function HomePage() {
         emptyMessage="Nenhum filme em alta encontrado."
       />
 
-      <MovieCarouselSection
+      <MovieGridSection
         title="Em cartaz"
         eyebrow="Cinemas"
         movies={nowPlaying.movies}
@@ -55,7 +55,7 @@ export function HomePage() {
         emptyMessage="Nenhum filme em cartaz encontrado."
       />
 
-      <MovieCarouselSection
+      <MovieGridSection
         title="Próximos lançamentos"
         eyebrow="Em breve"
         movies={upcoming.movies}
