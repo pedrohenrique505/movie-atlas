@@ -18,7 +18,12 @@ def build_movie_list_example(status='listed'):
                 'poster_image': 'https://image.tmdb.org/t/p/w780/example-poster.jpg',
                 'has_trailer': False,
             }
-        ]
+        ],
+        'pagination': {
+            'page': 1,
+            'page_size': 15,
+            'has_next': True,
+        },
     }
 
 
@@ -40,7 +45,12 @@ def build_people_list_example(department='Acting'):
                 'profile_image': 'https://image.tmdb.org/t/p/w300/example-person.jpg',
                 'known_for_titles': ['Obra Exemplo', 'Outra Obra'],
             }
-        ]
+        ],
+        'pagination': {
+            'page': 1,
+            'page_size': 15,
+            'has_next': True,
+        },
     }
 
 
@@ -51,6 +61,15 @@ def build_categories_example():
             {'id': '18', 'name': 'Drama'},
         ]
     }
+
+
+def get_page_number(request):
+    try:
+        page = int(request.query_params.get('page', 1))
+    except (TypeError, ValueError):
+        return 1
+
+    return page if page > 0 else 1
 
 
 def build_movie_details_example():
@@ -147,7 +166,15 @@ class UpcomingMoviesView(APIView):
                                     'has_trailer': {'type': 'boolean'},
                                 },
                             },
-                        }
+                        },
+                        'pagination': {
+                            'type': 'object',
+                            'properties': {
+                                'page': {'type': 'integer'},
+                                'page_size': {'type': 'integer'},
+                                'has_next': {'type': 'boolean'},
+                            },
+                        },
                     },
                 },
                 examples=[
@@ -162,9 +189,10 @@ class UpcomingMoviesView(APIView):
     )
     def get(self, request):
         service = TMDbMovieService()
+        page = get_page_number(request)
 
         try:
-            payload = service.get_upcoming_movies()
+            payload = service.get_upcoming_movies(page=page)
         except MovieServiceError as exc:
             return Response(
                 {'detail': str(exc)},
@@ -198,7 +226,15 @@ class SearchMoviesView(APIView):
                                     'has_trailer': {'type': 'boolean'},
                                 },
                             },
-                        }
+                        },
+                        'pagination': {
+                            'type': 'object',
+                            'properties': {
+                                'page': {'type': 'integer'},
+                                'page_size': {'type': 'integer'},
+                                'has_next': {'type': 'boolean'},
+                            },
+                        },
                     },
                 },
                 examples=[
@@ -250,7 +286,15 @@ class TrendingMoviesView(APIView):
                                     'has_trailer': {'type': 'boolean'},
                                 },
                             },
-                        }
+                        },
+                        'pagination': {
+                            'type': 'object',
+                            'properties': {
+                                'page': {'type': 'integer'},
+                                'page_size': {'type': 'integer'},
+                                'has_next': {'type': 'boolean'},
+                            },
+                        },
                     },
                 },
                 examples=[
@@ -265,9 +309,10 @@ class TrendingMoviesView(APIView):
     )
     def get(self, request):
         service = TMDbMovieService()
+        page = get_page_number(request)
 
         try:
-            payload = service.get_trending_movies()
+            payload = service.get_trending_movies(page=page)
         except MovieServiceError as exc:
             return Response(
                 {'detail': str(exc)},
@@ -301,7 +346,15 @@ class PopularMoviesView(APIView):
                                     'has_trailer': {'type': 'boolean'},
                                 },
                             },
-                        }
+                        },
+                        'pagination': {
+                            'type': 'object',
+                            'properties': {
+                                'page': {'type': 'integer'},
+                                'page_size': {'type': 'integer'},
+                                'has_next': {'type': 'boolean'},
+                            },
+                        },
                     },
                 },
                 examples=[
@@ -316,9 +369,10 @@ class PopularMoviesView(APIView):
     )
     def get(self, request):
         service = TMDbMovieService()
+        page = get_page_number(request)
 
         try:
-            payload = service.get_popular_movies()
+            payload = service.get_popular_movies(page=page)
         except MovieServiceError as exc:
             return Response(
                 {'detail': str(exc)},
@@ -352,7 +406,15 @@ class NowPlayingMoviesView(APIView):
                                     'has_trailer': {'type': 'boolean'},
                                 },
                             },
-                        }
+                        },
+                        'pagination': {
+                            'type': 'object',
+                            'properties': {
+                                'page': {'type': 'integer'},
+                                'page_size': {'type': 'integer'},
+                                'has_next': {'type': 'boolean'},
+                            },
+                        },
                     },
                 },
                 examples=[
@@ -367,9 +429,10 @@ class NowPlayingMoviesView(APIView):
     )
     def get(self, request):
         service = TMDbMovieService()
+        page = get_page_number(request)
 
         try:
-            payload = service.get_now_playing_movies()
+            payload = service.get_now_playing_movies(page=page)
         except MovieServiceError as exc:
             return Response(
                 {'detail': str(exc)},
@@ -403,7 +466,15 @@ class PopularTvShowsView(APIView):
                                     'has_trailer': {'type': 'boolean'},
                                 },
                             },
-                        }
+                        },
+                        'pagination': {
+                            'type': 'object',
+                            'properties': {
+                                'page': {'type': 'integer'},
+                                'page_size': {'type': 'integer'},
+                                'has_next': {'type': 'boolean'},
+                            },
+                        },
                     },
                 },
                 examples=[
@@ -418,9 +489,10 @@ class PopularTvShowsView(APIView):
     )
     def get(self, request):
         service = TMDbMovieService()
+        page = get_page_number(request)
 
         try:
-            payload = service.get_popular_tv_shows()
+            payload = service.get_popular_tv_shows(page=page)
         except MovieServiceError as exc:
             return Response(
                 {'detail': str(exc)},
@@ -449,7 +521,15 @@ class MovieCategoriesView(APIView):
                                     'name': {'type': 'string'},
                                 },
                             },
-                        }
+                        },
+                        'pagination': {
+                            'type': 'object',
+                            'properties': {
+                                'page': {'type': 'integer'},
+                                'page_size': {'type': 'integer'},
+                                'has_next': {'type': 'boolean'},
+                            },
+                        },
                     },
                 },
                 examples=[
@@ -596,9 +676,10 @@ class PopularActorsView(APIView):
     )
     def get(self, request):
         service = TMDbMovieService()
+        page = get_page_number(request)
 
         try:
-            payload = service.get_popular_actors()
+            payload = service.get_popular_actors(page=page)
         except MovieServiceError as exc:
             return Response(
                 {'detail': str(exc)},
@@ -633,7 +714,15 @@ class PopularDirectorsView(APIView):
                                     },
                                 },
                             },
-                        }
+                        },
+                        'pagination': {
+                            'type': 'object',
+                            'properties': {
+                                'page': {'type': 'integer'},
+                                'page_size': {'type': 'integer'},
+                                'has_next': {'type': 'boolean'},
+                            },
+                        },
                     },
                 },
                 examples=[
@@ -648,9 +737,10 @@ class PopularDirectorsView(APIView):
     )
     def get(self, request):
         service = TMDbMovieService()
+        page = get_page_number(request)
 
         try:
-            payload = service.get_popular_directors()
+            payload = service.get_popular_directors(page=page)
         except MovieServiceError as exc:
             return Response(
                 {'detail': str(exc)},

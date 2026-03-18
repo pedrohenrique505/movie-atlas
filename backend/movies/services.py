@@ -39,28 +39,30 @@ class TMDbMovieService:
     def api_token(self):
         return os.getenv('TMDB_API_READ_ACCESS_TOKEN', '').strip()
 
-    def get_upcoming_movies(self):
+    def get_upcoming_movies(self, page=1):
         return self._get_movie_list(
             '/movie/upcoming',
             status_label='upcoming',
             filter_upcoming=True,
+            page=page,
         )
 
-    def get_trending_movies(self):
-        return self._get_movie_list('/trending/movie/day', status_label='trending')
+    def get_trending_movies(self, page=1):
+        return self._get_movie_list('/trending/movie/day', status_label='trending', page=page)
 
-    def get_now_playing_movies(self):
-        return self._get_movie_list('/movie/now_playing', status_label='now_playing')
+    def get_now_playing_movies(self, page=1):
+        return self._get_movie_list('/movie/now_playing', status_label='now_playing', page=page)
 
-    def get_popular_movies(self):
-        return self._get_media_list('/movie/popular', status_label='popular')
+    def get_popular_movies(self, page=1):
+        return self._get_media_list('/movie/popular', status_label='popular', page=page)
 
-    def get_popular_tv_shows(self):
+    def get_popular_tv_shows(self, page=1):
         return self._get_media_list(
             '/tv/popular',
             status_label='tv_show',
             title_fields=('name', 'original_name'),
             date_field='first_air_date',
+            page=page,
         )
 
     def get_movie_categories(self):
@@ -82,11 +84,11 @@ class TMDbMovieService:
 
         return {'results': results}
 
-    def get_popular_actors(self):
-        return self._get_people_list('Acting')
+    def get_popular_actors(self, page=1):
+        return self._get_people_list('Acting', page=page)
 
-    def get_popular_directors(self):
-        return self._get_people_list('Directing')
+    def get_popular_directors(self, page=1):
+        return self._get_people_list('Directing', page=page)
 
     def get_movie_details(self, movie_id):
         payload = self._request(
@@ -159,11 +161,12 @@ class TMDbMovieService:
                 'Falha ao consultar a API externa de filmes.'
             ) from exc
 
-    def _get_movie_list(self, path, status_label, filter_upcoming=False):
+    def _get_movie_list(self, path, status_label, filter_upcoming=False, page=1):
         return self._get_media_list(
             path,
             status_label=status_label,
             filter_upcoming=filter_upcoming,
+            page=page,
         )
 
     def _get_media_list(
@@ -173,10 +176,12 @@ class TMDbMovieService:
         filter_upcoming=False,
         title_fields=('title', 'original_title'),
         date_field='release_date',
+        page=1,
     ):
+        normalized_page = self._normalize_page_number(page)
         params = {
             'language': self.language,
-            'page': 1,
+            'page': normalized_page,
         }
 
         if path in {'/movie/upcoming', '/movie/now_playing'}:
@@ -190,6 +195,8 @@ class TMDbMovieService:
             filter_upcoming=filter_upcoming,
             title_fields=title_fields,
             date_field=date_field,
+            page=normalized_page,
+            total_pages=payload.get('total_pages'),
         )
 
     def _normalize_media_list_payload(
@@ -199,6 +206,8 @@ class TMDbMovieService:
         filter_upcoming=False,
         title_fields=('title', 'original_title'),
         date_field='release_date',
+        page=1,
+        total_pages=None,
     ):
         results = []
 
@@ -223,27 +232,47 @@ class TMDbMovieService:
             if len(results) >= self.page_size:
                 break
 
-        return {'results': results}
+        return {
+            'results': results,
+            'pagination': {
+                'page': page,
+                'page_size': self.page_size,
+                'has_next': bool(total_pages and page < total_pages),
+            },
+        }
 
-    def _get_people_list(self, department):
-        results = []
+    def _get_people_list(self, department, page=1):
+        normalized_page = self._normalize_page_number(page)
+        slice_start = (normalized_page - 1) * self.page_size
+        slice_end = slice_start + self.page_size + 1
+        filtered_people = []
+        seen_ids = set()
+        tmdb_page = 1
+        total_pages = None
 
-        for page in range(1, 4):
+        while len(filtered_people) < slice_end:
             payload = self._request(
                 '/person/popular',
                 {
                     'language': self.language,
-                    'page': page,
+                    'page': tmdb_page,
                 },
             )
 
-            for item in payload.get('results', []):
+            total_pages = payload.get('total_pages') or total_pages
+            results = payload.get('results', [])
+
+            for item in results:
                 if item.get('known_for_department') != department:
                     continue
+                person_id = str(item['id'])
+                if person_id in seen_ids:
+                    continue
+                seen_ids.add(person_id)
 
-                results.append(
+                filtered_people.append(
                     {
-                        'id': str(item['id']),
+                        'id': person_id,
                         'name': item.get('name') or '',
                         'known_for_department': item.get('known_for_department') or '',
                         'profile_image': self._build_image_url(item.get('profile_path'), 'w300'),
@@ -253,13 +282,24 @@ class TMDbMovieService:
                     }
                 )
 
-                if len(results) >= self.page_size:
-                    return {'results': results}
+                if len(filtered_people) >= slice_end:
+                    break
 
-            if not payload.get('results'):
+            if not results or (total_pages and tmdb_page >= total_pages):
                 break
+            tmdb_page += 1
 
-        return {'results': results}
+        page_results = filtered_people[slice_start:slice_start + self.page_size]
+        has_next = len(filtered_people) > slice_start + self.page_size
+
+        return {
+            'results': page_results,
+            'pagination': {
+                'page': normalized_page,
+                'page_size': self.page_size,
+                'has_next': has_next,
+            },
+        }
 
     def _normalize_movie_details_payload(self, payload):
         videos = payload.get('videos', {}).get('results', [])
@@ -468,3 +508,11 @@ class TMDbMovieService:
             return False
 
         return parsed_release_date >= timezone.localdate()
+
+    def _normalize_page_number(self, value):
+        try:
+            page = int(value)
+        except (TypeError, ValueError):
+            return 1
+
+        return page if page > 0 else 1

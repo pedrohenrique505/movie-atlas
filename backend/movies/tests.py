@@ -72,7 +72,8 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'poster_image': 'https://image.tmdb.org/t/p/w780/cartaz.jpg',
                         'has_trailer': False,
                     }
-                ]
+                ],
+                'pagination': {'page': 1, 'page_size': 15, 'has_next': False},
             },
         )
 
@@ -109,7 +110,8 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'poster_image': 'https://image.tmdb.org/t/p/w780/serie.jpg',
                         'has_trailer': False,
                     }
-                ]
+                ],
+                'pagination': {'page': 1, 'page_size': 15, 'has_next': False},
             },
         )
 
@@ -177,7 +179,8 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'poster_image': 'https://image.tmdb.org/t/p/w780/odyssey.jpg',
                         'has_trailer': False,
                     }
-                ]
+                ],
+                'pagination': {'page': 1, 'page_size': 15, 'has_next': False},
             },
         )
 
@@ -275,7 +278,8 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'poster_image': 'https://image.tmdb.org/t/p/w780/futuro.jpg',
                         'has_trailer': False,
                     },
-                ]
+                ],
+                'pagination': {'page': 1, 'page_size': 15, 'has_next': False},
             },
         )
 
@@ -312,9 +316,61 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'poster_image': 'https://image.tmdb.org/t/p/w780/blade-runner.jpg',
                         'has_trailer': False,
                     }
-                ]
+                ],
+                'pagination': {'page': 1, 'page_size': 15, 'has_next': False},
             },
         )
+
+    @patch('movies.services.os.getenv', return_value='test-token')
+    @patch('movies.services.request.urlopen')
+    def test_get_popular_actors_uses_distinct_logical_pages(self, mock_urlopen, _mock_getenv):
+        def build_payload(page_number):
+            results = []
+            for offset in range(20):
+                person_id = ((page_number - 1) * 20) + offset + 1
+                department = 'Acting' if offset < 10 else 'Directing'
+                results.append(
+                    {
+                        'id': person_id,
+                        'name': f'Pessoa {person_id}',
+                        'known_for_department': department,
+                        'profile_path': f'/person-{person_id}.jpg',
+                        'known_for': [{'title': f'Obra {person_id}'}],
+                    }
+                )
+
+            return {
+                'page': page_number,
+                'total_pages': 10,
+                'results': results,
+            }
+
+        def build_mock_response(payload):
+            mock_response = MagicMock()
+            mock_response.read.return_value = json.dumps(payload).encode('utf-8')
+            context_manager = MagicMock()
+            context_manager.__enter__.return_value = mock_response
+            context_manager.__exit__.return_value = False
+            return context_manager
+
+        mock_urlopen.side_effect = [
+            build_mock_response(build_payload(1)),
+            build_mock_response(build_payload(2)),
+            build_mock_response(build_payload(1)),
+            build_mock_response(build_payload(2)),
+            build_mock_response(build_payload(3)),
+            build_mock_response(build_payload(4)),
+        ]
+
+        first_page = TMDbMovieService().get_popular_actors(page=1)
+        second_page = TMDbMovieService().get_popular_actors(page=2)
+
+        self.assertEqual(first_page['pagination'], {'page': 1, 'page_size': 15, 'has_next': True})
+        self.assertEqual(second_page['pagination'], {'page': 2, 'page_size': 15, 'has_next': True})
+        self.assertEqual(first_page['results'][0]['id'], '1')
+        self.assertEqual(first_page['results'][-1]['id'], '25')
+        self.assertEqual(second_page['results'][0]['id'], '26')
+        self.assertEqual(second_page['results'][-1]['id'], '50')
 
     @patch('movies.services.os.getenv', return_value='test-token')
     @patch('movies.services.request.urlopen')
@@ -584,7 +640,8 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'profile_image': 'https://image.tmdb.org/t/p/w300/actor.jpg',
                         'known_for_titles': ['Film A', 'Show B'],
                     }
-                ]
+                ],
+                'pagination': {'page': 1, 'page_size': 15, 'has_next': False},
             },
         )
         self.assertEqual(
@@ -598,7 +655,8 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'profile_image': 'https://image.tmdb.org/t/p/w300/director.jpg',
                         'known_for_titles': ['Film C'],
                     }
-                ]
+                ],
+                'pagination': {'page': 1, 'page_size': 15, 'has_next': False},
             },
         )
 
@@ -617,13 +675,15 @@ class UpcomingMoviesIntegrationTests(APITestCase):
                     'poster_image': 'https://image.tmdb.org/t/p/w780/poster.jpg',
                     'has_trailer': False,
                 }
-            ]
+            ],
+            'pagination': {'page': 2, 'page_size': 15, 'has_next': True},
         }
 
-        response = self.client.get('/api/movies/upcoming')
+        response = self.client.get('/api/movies/upcoming?page=2')
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), mock_get_upcoming_movies.return_value)
+        mock_get_upcoming_movies.assert_called_once_with(page=2)
 
     @patch('movies.views.TMDbMovieService.get_upcoming_movies')
     def test_upcoming_movies_endpoint_returns_503_when_service_fails(
@@ -652,13 +712,15 @@ class TrendingMoviesIntegrationTests(APITestCase):
                     'poster_image': 'https://image.tmdb.org/t/p/w780/trending.jpg',
                     'has_trailer': False,
                 }
-            ]
+            ],
+            'pagination': {'page': 3, 'page_size': 15, 'has_next': True},
         }
 
-        response = self.client.get('/api/movies/trending')
+        response = self.client.get('/api/movies/trending?page=3')
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), mock_get_trending_movies.return_value)
+        mock_get_trending_movies.assert_called_once_with(page=3)
 
 
 class SearchMoviesIntegrationTests(APITestCase):
@@ -698,13 +760,15 @@ class PopularMoviesIntegrationTests(APITestCase):
                     'poster_image': 'https://image.tmdb.org/t/p/w780/popular.jpg',
                     'has_trailer': False,
                 }
-            ]
+            ],
+            'pagination': {'page': 2, 'page_size': 15, 'has_next': True},
         }
 
-        response = self.client.get('/api/movies/popular')
+        response = self.client.get('/api/movies/popular?page=2')
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), mock_get_popular_movies.return_value)
+        mock_get_popular_movies.assert_called_once_with(page=2)
 
 
 class NowPlayingMoviesIntegrationTests(APITestCase):
@@ -724,13 +788,15 @@ class NowPlayingMoviesIntegrationTests(APITestCase):
                     'poster_image': 'https://image.tmdb.org/t/p/w780/now-playing.jpg',
                     'has_trailer': False,
                 }
-            ]
+            ],
+            'pagination': {'page': 2, 'page_size': 15, 'has_next': True},
         }
 
-        response = self.client.get('/api/movies/now-playing')
+        response = self.client.get('/api/movies/now-playing?page=2')
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), mock_get_now_playing_movies.return_value)
+        mock_get_now_playing_movies.assert_called_once_with(page=2)
 
 
 class PopularTvShowsIntegrationTests(APITestCase):
@@ -750,13 +816,15 @@ class PopularTvShowsIntegrationTests(APITestCase):
                     'poster_image': 'https://image.tmdb.org/t/p/w780/serie.jpg',
                     'has_trailer': False,
                 }
-            ]
+            ],
+            'pagination': {'page': 4, 'page_size': 15, 'has_next': True},
         }
 
-        response = self.client.get('/api/tv-shows/popular')
+        response = self.client.get('/api/tv-shows/popular?page=4')
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), mock_get_popular_tv_shows.return_value)
+        mock_get_popular_tv_shows.assert_called_once_with(page=4)
 
 
 class MovieCategoriesIntegrationTests(APITestCase):
@@ -884,13 +952,15 @@ class PopularPeopleIntegrationTests(APITestCase):
                     'profile_image': 'https://image.tmdb.org/t/p/w300/actor.jpg',
                     'known_for_titles': ['Film A'],
                 }
-            ]
+            ],
+            'pagination': {'page': 2, 'page_size': 15, 'has_next': True},
         }
 
-        response = self.client.get('/api/people/actors')
+        response = self.client.get('/api/people/actors?page=2')
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), mock_get_popular_actors.return_value)
+        mock_get_popular_actors.assert_called_once_with(page=2)
 
     @patch('movies.views.TMDbMovieService.get_popular_directors')
     def test_popular_directors_endpoint_returns_service_payload(
@@ -906,10 +976,12 @@ class PopularPeopleIntegrationTests(APITestCase):
                     'profile_image': 'https://image.tmdb.org/t/p/w300/director.jpg',
                     'known_for_titles': ['Film B'],
                 }
-            ]
+            ],
+            'pagination': {'page': 3, 'page_size': 15, 'has_next': False},
         }
 
-        response = self.client.get('/api/people/directors')
+        response = self.client.get('/api/people/directors?page=3')
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), mock_get_popular_directors.return_value)
+        mock_get_popular_directors.assert_called_once_with(page=3)

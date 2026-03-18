@@ -8,7 +8,7 @@ describe('App routes', () => {
     document.title = 'Movie Atlas'
     global.fetch = vi.fn((url) => {
       const payloads = {
-        'http://localhost:8000/api/movies/trending': {
+        'http://localhost:8000/api/movies/trending?page=1': {
           results: [
             {
               id: '100',
@@ -20,8 +20,9 @@ describe('App routes', () => {
               has_trailer: false,
             },
           ],
+          pagination: { page: 1, page_size: 15, has_next: true },
         },
-        'http://localhost:8000/api/movies/now-playing': {
+        'http://localhost:8000/api/movies/now-playing?page=1': {
           results: [
             {
               id: '200',
@@ -33,8 +34,9 @@ describe('App routes', () => {
               has_trailer: false,
             },
           ],
+          pagination: { page: 1, page_size: 15, has_next: true },
         },
-        'http://localhost:8000/api/movies/upcoming': {
+        'http://localhost:8000/api/movies/upcoming?page=1': {
           results: [
             {
               id: '300',
@@ -46,6 +48,7 @@ describe('App routes', () => {
               has_trailer: false,
             },
           ],
+          pagination: { page: 1, page_size: 15, has_next: true },
         },
       }
 
@@ -94,6 +97,7 @@ describe('App routes', () => {
                 has_trailer: false,
               },
             ],
+            pagination: { page: 1, page_size: 15, has_next: false },
           }),
       }),
     )
@@ -192,6 +196,7 @@ describe('App routes', () => {
                 has_trailer: false,
               },
             ],
+            pagination: { page: 1, page_size: 15, has_next: false },
           }),
       }),
     )
@@ -228,6 +233,7 @@ describe('App routes', () => {
                 has_trailer: false,
               },
             ],
+            pagination: { page: 1, page_size: 15, has_next: false },
           }),
       }),
     )
@@ -262,6 +268,7 @@ describe('App routes', () => {
                 known_for_titles: ['Film A'],
               },
             ],
+            pagination: { page: 1, page_size: 15, has_next: false },
           }),
       }),
     )
@@ -296,6 +303,7 @@ describe('App routes', () => {
                 known_for_titles: ['Film A'],
               },
             ],
+            pagination: { page: 1, page_size: 15, has_next: false },
           }),
       }),
     )
@@ -338,6 +346,7 @@ describe('App routes', () => {
                 credit: 'Director',
               },
             ],
+            pagination: { page: 1, page_size: 15, has_next: false },
           }),
       }),
     )
