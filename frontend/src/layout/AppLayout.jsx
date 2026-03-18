@@ -29,6 +29,24 @@ export function AppLayout() {
 
         <nav className="topnav" aria-label="Principal">
           <NavLink
+            to="/movies"
+            className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
+          >
+            Filmes
+          </NavLink>
+          <NavLink
+            to="/tv-shows"
+            className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
+          >
+            Series
+          </NavLink>
+          <NavLink
+            to="/people"
+            className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
+          >
+            Pessoas
+          </NavLink>
+          <NavLink
             to="/upcoming"
             className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
           >
@@ -37,33 +55,6 @@ export function AppLayout() {
         </nav>
 
         <div className="topbar-tools">
-          <div className="filter-row" aria-label="Explorar">
-            <NavLink
-              to="/movies"
-              className={({ isActive }) => (isActive ? 'filter-chip active' : 'filter-chip')}
-            >
-              Filmes
-            </NavLink>
-            <NavLink
-              to="/tv-shows"
-              className={({ isActive }) => (isActive ? 'filter-chip active' : 'filter-chip')}
-            >
-              Series
-            </NavLink>
-            <NavLink
-              to="/actors"
-              className={({ isActive }) => (isActive ? 'filter-chip active' : 'filter-chip')}
-            >
-              Atores
-            </NavLink>
-            <NavLink
-              to="/directors"
-              className={({ isActive }) => (isActive ? 'filter-chip active' : 'filter-chip')}
-            >
-              Diretores
-            </NavLink>
-          </div>
-
           <form className="search-shell" role="search" onSubmit={handleSearchSubmit}>
             <input
               type="search"

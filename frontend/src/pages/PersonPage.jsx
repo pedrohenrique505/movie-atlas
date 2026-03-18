@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 
 import { ProjectList } from '../components/ProjectList'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
@@ -54,12 +54,6 @@ export function PersonPage() {
 
   return (
     <main className="app-shell">
-      <div className="details-page__actions">
-        <Link to="/" className="button-link">
-          Voltar para inicio
-        </Link>
-      </div>
-
       {isLoading ? <p className="status-panel">Carregando detalhes da pessoa...</p> : null}
 
       {errorMessage ? (

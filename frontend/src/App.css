@@ -1,13 +1,13 @@
 .shell {
-  padding: 0 2rem 3rem;
+  padding: 0 1.5rem 3rem;
 }
 
 .topbar {
   display: grid;
   grid-template-columns: auto 1fr auto;
-  gap: 1.5rem;
+  gap: 1rem;
   align-items: center;
-  padding: 1.5rem 0;
+  padding: 0.9rem 0;
   border-bottom: 1px solid var(--line);
 }
 
@@ -43,13 +43,12 @@
   display: flex;
   gap: 0.75rem;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   flex-wrap: wrap;
 }
 
 .nav-link,
 .button-link,
-.filter-chip,
 .search-shell button {
   display: inline-flex;
   align-items: center;
@@ -76,7 +75,6 @@
 
 .nav-link:hover,
 .button-link:hover,
-.filter-chip:hover,
 .search-shell button:hover,
 .carousel-button:hover {
   border-color: var(--secondary);
@@ -86,24 +84,10 @@
 
 .topbar-tools {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.5rem;
   align-items: center;
   justify-content: flex-end;
   flex-wrap: wrap;
-}
-
-.filter-row {
-  display: flex;
-  gap: 0.55rem;
-  flex-wrap: wrap;
-}
-
-.filter-chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--muted);
-  padding-inline: 0.85rem;
 }
 
 .search-shell {

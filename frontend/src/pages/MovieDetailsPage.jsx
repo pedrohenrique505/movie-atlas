@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 
 import { CastCard } from '../components/CastCard'
 import { DetailsHero } from '../components/DetailsHero'
@@ -59,12 +59,6 @@ export function MovieDetailsPage() {
 
   return (
     <main className="details-page">
-      <div className="details-page__actions">
-        <Link to="/upcoming" className="button-link">
-          Voltar para lancamentos
-        </Link>
-      </div>
-
       {isLoading ? <p className="status-panel">Carregando detalhes do filme...</p> : null}
 
       {errorMessage ? (
