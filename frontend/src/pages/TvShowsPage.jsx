@@ -1,12 +1,13 @@
+import { LoadMoreSection } from '../components/LoadMoreSection'
 import { MovieListSection } from '../components/MovieListSection'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
-import { useMovieCollection } from '../hooks/useMovieCollection'
+import { usePaginatedCollection } from '../hooks/usePaginatedCollection'
 import { api } from '../services/api'
 
 export function TvShowsPage() {
   useDocumentTitle('Séries | Movie Atlas')
 
-  const shows = useMovieCollection(
+  const shows = usePaginatedCollection(
     api.getPopularTvShows,
     'Não foi possível carregar as séries populares.',
   )
@@ -20,14 +21,22 @@ export function TvShowsPage() {
       </section>
 
       <MovieListSection
-        movies={shows.movies}
+        movies={shows.items}
         isLoading={shows.isLoading}
-        errorMessage={shows.errorMessage}
+        errorMessage={shows.isLoading ? shows.errorMessage : ''}
         emptyMessage="Nenhuma série encontrada."
         variant="poster"
         gridClassName="movie-grid--five movie-grid--posters"
         ariaLabel="Lista de séries populares"
         buildItemPath={() => null}
+      />
+
+      <LoadMoreSection
+        hasItems={shows.items.length > 0}
+        hasNextPage={shows.hasNextPage}
+        isLoadingMore={shows.isLoadingMore}
+        errorMessage={!shows.isLoading ? shows.errorMessage : ''}
+        onLoadMore={shows.loadMore}
       />
     </main>
   )

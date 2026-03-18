@@ -461,4 +461,69 @@ describe('App routes', () => {
     expect(await screen.findByText(/blade runner/i)).toBeInTheDocument()
     expect(document.title).toBe('Busca: blade | Movie Atlas')
   })
+
+  it('loads more movies without repeating previous results', async () => {
+    global.fetch = vi.fn((url) => {
+      if (url === 'http://localhost:8000/api/movies/popular?page=1') {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              results: [
+                {
+                  id: '901',
+                  title: 'Filme Popular 1',
+                  release_date: '2026-05-22',
+                  status: 'popular',
+                  synopsis: 'Filme popular do momento.',
+                  poster_image: 'https://image.tmdb.org/t/p/w780/popular-1.jpg',
+                  has_trailer: false,
+                },
+              ],
+              pagination: { page: 1, page_size: 15, has_next: true },
+            }),
+        })
+      }
+
+      if (url === 'http://localhost:8000/api/movies/popular?page=2') {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              results: [
+                {
+                  id: '902',
+                  title: 'Filme Popular 2',
+                  release_date: '2026-05-23',
+                  status: 'popular',
+                  synopsis: 'Outro filme popular.',
+                  poster_image: 'https://image.tmdb.org/t/p/w780/popular-2.jpg',
+                  has_trailer: false,
+                },
+              ],
+              pagination: { page: 2, page_size: 15, has_next: false },
+            }),
+        })
+      }
+
+      return Promise.reject(new Error(`URL inesperada: ${url}`))
+    })
+
+    render(
+      <MemoryRouter initialEntries={['/movies']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(await screen.findByText(/filme popular 1/i)).toBeInTheDocument()
+
+    fireEvent.click(await screen.findByRole('button', { name: /carregar mais/i }))
+
+    expect(await screen.findByText(/filme popular 2/i)).toBeInTheDocument()
+    expect(screen.getByText(/filme popular 1/i)).toBeInTheDocument()
+    expect(global.fetch).toHaveBeenCalledWith(
+      'http://localhost:8000/api/movies/popular?page=2',
+      expect.any(Object),
+    )
+  })
 })
