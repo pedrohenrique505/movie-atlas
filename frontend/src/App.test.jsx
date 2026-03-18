@@ -526,4 +526,65 @@ describe('App routes', () => {
       expect.any(Object),
     )
   })
+
+  it('loads more people without repeating previous results', async () => {
+    global.fetch = vi.fn((url) => {
+      if (url === 'http://localhost:8000/api/people/actors?page=1') {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              results: [
+                {
+                  id: '111',
+                  name: 'Pessoa 1',
+                  known_for_department: 'Acting',
+                  profile_image: 'https://image.tmdb.org/t/p/w300/person-1.jpg',
+                  known_for_titles: ['Filme A'],
+                },
+              ],
+              pagination: { page: 1, page_size: 15, has_next: true },
+            }),
+        })
+      }
+
+      if (url === 'http://localhost:8000/api/people/actors?page=2') {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              results: [
+                {
+                  id: '112',
+                  name: 'Pessoa 2',
+                  known_for_department: 'Acting',
+                  profile_image: 'https://image.tmdb.org/t/p/w300/person-2.jpg',
+                  known_for_titles: ['Filme B'],
+                },
+              ],
+              pagination: { page: 2, page_size: 15, has_next: false },
+            }),
+        })
+      }
+
+      return Promise.reject(new Error(`URL inesperada: ${url}`))
+    })
+
+    render(
+      <MemoryRouter initialEntries={['/actors']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(await screen.findByText(/pessoa 1/i)).toBeInTheDocument()
+
+    fireEvent.click(await screen.findByRole('button', { name: /carregar mais/i }))
+
+    expect(await screen.findByText(/pessoa 2/i)).toBeInTheDocument()
+    expect(screen.getByText(/pessoa 1/i)).toBeInTheDocument()
+    expect(global.fetch).toHaveBeenCalledWith(
+      'http://localhost:8000/api/people/actors?page=2',
+      expect.any(Object),
+    )
+  })
 })
