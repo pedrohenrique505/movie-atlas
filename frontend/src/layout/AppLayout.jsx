@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { SearchIcon } from '../components/navigation/SearchIcon'
+import { useTypingPlaceholder } from '../hooks/useTypingPlaceholder'
 
 export function AppLayout() {
   const navigate = useNavigate()
@@ -9,22 +10,18 @@ export function AppLayout() {
   const [searchParams] = useSearchParams()
   const [query, setQuery] = useState(searchParams.get('q') ?? '')
   const [isSearchFocused, setIsSearchFocused] = useState(false)
-  const [placeholderIndex, setPlaceholderIndex] = useState(0)
-  const placeholders = ['Buscar filmes', 'Buscar séries', 'Buscar pessoas']
+
+  const placeholders = useMemo(
+    () => ['Buscar filmes', 'Buscar séries', 'Buscar pessoas'],
+    [],
+  )
+  const animatedPlaceholder = useTypingPlaceholder(placeholders)
 
   useEffect(() => {
     if (location.pathname === '/search') {
       setQuery(searchParams.get('q') ?? '')
     }
   }, [location.pathname, searchParams])
-
-  useEffect(() => {
-    const intervalId = window.setInterval(() => {
-      setPlaceholderIndex((currentIndex) => (currentIndex + 1) % placeholders.length)
-    }, 2400)
-
-    return () => window.clearInterval(intervalId)
-  }, [placeholders.length])
 
   function handleSearchSubmit(event) {
     event.preventDefault()
@@ -85,7 +82,7 @@ export function AppLayout() {
                 onChange={(event) => setQuery(event.target.value)}
                 onFocus={() => setIsSearchFocused(true)}
                 onBlur={() => setIsSearchFocused(false)}
-                placeholder={placeholders[placeholderIndex]}
+                placeholder={animatedPlaceholder}
                 aria-label="Buscar"
               />
             </div>
