@@ -5,7 +5,6 @@ import { CastCard } from '../components/CastCard'
 import { DetailsHero } from '../components/DetailsHero'
 import { HorizontalScroller } from '../components/HorizontalScroller'
 import { MediaPanel } from '../components/MediaPanel'
-import { MovieTrailer } from '../components/MovieTrailer'
 import { WatchProvidersSection } from '../components/WatchProvidersSection'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
@@ -37,7 +36,6 @@ export function TvShowDetailsPage() {
   const [tvShow, setTvShow] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
-  const [isTrailerOpen, setIsTrailerOpen] = useState(false)
 
   useDocumentTitle(tvShow?.title ? `${tvShow.title} | Movie Atlas` : 'Série | Movie Atlas')
 
@@ -46,7 +44,6 @@ export function TvShowDetailsPage() {
     if (typeof window.scrollTo === 'function') {
       window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
     }
-    setIsTrailerOpen(false)
 
     async function loadTvShowDetails() {
       try {
@@ -101,11 +98,10 @@ export function TvShowDetailsPage() {
             synopsis={tvShow.synopsis}
             posterImage={tvShow.poster_image}
             backdropImage={tvShow.backdrop_image}
-            trailer={tvShow.trailer}
+            trailer={null}
             metadataItems={buildTvShowMetadata(tvShow)}
             primaryCredit={tvShow.creators?.[0] ?? null}
             creditLabel="Criação"
-            onOpenTrailer={() => setIsTrailerOpen(true)}
           />
 
           {tvShow.production_companies?.length ? (
@@ -136,12 +132,6 @@ export function TvShowDetailsPage() {
           <MediaPanel title={tvShow.title} media={tvShow.media} />
 
           <WatchProvidersSection watchProviders={tvShow.watch_providers} />
-
-          <MovieTrailer
-            trailer={tvShow.trailer}
-            isOpen={isTrailerOpen}
-            onClose={() => setIsTrailerOpen(false)}
-          />
         </>
       ) : null}
     </main>
