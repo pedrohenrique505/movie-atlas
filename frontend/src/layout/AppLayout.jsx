@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { CloseIcon } from '../components/navigation/CloseIcon'
+import { ArrowIcon } from '../components/navigation/ArrowIcon'
 import { HamburgerIcon } from '../components/navigation/HamburgerIcon'
 import { SearchIcon } from '../components/navigation/SearchIcon'
 import { useTypingPlaceholder } from '../hooks/useTypingPlaceholder'
@@ -168,6 +169,15 @@ export function AppLayout() {
             role="search"
             onSubmit={handleSearchSubmit}
           >
+            <button
+              type="button"
+              className="search-shell__back"
+              aria-label="Voltar"
+              onClick={() => setIsSearchOpen(false)}
+            >
+              <ArrowIcon direction="left" />
+            </button>
+
             <div className="search-shell__field" aria-hidden={!isSearchOpen}>
               <span className="search-shell__icon" aria-hidden="true">
                 <SearchIcon />
@@ -185,7 +195,11 @@ export function AppLayout() {
               />
             </div>
 
-            <button type="submit" aria-label={isSearchOpen ? 'Buscar' : 'Abrir busca'}>
+            <button
+              type="submit"
+              className="search-shell__submit"
+              aria-label={isSearchOpen ? 'Buscar' : 'Abrir busca'}
+            >
               <SearchIcon />
             </button>
           </form>

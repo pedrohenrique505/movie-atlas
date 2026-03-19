@@ -162,6 +162,10 @@
   transition: width 220ms ease;
 }
 
+.search-shell__back {
+  display: none;
+}
+
 .search-shell--expanded {
   width: min(26rem, 100%);
 }
@@ -1390,17 +1394,45 @@
   }
 
   .topbar--search-open {
-    row-gap: 0.75rem;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 0;
+  }
+
+  .topbar--search-open .topbar-menu-toggle,
+  .topbar--search-open .brand,
+  .topbar--search-open .topnav {
+    display: none;
   }
 
   .topbar--search-open .topbar-tools {
-    grid-column: 1 / -1;
+    grid-column: 1;
     width: 100%;
+    min-width: 0;
   }
 
   .topbar--search-open .search-shell {
+    grid-template-columns: auto minmax(0, 1fr);
     width: 100%;
     max-width: none;
+    margin-left: 0;
+  }
+
+  .topbar--search-open .search-shell__back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    min-height: 2.75rem;
+    padding: 0;
+    border: 1px solid var(--line);
+    background: rgba(248, 248, 242, 0.02);
+    color: var(--text);
+    border-radius: 999px;
+    cursor: pointer;
+  }
+
+  .topbar--search-open .search-shell__submit {
+    display: none;
   }
 
   .mobile-nav {
