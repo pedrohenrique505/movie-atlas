@@ -15,23 +15,26 @@ export function MoviePosterCard({ movie, datePrefix, to = `/movie/${movie.id}` }
   const fallbackLabel = buildFallbackLabel(movie.title)
   const dateLabel = formatDateBR(movie.release_date) || 'Data indisponível'
   const dateText = datePrefix ? `${datePrefix}: ${dateLabel}` : dateLabel
+
   const content = (
     <>
-      {movie.poster_image ? (
-        <img
-          className="poster-card__image"
-          src={movie.poster_image}
-          alt={`Poster de ${movie.title}`}
-        />
-      ) : (
-        <div className="poster-card__visual" aria-hidden="true">
-          <span>{fallbackLabel || 'FILM'}</span>
-        </div>
-      )}
+      <div className="poster-card__media">
+        {movie.poster_image ? (
+          <img
+            className="poster-card__image"
+            src={movie.poster_image}
+            alt={`Poster de ${movie.title}`}
+          />
+        ) : (
+          <div className="poster-card__visual" aria-hidden="true">
+            <span>{fallbackLabel || 'FILM'}</span>
+          </div>
+        )}
+      </div>
 
       <div className="poster-card__content">
-        <p className="poster-card__date">{dateText}</p>
         <h3>{movie.title}</h3>
+        <p className="poster-card__date">{dateText}</p>
       </div>
     </>
   )
