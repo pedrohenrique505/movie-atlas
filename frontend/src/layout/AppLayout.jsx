@@ -102,9 +102,13 @@ export function AppLayout() {
   function handleSearchSubmit(event) {
     event.preventDefault()
 
+    if (!isSearchOpen) {
+      setIsSearchOpen(true)
+      return
+    }
+
     const normalizedQuery = query.trim()
     navigate(normalizedQuery ? `/search?q=${encodeURIComponent(normalizedQuery)}` : '/search')
-    setIsSearchOpen(false)
   }
 
   return (
@@ -144,44 +148,35 @@ export function AppLayout() {
         </nav>
 
         <div className="topbar-tools" ref={searchContainerRef}>
-          <button
-            type="button"
-            className={`search-toggle ${isSearchOpen ? 'search-toggle--active' : ''}`.trim()}
-            aria-label="Abrir busca"
-            aria-expanded={isSearchOpen}
-            aria-controls="topbar-search-panel"
-            onClick={() => setIsSearchOpen((currentValue) => !currentValue)}
+          <form
+            className={`search-shell ${isSearchOpen ? 'search-shell--expanded' : 'search-shell--collapsed'}`.trim()}
+            role="search"
+            onSubmit={handleSearchSubmit}
           >
-            <SearchIcon />
-          </button>
-
-          <div
-            id="topbar-search-panel"
-            className={`search-popover ${isSearchOpen ? 'search-popover--open' : ''}`.trim()}
-            aria-hidden={!isSearchOpen}
-          >
-            <form className="search-shell" role="search" onSubmit={handleSearchSubmit}>
-              <div className="search-shell__field">
-                <span className="search-shell__icon" aria-hidden="true">
-                  <SearchIcon />
-                </span>
-
-                <input
-                  ref={searchInputRef}
-                  type="search"
-                  name="global-search"
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder={animatedPlaceholder}
-                  aria-label="Buscar"
-                />
-              </div>
-
-              <button type="submit" aria-label="Buscar">
+            <div
+              className="search-shell__field"
+              aria-hidden={!isSearchOpen}
+            >
+              <span className="search-shell__icon" aria-hidden="true">
                 <SearchIcon />
-              </button>
-            </form>
-          </div>
+              </span>
+
+              <input
+                ref={searchInputRef}
+                type="search"
+                name="global-search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder={animatedPlaceholder}
+                aria-label="Buscar"
+                tabIndex={isSearchOpen ? 0 : -1}
+              />
+            </div>
+
+            <button type="submit" aria-label={isSearchOpen ? 'Buscar' : 'Abrir busca'}>
+              <SearchIcon />
+            </button>
+          </form>
         </div>
       </header>
 
