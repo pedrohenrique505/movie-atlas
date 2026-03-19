@@ -290,10 +290,19 @@ class TMDbMovieServiceTests(SimpleTestCase):
             'results': [
                 {
                     'id': 909,
+                    'media_type': 'movie',
                     'title': 'Blade Runner',
                     'release_date': '1982-06-25',
                     'overview': 'Neo-noir de ficcao cientifica.',
                     'poster_path': '/blade-runner.jpg',
+                },
+                {
+                    'id': 777,
+                    'media_type': 'person',
+                    'name': 'Harrison Ford',
+                    'known_for_department': 'Acting',
+                    'profile_path': '/harrison-ford.jpg',
+                    'known_for': [{'title': 'Blade Runner'}, {'title': 'Witness'}],
                 }
             ]
         }
@@ -309,12 +318,21 @@ class TMDbMovieServiceTests(SimpleTestCase):
                 'results': [
                     {
                         'id': '909',
+                        'media_type': 'movie',
                         'title': 'Blade Runner',
                         'release_date': '1982-06-25',
                         'status': 'search_result',
                         'synopsis': 'Neo-noir de ficcao cientifica.',
                         'poster_image': 'https://image.tmdb.org/t/p/w780/blade-runner.jpg',
                         'has_trailer': False,
+                    },
+                    {
+                        'id': '777',
+                        'media_type': 'person',
+                        'name': 'Harrison Ford',
+                        'known_for_department': 'Acting',
+                        'profile_image': 'https://image.tmdb.org/t/p/w300/harrison-ford.jpg',
+                        'known_for_titles': ['Blade Runner', 'Witness'],
                     }
                 ],
                 'pagination': {'page': 1, 'page_size': 15, 'has_next': False},
@@ -960,14 +978,24 @@ class SearchMoviesIntegrationTests(APITestCase):
             'results': [
                 {
                     'id': '909',
+                    'media_type': 'movie',
                     'title': 'Blade Runner',
                     'release_date': '1982-06-25',
                     'status': 'search_result',
                     'synopsis': 'Neo-noir de ficcao cientifica.',
                     'poster_image': 'https://image.tmdb.org/t/p/w780/blade-runner.jpg',
                     'has_trailer': False,
+                },
+                {
+                    'id': '777',
+                    'media_type': 'person',
+                    'name': 'Harrison Ford',
+                    'known_for_department': 'Acting',
+                    'profile_image': 'https://image.tmdb.org/t/p/w300/harrison-ford.jpg',
+                    'known_for_titles': ['Blade Runner', 'Witness'],
                 }
-            ]
+            ],
+            'pagination': {'page': 1, 'page_size': 15, 'has_next': False},
         }
 
         response = self.client.get('/api/search?q=blade')

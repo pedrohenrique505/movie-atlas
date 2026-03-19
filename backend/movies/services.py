@@ -119,7 +119,7 @@ class TMDbMovieService:
             return {'results': []}
 
         payload = self._request(
-            '/search/movie',
+            '/search/multi',
             {
                 'language': self.language,
                 'query': query.strip(),
@@ -128,10 +128,7 @@ class TMDbMovieService:
             },
         )
 
-        return self._normalize_media_list_payload(
-            payload,
-            status_label='search_result',
-        )
+        return self._normalize_search_payload(payload)
 
     def get_person_details(self, person_id):
         payload = self._request(
@@ -251,6 +248,52 @@ class TMDbMovieService:
                 'page': page,
                 'page_size': self.page_size,
                 'has_next': bool(total_pages and page < total_pages),
+            },
+        }
+
+    def _normalize_search_payload(self, payload):
+        results = []
+
+        for item in payload.get('results', []):
+            media_type = item.get('media_type')
+
+            if media_type == 'person':
+                results.append(
+                    {
+                        'id': str(item['id']),
+                        'media_type': 'person',
+                        'name': item.get('name') or '',
+                        'known_for_department': item.get('known_for_department') or '',
+                        'profile_image': self._build_image_url(item.get('profile_path'), 'w300'),
+                        'known_for_titles': self._normalize_known_for_titles(item.get('known_for', [])),
+                    }
+                )
+            elif media_type in {'movie', 'tv'}:
+                results.append(
+                    {
+                        'id': str(item['id']),
+                        'media_type': media_type,
+                        'title': self._pick_first_value(
+                            item,
+                            ('title', 'name', 'original_title', 'original_name'),
+                        ),
+                        'release_date': item.get('release_date') or item.get('first_air_date') or '',
+                        'status': 'search_result',
+                        'synopsis': item.get('overview') or 'Sinopse ainda nao disponivel.',
+                        'poster_image': self._build_image_url(item.get('poster_path'), 'w780'),
+                        'has_trailer': False,
+                    }
+                )
+
+            if len(results) >= self.page_size:
+                break
+
+        return {
+            'results': results,
+            'pagination': {
+                'page': 1,
+                'page_size': self.page_size,
+                'has_next': False,
             },
         }
 

@@ -567,6 +567,7 @@ describe('App routes', () => {
               results: [
                 {
                   id: '909',
+                  media_type: 'movie',
                   title: 'Blade Runner',
                   release_date: '1982-06-25',
                   status: 'search_result',
@@ -574,7 +575,16 @@ describe('App routes', () => {
                   poster_image: 'https://image.tmdb.org/t/p/w780/blade-runner.jpg',
                   has_trailer: false,
                 },
+                {
+                  id: '777',
+                  media_type: 'person',
+                  name: 'Harrison Ford',
+                  known_for_department: 'Acting',
+                  profile_image: 'https://image.tmdb.org/t/p/w300/harrison-ford.jpg',
+                  known_for_titles: ['Blade Runner', 'Witness'],
+                },
               ],
+              pagination: { page: 1, page_size: 15, has_next: false },
             }),
         })
       }
@@ -597,7 +607,11 @@ describe('App routes', () => {
     fireEvent.click(screen.getByRole('button', { name: /buscar/i }))
 
     expect(await screen.findByRole('heading', { name: /resultados para "blade"/i })).toBeInTheDocument()
-    expect(await screen.findByText(/blade runner/i)).toBeInTheDocument()
+    expect(await screen.findByRole('link', { name: /poster de blade runner/i })).toHaveAttribute(
+      'href',
+      '/movie/909',
+    )
+    expect(await screen.findByText(/harrison ford/i)).toBeInTheDocument()
     expect(document.title).toBe('Busca: blade | Movie Atlas')
   })
 

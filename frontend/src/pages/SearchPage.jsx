@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { MovieListSection } from '../components/MovieListSection'
 import { CollectionFeedback } from '../components/CollectionFeedback'
+import { SearchResultsSection } from '../components/SearchResultsSection'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { api } from '../services/api'
 
@@ -39,9 +39,7 @@ export function SearchPage() {
       } catch (error) {
         if (isMounted) {
           setErrorMessage(
-            error instanceof Error
-              ? error.message
-              : 'Não foi possível concluir a busca.',
+            error instanceof Error ? error.message : 'Não foi possível concluir a busca.',
           )
         }
       } finally {
@@ -62,26 +60,25 @@ export function SearchPage() {
     <main className="app-shell">
       <section className="page-heading page-heading--compact">
         <div className="page-copy">
-          <h1>{query ? `Resultados para "${query}"` : 'Buscar filmes'}</h1>
+          <h1>{query ? `Resultados para "${query}"` : 'Buscar no catálogo'}</h1>
         </div>
       </section>
 
       {!query ? (
-          <CollectionFeedback
-            isLoading={false}
-            errorMessage=""
-            emptyMessage="Digite um título para iniciar a busca."
-          />
-      ) : (
-        <MovieListSection
-          movies={results}
+        <CollectionFeedback
+          isLoading={false}
+          errorMessage=""
+          emptyMessage="Digite um título ou nome para iniciar a busca."
+        />
+      ) : isLoading || errorMessage || !results.length ? (
+        <CollectionFeedback
           isLoading={isLoading}
           errorMessage={errorMessage}
           emptyMessage={`Nenhum resultado encontrado para "${query}".`}
-          variant="poster"
-          gridClassName="movie-grid--five movie-grid--posters"
-          ariaLabel="Resultados da busca"
+          loadingLabel="Buscando resultados"
         />
+      ) : (
+        <SearchResultsSection results={results} />
       )}
     </main>
   )

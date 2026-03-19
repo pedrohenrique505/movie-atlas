@@ -32,7 +32,33 @@ def build_upcoming_movies_example():
 
 
 def build_search_movies_example():
-    return build_movie_list_example(status='search_result')
+    return {
+        'results': [
+            {
+                'id': '980489',
+                'media_type': 'movie',
+                'title': 'Gran Turismo 2',
+                'release_date': '2026-06-24',
+                'status': 'search_result',
+                'synopsis': 'Exemplo de filme retornado na busca.',
+                'poster_image': 'https://image.tmdb.org/t/p/w780/example-poster.jpg',
+                'has_trailer': False,
+            },
+            {
+                'id': '42',
+                'media_type': 'person',
+                'name': 'Pessoa Exemplo',
+                'known_for_department': 'Acting',
+                'profile_image': 'https://image.tmdb.org/t/p/w300/example-person.jpg',
+                'known_for_titles': ['Obra Exemplo', 'Outra Obra'],
+            },
+        ],
+        'pagination': {
+            'page': 1,
+            'page_size': 15,
+            'has_next': False,
+        },
+    }
 
 
 def build_people_list_example(department='Acting'):
@@ -281,12 +307,20 @@ class UpcomingMoviesView(APIView):
                                 'type': 'object',
                                 'properties': {
                                     'id': {'type': 'string'},
-                                    'title': {'type': 'string'},
-                                    'release_date': {'type': 'string', 'format': 'date'},
-                                    'status': {'type': 'string'},
-                                    'synopsis': {'type': 'string'},
+                                    'media_type': {'type': 'string'},
+                                    'title': {'type': 'string', 'nullable': True},
+                                    'name': {'type': 'string', 'nullable': True},
+                                    'release_date': {'type': 'string', 'format': 'date', 'nullable': True},
+                                    'status': {'type': 'string', 'nullable': True},
+                                    'synopsis': {'type': 'string', 'nullable': True},
                                     'poster_image': {'type': 'string', 'nullable': True},
-                                    'has_trailer': {'type': 'boolean'},
+                                    'has_trailer': {'type': 'boolean', 'nullable': True},
+                                    'known_for_department': {'type': 'string', 'nullable': True},
+                                    'profile_image': {'type': 'string', 'nullable': True},
+                                    'known_for_titles': {
+                                        'type': 'array',
+                                        'items': {'type': 'string'},
+                                    },
                                 },
                             },
                         },
