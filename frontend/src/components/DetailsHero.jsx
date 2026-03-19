@@ -10,6 +10,7 @@ export function DetailsHero({
   primaryCredit,
   creditLabel = 'Direção',
   onOpenTrailer,
+  secondaryAction,
 }) {
   const heroStyle = backdropImage ? { backgroundImage: `url(${backdropImage})` } : undefined
 
@@ -56,7 +57,10 @@ export function DetailsHero({
                   Trailer indisponível
                 </button>
               )}
+              {secondaryAction}
             </div>
+          ) : secondaryAction ? (
+            <div className="details-hero__actions">{secondaryAction}</div>
           ) : null}
 
           <p className="details-hero__synopsis">{synopsis}</p>

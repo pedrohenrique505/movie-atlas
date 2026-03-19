@@ -1,6 +1,6 @@
-export function WatchProvidersSection({ watchProviders, compact = false }) {
-  const detailsLink = watchProviders?.link ?? null
+import { WatchAvailabilityButton } from './WatchAvailabilityButton'
 
+export function WatchProvidersSection({ watchProviders, compact = false }) {
   return (
     <section
       className={`details-section ${compact ? 'details-section--compact' : ''}`.trim()}
@@ -12,24 +12,7 @@ export function WatchProvidersSection({ watchProviders, compact = false }) {
         </div>
       </div>
 
-      {detailsLink ? (
-        <a
-          className="button-link watch-availability-button"
-          href={detailsLink}
-          target="_blank"
-          rel="noreferrer"
-        >
-          Onde posso assistir?
-        </a>
-      ) : (
-        <button
-          type="button"
-          className="button-link button-link--disabled watch-availability-button"
-          disabled
-        >
-          Onde posso assistir?
-        </button>
-      )}
+      <WatchAvailabilityButton link={watchProviders?.link ?? null} />
     </section>
   )
 }

@@ -6,7 +6,7 @@ import { DetailsHero } from '../components/DetailsHero'
 import { HorizontalScroller } from '../components/HorizontalScroller'
 import { MediaPanel } from '../components/MediaPanel'
 import { MovieTrailer } from '../components/MovieTrailer'
-import { WatchProvidersSection } from '../components/WatchProvidersSection'
+import { WatchAvailabilityButton } from '../components/WatchAvailabilityButton'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { api } from '../services/api'
@@ -95,6 +95,7 @@ export function MovieDetailsPage() {
             primaryCredit={movie.directors?.[0] ?? null}
             creditLabel="Direção"
             onOpenTrailer={() => setIsTrailerOpen(true)}
+            secondaryAction={<WatchAvailabilityButton link={movie.watch_providers?.link ?? null} />}
           />
 
           <section className="details-section" aria-label="Elenco">
@@ -112,8 +113,6 @@ export function MovieDetailsPage() {
           </section>
 
           <MediaPanel title={movie.title} media={movie.media} />
-
-          <WatchProvidersSection watchProviders={movie.watch_providers} />
 
           <MovieTrailer
             trailer={movie.trailer}
