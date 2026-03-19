@@ -4,7 +4,7 @@
 
 .topbar {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   gap: 1rem;
   align-items: center;
   padding: 0.9rem 0;
@@ -68,7 +68,7 @@
   display: flex;
   gap: 0.75rem;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   flex-wrap: wrap;
 }
 
@@ -115,23 +115,55 @@
 }
 
 .topbar-tools {
+  position: relative;
   display: flex;
-  gap: 0.5rem;
   align-items: center;
   justify-content: flex-end;
-  flex-wrap: wrap;
+}
+
+.search-toggle {
+  width: 2.75rem;
+  min-width: 2.75rem;
+  padding: 0;
+}
+
+.search-toggle--active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(80, 250, 123, 0.08);
+}
+
+.search-popover {
+  position: absolute;
+  top: calc(100% + 0.75rem);
+  right: 0;
+  z-index: 13;
+  width: min(32rem, calc(100vw - 3rem));
+  padding: 0.65rem;
+  border: 1px solid rgba(248, 248, 242, 0.08);
+  background: rgba(18, 18, 18, 0.84);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-0.35rem) scale(0.98);
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-radius: 1.25rem;
+}
+
+.search-popover--open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
 }
 
 .search-shell {
   display: grid;
-  grid-template-columns: minmax(220px, 260px) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 0.5rem;
   align-items: center;
-  transition: grid-template-columns 180ms ease;
-}
-
-.search-shell--expanded {
-  grid-template-columns: minmax(280px, 360px) auto;
 }
 
 .search-shell__field {
@@ -1289,11 +1321,13 @@
   }
 
   .topnav {
-    justify-content: flex-start;
+    justify-content: center;
+    width: 100%;
   }
 
   .topbar-tools {
     justify-content: flex-start;
+    width: 100%;
   }
 
   .movie-grid--five,
@@ -1360,8 +1394,13 @@
   }
 
   .search-shell {
-    grid-template-columns: 1fr;
     width: 100%;
+  }
+
+  .search-popover {
+    left: 0;
+    right: auto;
+    width: min(100%, 32rem);
   }
 }
 

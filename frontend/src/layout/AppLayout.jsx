@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { SearchIcon } from '../components/navigation/SearchIcon'
@@ -9,8 +9,10 @@ export function AppLayout() {
   const location = useLocation()
   const [searchParams] = useSearchParams()
   const [query, setQuery] = useState(searchParams.get('q') ?? '')
-  const [isSearchFocused, setIsSearchFocused] = useState(false)
   const [isTopbarVisible, setIsTopbarVisible] = useState(true)
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const searchContainerRef = useRef(null)
+  const searchInputRef = useRef(null)
 
   const placeholderExamples = useMemo(
     () => [
@@ -65,11 +67,44 @@ export function AppLayout() {
     }
   }, [])
 
+  useEffect(() => {
+    if (!isSearchOpen) {
+      return undefined
+    }
+
+    function handlePointerDown(event) {
+      if (!searchContainerRef.current?.contains(event.target)) {
+        setIsSearchOpen(false)
+      }
+    }
+
+    function handleKeyDown(event) {
+      if (event.key === 'Escape') {
+        setIsSearchOpen(false)
+      }
+    }
+
+    window.addEventListener('pointerdown', handlePointerDown)
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      window.removeEventListener('pointerdown', handlePointerDown)
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isSearchOpen])
+
+  useEffect(() => {
+    if (isSearchOpen) {
+      searchInputRef.current?.focus()
+    }
+  }, [isSearchOpen])
+
   function handleSearchSubmit(event) {
     event.preventDefault()
 
     const normalizedQuery = query.trim()
     navigate(normalizedQuery ? `/search?q=${encodeURIComponent(normalizedQuery)}` : '/search')
+    setIsSearchOpen(false)
   }
 
   return (
@@ -108,33 +143,45 @@ export function AppLayout() {
           </NavLink>
         </nav>
 
-        <div className="topbar-tools">
-          <form
-            className={`search-shell ${isSearchFocused || query ? 'search-shell--expanded' : ''}`.trim()}
-            role="search"
-            onSubmit={handleSearchSubmit}
+        <div className="topbar-tools" ref={searchContainerRef}>
+          <button
+            type="button"
+            className={`search-toggle ${isSearchOpen ? 'search-toggle--active' : ''}`.trim()}
+            aria-label="Abrir busca"
+            aria-expanded={isSearchOpen}
+            aria-controls="topbar-search-panel"
+            onClick={() => setIsSearchOpen((currentValue) => !currentValue)}
           >
-            <div className="search-shell__field">
-              <span className="search-shell__icon" aria-hidden="true">
+            <SearchIcon />
+          </button>
+
+          <div
+            id="topbar-search-panel"
+            className={`search-popover ${isSearchOpen ? 'search-popover--open' : ''}`.trim()}
+            aria-hidden={!isSearchOpen}
+          >
+            <form className="search-shell" role="search" onSubmit={handleSearchSubmit}>
+              <div className="search-shell__field">
+                <span className="search-shell__icon" aria-hidden="true">
+                  <SearchIcon />
+                </span>
+
+                <input
+                  ref={searchInputRef}
+                  type="search"
+                  name="global-search"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder={animatedPlaceholder}
+                  aria-label="Buscar"
+                />
+              </div>
+
+              <button type="submit" aria-label="Buscar">
                 <SearchIcon />
-              </span>
-
-              <input
-                type="search"
-                name="global-search"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                onFocus={() => setIsSearchFocused(true)}
-                onBlur={() => setIsSearchFocused(false)}
-                placeholder={animatedPlaceholder}
-                aria-label="Buscar"
-              />
-            </div>
-
-            <button type="submit" aria-label="Buscar">
-              <SearchIcon />
-            </button>
-          </form>
+              </button>
+            </form>
+          </div>
         </div>
       </header>
 

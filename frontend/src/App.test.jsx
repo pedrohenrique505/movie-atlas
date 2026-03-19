@@ -664,10 +664,16 @@ describe('App routes', () => {
       </MemoryRouter>,
     )
 
-    fireEvent.change(screen.getByRole('searchbox', { name: /buscar/i }), {
+    expect(screen.queryByRole('searchbox', { name: /buscar/i })).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /abrir busca/i }))
+
+    const searchbox = await screen.findByRole('searchbox', { name: /buscar/i })
+
+    fireEvent.change(searchbox, {
       target: { value: 'blade' },
     })
-    fireEvent.click(screen.getByRole('button', { name: /buscar/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^buscar$/i }))
 
     expect(await screen.findByRole('heading', { name: /resultados para "blade"/i })).toBeInTheDocument()
     expect(await screen.findByRole('link', { name: /poster de blade runner/i })).toHaveAttribute(
