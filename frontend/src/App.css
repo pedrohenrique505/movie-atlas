@@ -246,60 +246,56 @@
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   background-color: #1a1a1a;
+  overflow: hidden;
+}
+
+.home-hero-banner__slide {
+  position: absolute;
+  inset: 0;
   background-position: center;
   background-size: cover;
-  overflow: hidden;
+  opacity: 0;
+  transform: scale(1.02);
+  transition:
+    opacity 420ms ease,
+    transform 420ms ease;
+}
+
+.home-hero-banner__slide.is-active {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .home-hero-banner__overlay {
   position: absolute;
   inset: 0;
-  background: rgba(18, 18, 18, 0.7);
+  background: rgba(18, 18, 18, 0.45);
 }
 
 .home-hero-banner__content {
   position: relative;
   z-index: 1;
   display: flex;
-  flex-direction: column;
+  align-items: flex-end;
   justify-content: space-between;
   min-height: 420px;
   padding: 2rem;
 }
 
-.home-hero-banner__copy {
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-  max-width: 48rem;
+.home-hero-banner__content > span {
+  display: block;
+  width: 1px;
+  height: 1px;
 }
 
-.home-hero-banner__copy h2 {
-  font-size: clamp(2rem, 4vw, 3.5rem);
-  line-height: 0.98;
-}
-
-.home-hero-banner__copy .lead {
-  max-width: 36rem;
-  color: var(--text);
-}
-
-.home-hero-banner__meta {
-  color: var(--secondary);
-  font-size: 0.95rem;
-}
-
-.home-hero-banner__footer {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-top: 1.5rem;
+.home-hero-banner__cta {
+  align-self: flex-end;
 }
 
 .home-hero-banner__dots {
   display: flex;
-  gap: 0.6rem;
+  gap: 1rem;
+  align-self: flex-start;
 }
 
 .home-hero-banner__dot {
@@ -1370,9 +1366,8 @@
     padding: 1.5rem;
   }
 
-  .home-hero-banner__footer {
-    align-items: flex-start;
-    flex-direction: column;
+  .home-hero-banner__content {
+    align-items: stretch;
   }
 
   .person-page {
@@ -1408,6 +1403,10 @@
   .home-hero-banner__content {
     min-height: 320px;
     padding: 1.25rem;
+  }
+
+  .home-hero-banner__dots {
+    gap: 0.75rem;
   }
 
   .director-credit__preview {

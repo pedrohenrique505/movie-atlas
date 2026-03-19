@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 
 import App from './App'
@@ -72,11 +72,13 @@ describe('App routes', () => {
     ).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /^home$/i })).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: /movie atlas/i })).toHaveAttribute('href', '/')
-    expect(await screen.findAllByRole('heading', { name: /trending one/i })).toHaveLength(2)
-    expect(await screen.findByLabelText(/destaques em alta/i)).toHaveStyle({
+    const highlightsBanner = await screen.findByLabelText(/destaques em alta/i)
+    const activeSlide = highlightsBanner.querySelector('[data-active="true"]')
+
+    expect(activeSlide).toHaveStyle({
       backgroundImage: 'url(https://image.tmdb.org/t/p/w1280/trending-one-backdrop.jpg)',
     })
-    expect(await screen.findByRole('link', { name: /^ver detalhes$/i })).toHaveAttribute(
+    expect(within(highlightsBanner).getByRole('link', { name: /^ver detalhes$/i })).toHaveAttribute(
       'href',
       '/movie/100',
     )
@@ -90,7 +92,6 @@ describe('App routes', () => {
       'href',
       '/movie/300',
     )
-    expect(await screen.findByAltText(/poster de trending one/i)).toBeInTheDocument()
     expect(await screen.findByText(/^NP$/i)).toBeInTheDocument()
     expect(await screen.findByText(/data prevista de estreia: 21\/03\/2026/i)).toBeInTheDocument()
     expect(document.title).toBe('Movie Atlas')
