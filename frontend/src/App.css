@@ -718,6 +718,10 @@
   gap: 1rem;
 }
 
+.details-section--compact {
+  gap: 0.75rem;
+}
+
 .scroller {
   display: flex;
   flex-direction: column;
@@ -999,6 +1003,10 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+
+.watch-availability-button {
+  width: fit-content;
 }
 
 .provider-group {

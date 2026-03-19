@@ -217,7 +217,9 @@ describe('App routes', () => {
     expect(await screen.findByRole('button', { name: /assista ao trailer/i })).toBeInTheDocument()
     expect(await screen.findByRole('heading', { name: /mídia/i })).toBeInTheDocument()
     expect(await screen.findByRole('heading', { name: /onde assistir/i })).toBeInTheDocument()
-    expect(await screen.findByText(/netflix/i)).toBeInTheDocument()
+    expect(
+      await screen.findByRole('link', { name: /onde posso assistir\?/i }),
+    ).toHaveAttribute('href', 'https://www.themoviedb.org/movie/101/watch')
     expect(screen.queryByText(/nota 7.3/i)).not.toBeInTheDocument()
     expect(document.title).toBe('The Odyssey | Movie Atlas')
   })
@@ -380,6 +382,9 @@ describe('App routes', () => {
     expect(await screen.findByText(/amc studios/i)).toBeInTheDocument()
     expect(await screen.findByRole('heading', { name: /mídia/i })).toBeInTheDocument()
     expect(await screen.findByRole('heading', { name: /onde assistir/i })).toBeInTheDocument()
+    expect(
+      await screen.findByRole('link', { name: /onde posso assistir\?/i }),
+    ).toHaveAttribute('href', 'https://www.themoviedb.org/tv/85552/watch')
     expect(document.title).toBe('Silo | Movie Atlas')
   })
 
