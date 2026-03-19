@@ -1343,6 +1343,34 @@
   .people-grid,
   .search-results-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.8rem;
+  }
+
+  .movie-grid--posters {
+    gap: 0.8rem;
+  }
+
+  .carousel-track {
+    grid-auto-columns: minmax(170px, 210px);
+  }
+
+  .horizontal-track {
+    grid-auto-columns: minmax(160px, 210px);
+  }
+
+  .poster-card,
+  .cast-card {
+    border-radius: 1.1rem;
+  }
+
+  .poster-card__content,
+  .cast-card__content {
+    padding: 0.85rem 0.85rem 0.95rem;
+  }
+
+  .poster-card__content h3,
+  .cast-card__content h3 {
+    font-size: 0.98rem;
   }
 
   .section-head {
@@ -1379,10 +1407,42 @@
 }
 
 @media (max-width: 560px) {
+  .shell {
+    padding: 0 0.85rem 1.75rem;
+  }
+
   .movie-grid--five,
   .people-grid,
   .search-results-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.7rem;
+  }
+
+  .movie-grid--posters {
+    gap: 0.7rem;
+  }
+
+  .carousel-track {
+    grid-auto-columns: minmax(150px, 180px);
+  }
+
+  .horizontal-track {
+    grid-auto-columns: minmax(150px, 185px);
+  }
+
+  .poster-card__content,
+  .cast-card__content {
+    padding: 0.8rem 0.8rem 0.9rem;
+  }
+
+  .poster-card__content h3,
+  .cast-card__content h3 {
+    font-size: 0.92rem;
+  }
+
+  .poster-card__date,
+  .cast-card__content p {
+    font-size: 0.78rem;
   }
 
   .trailer-modal {
@@ -1398,5 +1458,13 @@
   .director-credit:hover .director-credit__preview,
   .director-credit:focus-visible .director-credit__preview {
     transform: translateY(0);
+  }
+}
+
+@media (max-width: 400px) {
+  .movie-grid--five,
+  .people-grid,
+  .search-results-grid {
+    grid-template-columns: 1fr;
   }
 }
