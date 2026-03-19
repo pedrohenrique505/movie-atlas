@@ -1,3 +1,4 @@
+import { HomeTrendingBanner } from '../components/HomeTrendingBanner'
 import { MovieGridSection } from '../components/MovieGridSection'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { useMovieCollection } from '../hooks/useMovieCollection'
@@ -21,20 +22,21 @@ export function HomePage() {
 
   return (
     <main className="app-shell">
-      <section className="hero-panel">
-        <div className="hero-copy">
-          <p className="eyebrow">Movie Atlas</p>
-          <h1>Descubra filmes em alta, em cartaz e os próximos lançamentos.</h1>
+      <section className="hero-panel hero-panel--home">
+        <div className="hero-copy home-hero__copy">
+          <h1 className="home-hero__title">
+            Descubra filmes em alta, em cartaz e os próximos lançamentos.
+          </h1>
           <p className="lead">
-            A Home definitiva organiza o catálogo em trilhas horizontais com
-            navegação simples, foco no pôster e acesso rápido aos detalhes.
+            Explore o catálogo com destaques atualizados e acesso rápido aos detalhes de cada obra.
           </p>
         </div>
 
-        <aside className="hero-aside">
-          <p>Três listas independentes, cada uma com até 15 filmes.</p>
-          <p>Scroll horizontal com controles simples e layout alinhado à nova identidade visual.</p>
-        </aside>
+        <HomeTrendingBanner
+          movies={trending.movies}
+          isLoading={trending.isLoading}
+          errorMessage={trending.errorMessage}
+        />
       </section>
 
       <MovieGridSection

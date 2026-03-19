@@ -185,6 +185,10 @@
   border-top: none;
 }
 
+.hero-panel--home {
+  align-items: center;
+}
+
 .page-heading--compact {
   grid-template-columns: 1fr;
   align-items: start;
@@ -225,6 +229,94 @@
   max-width: 66ch;
   color: var(--muted);
   font-size: 1.05rem;
+}
+
+.home-hero__copy {
+  gap: 0.85rem;
+}
+
+.home-hero__title {
+  font-size: clamp(2.1rem, 3.6vw, 3.4rem);
+  line-height: 1.02;
+}
+
+.home-banner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  gap: 1.5rem;
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: var(--radius-md);
+}
+
+.home-banner__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.home-banner__copy .lead {
+  max-width: 42ch;
+  font-size: 0.98rem;
+}
+
+.home-banner__date {
+  color: var(--secondary);
+}
+
+.home-banner__media img,
+.home-banner__fallback {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.home-banner__media img {
+  object-fit: cover;
+}
+
+.home-banner__fallback {
+  display: flex;
+  align-items: end;
+  justify-content: flex-start;
+  padding: 1rem;
+  background: #23252d;
+}
+
+.home-banner__fallback span {
+  color: var(--accent);
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.home-banner__dots {
+  display: flex;
+  gap: 0.6rem;
+  grid-column: 1 / -1;
+}
+
+.home-banner__dot {
+  width: 0.85rem;
+  height: 0.85rem;
+  padding: 0;
+  border: 1px solid var(--line);
+  background: transparent;
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    border-color var(--transition-base),
+    background-color var(--transition-base),
+    transform var(--transition-base);
+}
+
+.home-banner__dot.active,
+.home-banner__dot:hover {
+  border-color: var(--accent);
+  background: var(--accent);
+  transform: translateY(-1px);
 }
 
 .cta-row {
@@ -1263,6 +1355,10 @@
   .details-hero__content {
     grid-template-columns: 1fr;
     padding: 2rem 1rem;
+  }
+
+  .home-banner {
+    grid-template-columns: 1fr;
   }
 
   .person-page {

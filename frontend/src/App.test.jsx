@@ -71,10 +71,18 @@ describe('App routes', () => {
     ).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /^home$/i })).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: /movie atlas/i })).toHaveAttribute('href', '/')
-    expect(await screen.findByText(/trending one/i)).toBeInTheDocument()
-    expect(await screen.findByText(/now playing one/i)).toBeInTheDocument()
-    expect(await screen.findByText(/upcoming one/i)).toBeInTheDocument()
-    expect(await screen.findByAltText(/poster de trending one/i)).toBeInTheDocument()
+    expect(await screen.findAllByRole('heading', { name: /trending one/i })).toHaveLength(2)
+    expect(await screen.findAllByRole('heading', { name: /em cartaz/i })).toHaveLength(2)
+    expect(await screen.findAllByRole('heading', { name: /próximos lançamentos/i })).toHaveLength(2)
+    expect((await screen.findByText(/now playing one/i)).closest('a')).toHaveAttribute(
+      'href',
+      '/movie/200',
+    )
+    expect(await screen.findByRole('link', { name: /poster de upcoming one/i })).toHaveAttribute(
+      'href',
+      '/movie/300',
+    )
+    expect(await screen.findAllByAltText(/poster de trending one/i)).toHaveLength(2)
     expect(await screen.findByText(/^NP$/i)).toBeInTheDocument()
     expect(await screen.findByText(/data prevista de estreia: 21\/03\/2026/i)).toBeInTheDocument()
     expect(document.title).toBe('Movie Atlas')
