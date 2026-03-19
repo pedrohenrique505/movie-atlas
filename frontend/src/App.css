@@ -15,6 +15,21 @@
   background: rgba(18, 18, 18, 0.18);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
+  transition:
+    transform 220ms ease,
+    opacity 220ms ease,
+    background-color 180ms ease;
+}
+
+.topbar--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.topbar--hidden {
+  opacity: 0;
+  transform: translateY(calc(-100% - 0.75rem));
+  pointer-events: none;
 }
 
 .brand {
@@ -257,10 +272,12 @@
 }
 
 .home-hero-banner {
+  display: block;
   position: relative;
-  min-height: 420px;
+  width: 100%;
+  min-height: clamp(22rem, 48vw, 34rem);
   background-color: #1a1a1a;
-  background-position: center;
+  background-position: center center;
   background-repeat: no-repeat;
   background-size: cover;
   overflow: hidden;
@@ -278,7 +295,7 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  min-height: 420px;
+  min-height: inherit;
   width: 100%;
   padding: 1.75rem;
 }
@@ -1359,11 +1376,11 @@
   }
 
   .home-hero-banner {
-    min-height: 360px;
+    min-height: clamp(20rem, 52vw, 28rem);
   }
 
   .home-hero-banner__content {
-    min-height: 360px;
+    min-height: inherit;
     padding: 1.5rem;
   }
 
@@ -1394,11 +1411,11 @@
   }
 
   .home-hero-banner {
-    min-height: 320px;
+    min-height: 18rem;
   }
 
   .home-hero-banner__content {
-    min-height: 320px;
+    min-height: inherit;
     padding: 1.25rem;
   }
 

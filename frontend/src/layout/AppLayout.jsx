@@ -10,13 +10,15 @@ export function AppLayout() {
   const [searchParams] = useSearchParams()
   const [query, setQuery] = useState(searchParams.get('q') ?? '')
   const [isSearchFocused, setIsSearchFocused] = useState(false)
+  const [isTopbarVisible, setIsTopbarVisible] = useState(true)
 
   const placeholderExamples = useMemo(
     () => [
       "'The Batman'",
-      "'Martin Supreme'",
+      "'Marty Supreme'",
       "'Christopher Nolan'",
       "'Zendaya'",
+      "'Homem Aranha'",
     ],
     [],
   )
@@ -28,6 +30,41 @@ export function AppLayout() {
     }
   }, [location.pathname, searchParams])
 
+  useEffect(() => {
+    let lastScrollY = window.scrollY
+    let ticking = false
+    const threshold = 12
+
+    function updateTopbarVisibility() {
+      const currentScrollY = window.scrollY
+      const delta = currentScrollY - lastScrollY
+
+      if (currentScrollY <= 16) {
+        setIsTopbarVisible(true)
+      } else if (delta > threshold) {
+        setIsTopbarVisible(false)
+      } else if (delta < -threshold) {
+        setIsTopbarVisible(true)
+      }
+
+      lastScrollY = currentScrollY
+      ticking = false
+    }
+
+    function handleScroll() {
+      if (!ticking) {
+        window.requestAnimationFrame(updateTopbarVisibility)
+        ticking = true
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [])
+
   function handleSearchSubmit(event) {
     event.preventDefault()
 
@@ -37,7 +74,9 @@ export function AppLayout() {
 
   return (
     <div className="shell">
-      <header className="topbar">
+      <header
+        className={`topbar ${isTopbarVisible ? 'topbar--visible' : 'topbar--hidden'}`.trim()}
+      >
         <NavLink className="brand" to="/">
           Movie Atlas
         </NavLink>

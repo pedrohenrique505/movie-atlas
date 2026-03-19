@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 
 import App from './App'
@@ -471,6 +471,60 @@ describe('App routes', () => {
     ).toBeInTheDocument()
     expect(await screen.findByText(/person example/i)).toBeInTheDocument()
     expect(document.title).toBe('Pessoas | Movie Atlas')
+  })
+
+  it('hides the header on scroll down and shows it on scroll up', async () => {
+    Object.defineProperty(window, 'scrollY', {
+      value: 0,
+      writable: true,
+      configurable: true,
+    })
+
+    global.fetch = vi.fn((url) => {
+      const payloads = {
+        'http://localhost:8000/api/movies/trending?page=1': {
+          results: [],
+          pagination: { page: 1, page_size: 15, has_next: false },
+        },
+        'http://localhost:8000/api/movies/now-playing?page=1': {
+          results: [],
+          pagination: { page: 1, page_size: 15, has_next: false },
+        },
+        'http://localhost:8000/api/movies/upcoming?page=1': {
+          results: [],
+          pagination: { page: 1, page_size: 15, has_next: false },
+        },
+      }
+
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(payloads[url]),
+      })
+    })
+
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    const header = screen.getByRole('banner')
+
+    expect(header).toHaveClass('topbar--visible')
+
+    window.scrollY = 140
+    fireEvent.scroll(window)
+
+    await waitFor(() => {
+      expect(header).toHaveClass('topbar--hidden')
+    })
+
+    window.scrollY = 20
+    fireEvent.scroll(window)
+
+    await waitFor(() => {
+      expect(header).toHaveClass('topbar--visible')
+    })
   })
 
   it('renders the person details page', async () => {
