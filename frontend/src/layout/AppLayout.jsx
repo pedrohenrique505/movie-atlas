@@ -22,6 +22,7 @@ export function AppLayout() {
   const [isTopbarVisible, setIsTopbarVisible] = useState(true)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isMobileViewport, setIsMobileViewport] = useState(false)
   const searchContainerRef = useRef(null)
   const searchInputRef = useRef(null)
 
@@ -47,6 +48,34 @@ export function AppLayout() {
     setIsMobileMenuOpen(false)
     setIsSearchOpen(false)
   }, [location.pathname])
+
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') {
+      return undefined
+    }
+
+    const mediaQuery = window.matchMedia('(max-width: 860px)')
+
+    function updateViewportState(event) {
+      setIsMobileViewport(event.matches)
+    }
+
+    setIsMobileViewport(mediaQuery.matches)
+
+    if (typeof mediaQuery.addEventListener === 'function') {
+      mediaQuery.addEventListener('change', updateViewportState)
+
+      return () => {
+        mediaQuery.removeEventListener('change', updateViewportState)
+      }
+    }
+
+    mediaQuery.addListener(updateViewportState)
+
+    return () => {
+      mediaQuery.removeListener(updateViewportState)
+    }
+  }, [])
 
   useEffect(() => {
     let lastScrollY = window.scrollY
@@ -169,14 +198,16 @@ export function AppLayout() {
             role="search"
             onSubmit={handleSearchSubmit}
           >
-            <button
-              type="button"
-              className="search-shell__back"
-              aria-label="Voltar"
-              onClick={() => setIsSearchOpen(false)}
-            >
-              <ArrowIcon direction="left" />
-            </button>
+            {isMobileViewport && isSearchOpen ? (
+              <button
+                type="button"
+                className="search-shell__back"
+                aria-label="Voltar"
+                onClick={() => setIsSearchOpen(false)}
+              >
+                <ArrowIcon direction="left" />
+              </button>
+            ) : null}
 
             <div className="search-shell__field" aria-hidden={!isSearchOpen}>
               <span className="search-shell__icon" aria-hidden="true">
