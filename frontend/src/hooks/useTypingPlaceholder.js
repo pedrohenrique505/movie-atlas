@@ -1,25 +1,25 @@
 import { useEffect, useMemo, useState } from 'react'
 
-const TYPING_DELAY_MS = 90
-const ERASING_DELAY_MS = 45
+const TYPING_DELAY_MS = 80
+const ERASING_DELAY_MS = 42
 const PAUSE_AFTER_TYPING_MS = 1500
-const PAUSE_AFTER_ERASING_MS = 220
+const PAUSE_AFTER_ERASING_MS = 260
 
-export function useTypingPlaceholder(phrases) {
-  const items = useMemo(() => phrases.filter(Boolean), [phrases])
-  const [phraseIndex, setPhraseIndex] = useState(0)
-  const [visibleText, setVisibleText] = useState(items[0] ?? '')
+export function useTypingPlaceholder(prefix, examples) {
+  const items = useMemo(() => examples.filter(Boolean), [examples])
+  const [exampleIndex, setExampleIndex] = useState(0)
+  const [visibleSuffix, setVisibleSuffix] = useState(items[0] ?? '')
   const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
     if (!items.length) {
-      setVisibleText('')
+      setVisibleSuffix('')
       return undefined
     }
 
-    const currentPhrase = items[phraseIndex] ?? ''
+    const currentExample = items[exampleIndex] ?? ''
 
-    if (!isDeleting && visibleText === currentPhrase) {
+    if (!isDeleting && visibleSuffix === currentExample) {
       const timeoutId = window.setTimeout(() => {
         setIsDeleting(true)
       }, PAUSE_AFTER_TYPING_MS)
@@ -27,27 +27,27 @@ export function useTypingPlaceholder(phrases) {
       return () => window.clearTimeout(timeoutId)
     }
 
-    if (isDeleting && visibleText === '') {
+    if (isDeleting && visibleSuffix === '') {
       const timeoutId = window.setTimeout(() => {
         setIsDeleting(false)
-        setPhraseIndex((currentIndex) => (currentIndex + 1) % items.length)
+        setExampleIndex((currentIndex) => (currentIndex + 1) % items.length)
       }, PAUSE_AFTER_ERASING_MS)
 
       return () => window.clearTimeout(timeoutId)
     }
 
     const timeoutId = window.setTimeout(() => {
-      setVisibleText((currentText) => {
+      setVisibleSuffix((currentText) => {
         if (isDeleting) {
           return currentText.slice(0, -1)
         }
 
-        return currentPhrase.slice(0, currentText.length + 1)
+        return currentExample.slice(0, currentText.length + 1)
       })
     }, isDeleting ? ERASING_DELAY_MS : TYPING_DELAY_MS)
 
     return () => window.clearTimeout(timeoutId)
-  }, [isDeleting, items, phraseIndex, visibleText])
+  }, [exampleIndex, isDeleting, items, visibleSuffix])
 
-  return visibleText
+  return `${prefix}${visibleSuffix}`
 }

@@ -11,11 +11,16 @@ export function AppLayout() {
   const [query, setQuery] = useState(searchParams.get('q') ?? '')
   const [isSearchFocused, setIsSearchFocused] = useState(false)
 
-  const placeholders = useMemo(
-    () => ['Buscar filmes', 'Buscar séries', 'Buscar pessoas'],
+  const placeholderExamples = useMemo(
+    () => [
+      "'The Batman'",
+      "'Martin Supreme'",
+      "'Christopher Nolan'",
+      "'Zendaya'",
+    ],
     [],
   )
-  const animatedPlaceholder = useTypingPlaceholder(placeholders)
+  const animatedPlaceholder = useTypingPlaceholder('Buscar por ', placeholderExamples)
 
   useEffect(() => {
     if (location.pathname === '/search') {
