@@ -11,17 +11,19 @@ export function CastCard({ person }) {
   return (
     <article className="cast-card">
       <Link to={`/person/${person.id}`} className="cast-card__link">
-        {person.profile_image ? (
-          <img
-            className="cast-card__image"
-            src={person.profile_image}
-            alt={`Foto de ${person.name}`}
-          />
-        ) : (
-          <div className="cast-card__fallback" aria-hidden="true">
-            {initials || 'CAST'}
-          </div>
-        )}
+        <div className="cast-card__media">
+          {person.profile_image ? (
+            <img
+              className="cast-card__image"
+              src={person.profile_image}
+              alt={`Foto de ${person.name}`}
+            />
+          ) : (
+            <div className="cast-card__fallback" aria-hidden="true">
+              {initials || 'CAST'}
+            </div>
+          )}
+        </div>
 
         <div className="cast-card__content">
           <h3>{person.name}</h3>
