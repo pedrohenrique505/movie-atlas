@@ -7,6 +7,7 @@ import { HorizontalScroller } from '../components/HorizontalScroller'
 import { MediaPanel } from '../components/MediaPanel'
 import { MovieTrailer } from '../components/MovieTrailer'
 import { WatchProvidersSection } from '../components/WatchProvidersSection'
+import { LoadingSpinner } from '../components/LoadingSpinner'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { api } from '../services/api'
 import { formatDateBR } from '../utils/date'
@@ -81,7 +82,11 @@ export function TvShowDetailsPage() {
 
   return (
     <main className="details-page">
-      {isLoading ? <p className="status-panel">Carregando detalhes da série...</p> : null}
+      {isLoading ? (
+        <div className="status-panel status-panel--loading">
+          <LoadingSpinner label="Carregando detalhes da série" />
+        </div>
+      ) : null}
 
       {errorMessage ? (
         <p className="status-panel error" role="alert">

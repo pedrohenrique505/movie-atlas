@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { ProjectList } from '../components/ProjectList'
+import { LoadingSpinner } from '../components/LoadingSpinner'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { api } from '../services/api'
 import { formatDateBR } from '../utils/date'
@@ -55,7 +56,11 @@ export function PersonPage() {
 
   return (
     <main className="app-shell">
-      {isLoading ? <p className="status-panel">Carregando detalhes da pessoa...</p> : null}
+      {isLoading ? (
+        <div className="status-panel status-panel--loading">
+          <LoadingSpinner label="Carregando detalhes da pessoa" />
+        </div>
+      ) : null}
 
       {errorMessage ? (
         <p className="status-panel error" role="alert">

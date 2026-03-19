@@ -1,3 +1,5 @@
+import { LoadingSpinner } from './LoadingSpinner'
+
 export function LoadMoreSection({
   hasItems,
   hasNextPage,
@@ -19,8 +21,14 @@ export function LoadMoreSection({
       ) : null}
 
       {hasNextPage ? (
-        <button type="button" className="button-link" onClick={onLoadMore} disabled={isLoadingMore}>
-          {isLoadingMore ? 'Carregando...' : 'Carregar mais'}
+        <button
+          type="button"
+          className="button-link"
+          onClick={onLoadMore}
+          disabled={isLoadingMore}
+          aria-label={isLoadingMore ? 'Carregando mais itens' : 'Carregar mais'}
+        >
+          {isLoadingMore ? <LoadingSpinner label="Carregando mais itens" /> : 'Carregar mais'}
         </button>
       ) : (
         <p className="status-panel">{endMessage}</p>
