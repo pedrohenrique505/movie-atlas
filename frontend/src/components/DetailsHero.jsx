@@ -45,17 +45,19 @@ export function DetailsHero({
             ) : null}
           </div>
 
-          <div className="details-hero__actions">
-            {trailer?.embed_url ? (
-              <button className="button-link primary" type="button" onClick={onOpenTrailer}>
-                Assista ao trailer
-              </button>
-            ) : (
-              <button className="button-link button-link--disabled" type="button" disabled>
-                Trailer indisponível
-              </button>
-            )}
-          </div>
+          {trailer || onOpenTrailer ? (
+            <div className="details-hero__actions">
+              {trailer?.embed_url ? (
+                <button className="button-link primary" type="button" onClick={onOpenTrailer}>
+                  Assista ao trailer
+                </button>
+              ) : (
+                <button className="button-link button-link--disabled" type="button" disabled>
+                  Trailer indisponível
+                </button>
+              )}
+            </div>
+          ) : null}
 
           <p className="details-hero__synopsis">{synopsis}</p>
         </div>

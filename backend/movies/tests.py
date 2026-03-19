@@ -480,7 +480,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
         self.assertEqual(payload['title'], 'The Odyssey')
         self.assertEqual(payload['runtime'], 164)
         self.assertEqual(payload['genres'], ['Sci-Fi', 'Adventure'])
-        self.assertEqual(payload['status'], 'Lancado')
+        self.assertEqual(payload['status'], 'Lançado')
         self.assertEqual(payload['vote_average'], 7.3)
         self.assertEqual(payload['poster_image'], 'https://image.tmdb.org/t/p/w780/poster.jpg')
         self.assertEqual(
@@ -664,7 +664,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
         self.assertEqual(payload['release_date'], '2023-05-04')
         self.assertEqual(payload['runtime'], 49)
         self.assertEqual(payload['genres'], ['Drama', 'Sci-Fi'])
-        self.assertEqual(payload['status'], 'Serie em andamento')
+        self.assertEqual(payload['status'], 'Série em andamento')
         self.assertEqual(payload['vote_average'], 8.2)
         self.assertEqual(payload['number_of_seasons'], 2)
         self.assertEqual(payload['number_of_episodes'], 20)

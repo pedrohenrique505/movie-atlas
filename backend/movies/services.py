@@ -12,17 +12,17 @@ class MovieServiceError(Exception):
 
 
 PRODUCTION_STATUS_LABELS = {
-    'released': 'Lancado',
-    'post production': 'Pos-producao',
-    'in production': 'Em producao',
+    'released': 'Lançado',
+    'post production': 'Pós-produção',
+    'in production': 'Em produção',
     'planned': 'Planejado',
     'rumored': 'Rumor',
     'canceled': 'Cancelado',
     'cancelled': 'Cancelado',
     'ended': 'Encerrado',
-    'returning series': 'Serie em andamento',
+    'returning series': 'Série em andamento',
     'pilot': 'Piloto',
-    'unreleased': 'Nao lancado',
+    'unreleased': 'Não lançado',
 }
 
 
@@ -233,7 +233,7 @@ class TMDbMovieService:
                     'title': self._pick_first_value(item, title_fields),
                     'release_date': release_date,
                     'status': status_label,
-                    'synopsis': item.get('overview') or 'Sinopse ainda nao disponivel.',
+                    'synopsis': item.get('overview') or 'Sinopse ainda não disponível.',
                     'poster_image': self._build_image_url(item.get('poster_path'), 'w780'),
                     'has_trailer': False,
                 }
@@ -279,7 +279,7 @@ class TMDbMovieService:
                         ),
                         'release_date': item.get('release_date') or item.get('first_air_date') or '',
                         'status': 'search_result',
-                        'synopsis': item.get('overview') or 'Sinopse ainda nao disponivel.',
+                        'synopsis': item.get('overview') or 'Sinopse ainda não disponível.',
                         'poster_image': self._build_image_url(item.get('poster_path'), 'w780'),
                         'has_trailer': False,
                     }
@@ -367,7 +367,7 @@ class TMDbMovieService:
         return {
             'id': str(payload['id']),
             'title': payload.get('title') or payload.get('original_title') or '',
-            'synopsis': payload.get('overview') or 'Sinopse ainda nao disponivel.',
+            'synopsis': payload.get('overview') or 'Sinopse ainda não disponível.',
             'release_date': payload.get('release_date') or '',
             'runtime': payload.get('runtime'),
             'genres': [genre.get('name') for genre in payload.get('genres', []) if genre.get('name')],
@@ -398,7 +398,7 @@ class TMDbMovieService:
         return {
             'id': str(payload['id']),
             'title': payload.get('name') or payload.get('original_name') or '',
-            'synopsis': payload.get('overview') or 'Sinopse ainda nao disponivel.',
+            'synopsis': payload.get('overview') or 'Sinopse ainda não disponível.',
             'release_date': payload.get('first_air_date') or '',
             'runtime': self._pick_episode_runtime(payload.get('episode_run_time', [])),
             'genres': [genre.get('name') for genre in payload.get('genres', []) if genre.get('name')],
@@ -549,7 +549,7 @@ class TMDbMovieService:
         return {
             'id': str(payload['id']),
             'name': payload.get('name') or '',
-            'biography': payload.get('biography') or 'Biografia ainda nao disponivel.',
+            'biography': payload.get('biography') or 'Biografia ainda não disponível.',
             'known_for_department': payload.get('known_for_department') or '',
             'birthday': payload.get('birthday') or '',
             'place_of_birth': payload.get('place_of_birth') or '',

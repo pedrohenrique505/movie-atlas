@@ -10,14 +10,10 @@ export function ProjectList({ projects }) {
     <section className="details-section" aria-label="Obras da pessoa">
       <HorizontalScroller title="Obras" labelledBy="person-works-heading">
         {projects.map((project) => (
-          <div key={`${project.id}-${project.credit}`} className="horizontal-slide">
+          <div key={`${project.media_type}-${project.id}`} className="horizontal-slide">
             <MoviePosterCard
               movie={project}
-              to={
-                project.media_type === 'tv'
-                  ? `/tv-show/${project.id}`
-                  : `/movie/${project.id}`
-              }
+              to={project.media_type === 'tv' ? `/tv-show/${project.id}` : `/movie/${project.id}`}
             />
           </div>
         ))}
