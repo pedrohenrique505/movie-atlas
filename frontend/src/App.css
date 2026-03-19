@@ -271,72 +271,6 @@
   line-height: 1.02;
 }
 
-.home-hero-banner {
-  display: block;
-  position: relative;
-  width: 100%;
-  min-height: clamp(22rem, 48vw, 34rem);
-  background-color: #1a1a1a;
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-size: cover;
-  overflow: hidden;
-}
-
-.home-hero-banner__overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(18, 18, 18, 0.45);
-}
-
-.home-hero-banner__content {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  min-height: inherit;
-  width: 100%;
-  padding: 1.75rem;
-}
-
-.home-hero-banner__content > span {
-  display: block;
-  width: 1px;
-  height: 1px;
-}
-
-.home-hero-banner__cta {
-  align-self: flex-end;
-}
-
-.home-hero-banner__dots {
-  display: flex;
-  gap: 1rem;
-  align-self: flex-start;
-}
-
-.home-hero-banner__dot {
-  width: 0.85rem;
-  height: 0.85rem;
-  padding: 0;
-  border: 1px solid rgba(248, 248, 242, 0.35);
-  background: rgba(18, 18, 18, 0.45);
-  border-radius: 999px;
-  cursor: pointer;
-  transition:
-    border-color var(--transition-base),
-    background-color var(--transition-base),
-    transform var(--transition-base);
-}
-
-.home-hero-banner__dot.active,
-.home-hero-banner__dot:hover {
-  border-color: var(--accent);
-  background: var(--accent);
-  transform: translateY(-1px);
-}
-
 .cta-row {
   display: flex;
   gap: 0.9rem;
@@ -1375,15 +1309,6 @@
     padding: 2rem 1rem;
   }
 
-  .home-hero-banner {
-    min-height: clamp(20rem, 52vw, 28rem);
-  }
-
-  .home-hero-banner__content {
-    min-height: inherit;
-    padding: 1.5rem;
-  }
-
   .person-page {
     grid-template-columns: 1fr;
   }
@@ -1408,23 +1333,6 @@
 
   .trailer-modal {
     padding: 0.75rem;
-  }
-
-  .home-hero-banner {
-    min-height: 18rem;
-  }
-
-  .home-hero-banner__content {
-    min-height: inherit;
-    padding: 1.25rem;
-  }
-
-  .home-hero-banner__dots {
-    gap: 0.75rem;
-  }
-
-  .home-hero-banner__content {
-    align-items: stretch;
   }
 
   .director-credit__preview {

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 
 import App from './App'
@@ -16,7 +16,6 @@ describe('App routes', () => {
               release_date: '2026-03-19',
               status: 'trending',
               synopsis: '...',
-              backdrop_image: 'https://image.tmdb.org/t/p/w1280/trending-one-backdrop.jpg',
               poster_image: 'https://image.tmdb.org/t/p/w780/trending-one.jpg',
               has_trailer: false,
             },
@@ -72,16 +71,6 @@ describe('App routes', () => {
     ).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /^home$/i })).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: /movie atlas/i })).toHaveAttribute('href', '/')
-    const highlightsBanner = await screen.findByLabelText(/destaques em alta/i)
-
-    expect(highlightsBanner).toHaveStyle({
-      backgroundImage: 'url(https://image.tmdb.org/t/p/w1280/trending-one-backdrop.jpg)',
-    })
-    expect(within(highlightsBanner).getByRole('link', { name: /^ver detalhes$/i })).toHaveAttribute(
-      'href',
-      '/movie/100',
-    )
-    expect(highlightsBanner.querySelector('.home-hero-banner__slide')).not.toBeInTheDocument()
     expect(await screen.findAllByRole('heading', { name: /em cartaz/i })).toHaveLength(2)
     expect(await screen.findAllByRole('heading', { name: /próximos lançamentos/i })).toHaveLength(2)
     expect((await screen.findByText(/now playing one/i)).closest('a')).toHaveAttribute(

@@ -1,4 +1,3 @@
-import { HomeTrendingBanner } from '../components/HomeTrendingBanner'
 import { MovieGridSection } from '../components/MovieGridSection'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { useMovieCollection } from '../hooks/useMovieCollection'
@@ -30,12 +29,6 @@ export function HomePage() {
           Explore o catálogo com destaques atualizados e acesso rápido aos detalhes de cada obra.
         </p>
       </section>
-
-      <HomeTrendingBanner
-        movies={trending.movies}
-        isLoading={trending.isLoading}
-        errorMessage={trending.errorMessage}
-      />
 
       <MovieGridSection
         title="Em alta"
