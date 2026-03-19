@@ -130,7 +130,7 @@ export function AppLayout() {
   return (
     <div className="shell">
       <header
-        className={`topbar ${isTopbarVisible ? 'topbar--visible' : 'topbar--hidden'}`.trim()}
+        className={`topbar ${isTopbarVisible ? 'topbar--visible' : 'topbar--hidden'} ${isSearchOpen ? 'topbar--search-open' : ''}`.trim()}
       >
         <button
           type="button"

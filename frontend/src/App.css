@@ -1371,9 +1371,11 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    grid-column: 1;
   }
 
   .brand {
+    grid-column: 2;
     justify-self: center;
     font-size: 1rem;
   }
@@ -1383,7 +1385,24 @@
   }
 
   .topbar-tools {
+    grid-column: 3;
     width: auto;
+    min-width: 2.75rem;
+    justify-self: end;
+  }
+
+  .topbar--search-open {
+    row-gap: 0.75rem;
+  }
+
+  .topbar--search-open .topbar-tools {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .topbar--search-open .search-shell {
+    width: 100%;
+    max-width: none;
   }
 
   .mobile-nav {
