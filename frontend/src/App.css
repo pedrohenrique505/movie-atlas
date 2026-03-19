@@ -1354,6 +1354,12 @@
     padding: 0 1rem 2rem;
   }
 
+  .app-shell,
+  .details-page,
+  .person-page-shell {
+    gap: 1.5rem;
+  }
+
   .topbar {
     grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
@@ -1449,6 +1455,8 @@
   .hero-panel,
   .page-heading {
     grid-template-columns: 1fr;
+    gap: 1.25rem;
+    padding: 1.5rem 0 1.25rem;
   }
 
   .hero-aside,
@@ -1513,16 +1521,32 @@
 
   .details-hero__content {
     grid-template-columns: 1fr;
-    padding: 2rem 1rem;
+    gap: 1.5rem;
+    padding: 1.5rem 1rem;
   }
 
   .person-page {
     grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
 
   .details-hero__poster,
   .details-hero__poster-fallback {
     max-width: 240px;
+  }
+
+  .details-hero__poster-column,
+  .person-page__media {
+    justify-content: center;
+  }
+
+  .details-hero__info,
+  .person-page__content {
+    gap: 0.85rem;
+  }
+
+  .details-section {
+    gap: 0.85rem;
   }
 
   .search-shell {
@@ -1533,6 +1557,33 @@
 @media (max-width: 560px) {
   .shell {
     padding: 0 0.85rem 1.75rem;
+  }
+
+  .app-shell,
+  .details-page,
+  .person-page-shell {
+    gap: 1.25rem;
+    padding-bottom: 2rem;
+  }
+
+  .page-heading--compact {
+    padding: 0.75rem 0 0.35rem;
+  }
+
+  .page-heading h1,
+  .home-hero__title {
+    font-size: clamp(1.6rem, 8vw, 2.1rem);
+  }
+
+  .lead,
+  .details-hero__synopsis {
+    font-size: 0.96rem;
+    line-height: 1.6;
+  }
+
+  .section-head {
+    gap: 0.65rem;
+    padding-bottom: 0.75rem;
   }
 
   .movie-grid--five,
@@ -1567,6 +1618,71 @@
   .poster-card__date,
   .cast-card__content p {
     font-size: 0.78rem;
+  }
+
+  .details-hero {
+    min-height: 0;
+    border-radius: 1.1rem;
+  }
+
+  .details-hero__content {
+    padding: 1.1rem 0.9rem 1.25rem;
+  }
+
+  .details-hero__poster,
+  .details-hero__poster-fallback {
+    max-width: 200px;
+  }
+
+  .details-hero__meta {
+    gap: 0.55rem;
+  }
+
+  .details-hero__meta-item,
+  .director-credit {
+    min-height: 2rem;
+    padding: 0.4rem 0.65rem;
+    font-size: 0.88rem;
+  }
+
+  .details-hero__actions,
+  .details-page__actions,
+  .cta-row {
+    gap: 0.65rem;
+  }
+
+  .details-hero__actions .button-link,
+  .details-page__actions .button-link,
+  .cta-row .button-link,
+  .load-more-section .button-link,
+  .watch-availability-button {
+    width: 100%;
+  }
+
+  .person-page {
+    padding-top: 0.25rem;
+  }
+
+  .person-page__media img,
+  .person-page__fallback {
+    max-width: 220px;
+    margin: 0 auto;
+  }
+
+  .provider-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .provider-group,
+  .status-panel,
+  .trailer-modal__content {
+    padding: 0.9rem;
+  }
+
+  .media-card__image,
+  .media-card__fallback,
+  .details-image-card {
+    height: 180px;
   }
 
   .trailer-modal {
