@@ -551,29 +551,41 @@ class TMDbMovieService:
                 }
             )
 
-        filtered = []
-        seen = set()
+        latest_projects = {}
 
-        for item in sorted(
-            combined,
+        for item in combined:
+            if not item['title']:
+                continue
+
+            project_key = (item['media_type'], item['id'] or item['title'])
+            current_item = latest_projects.get(project_key)
+
+            if current_item is None or self._is_more_recent_project(item, current_item):
+                latest_projects[project_key] = item
+
+        filtered = sorted(
+            latest_projects.values(),
             key=lambda project: (
                 project['release_date'] != '',
                 project['release_date'],
                 project['title'],
             ),
             reverse=True,
-        ):
-            if not item['title']:
-                continue
-
-            project_key = (item['id'], item['credit'])
-            if project_key in seen:
-                continue
-
-            seen.add(project_key)
-            filtered.append(item)
+        )
 
         return filtered[:12]
+
+    def _is_more_recent_project(self, candidate, current):
+        candidate_date = candidate.get('release_date') or ''
+        current_date = current.get('release_date') or ''
+
+        if candidate_date != current_date:
+            return candidate_date > current_date
+
+        if candidate.get('poster_image') and not current.get('poster_image'):
+            return True
+
+        return False
 
     def _normalize_images(self, images_payload):
         image_paths = []

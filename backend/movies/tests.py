@@ -731,6 +731,14 @@ class TMDbMovieServiceTests(SimpleTestCase):
                     {
                         'id': 101,
                         'title': 'Inception',
+                        'release_date': '2014-01-01',
+                        'media_type': 'movie',
+                        'poster_path': '/inception-new.jpg',
+                        'job': 'Producer',
+                    },
+                    {
+                        'id': 101,
+                        'title': 'Inception',
                         'release_date': '2010-07-16',
                         'media_type': 'movie',
                         'poster_path': '/inception.jpg',
@@ -775,10 +783,10 @@ class TMDbMovieServiceTests(SimpleTestCase):
                     {
                         'id': '101',
                         'title': 'Inception',
-                        'release_date': '2010-07-16',
+                        'release_date': '2014-01-01',
                         'media_type': 'movie',
-                        'poster_image': 'https://image.tmdb.org/t/p/w780/inception.jpg',
-                        'credit': 'Director',
+                        'poster_image': 'https://image.tmdb.org/t/p/w780/inception-new.jpg',
+                        'credit': 'Producer',
                     },
                     {
                         'id': '201',
