@@ -1,6 +1,6 @@
+import { formatDepartmentLabel } from '../utils/movieLabels'
 import { CastCard } from './CastCard'
 import { CollectionFeedback } from './CollectionFeedback'
-import { formatDepartmentLabel } from '../utils/movieLabels'
 
 export function PeopleListSection({
   people,
@@ -15,7 +15,7 @@ export function PeopleListSection({
         isLoading={isLoading}
         errorMessage={errorMessage}
         emptyMessage={!people.length ? emptyMessage : ''}
-        loadingMessage="Carregando pessoas..."
+        loadingLabel="Carregando pessoas"
       />
     )
   }

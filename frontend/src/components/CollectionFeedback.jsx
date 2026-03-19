@@ -1,11 +1,17 @@
+import { LoadingSpinner } from './LoadingSpinner'
+
 export function CollectionFeedback({
   isLoading,
   errorMessage,
   emptyMessage,
-  loadingMessage = 'Carregando filmes...',
+  loadingLabel = 'Carregando conteúdo',
 }) {
   if (isLoading) {
-    return <p className="status-panel">{loadingMessage}</p>
+    return (
+      <div className="status-panel status-panel--loading">
+        <LoadingSpinner label={loadingLabel} />
+      </div>
+    )
   }
 
   if (errorMessage) {

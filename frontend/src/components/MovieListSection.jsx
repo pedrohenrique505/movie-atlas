@@ -19,7 +19,7 @@ export function MovieListSection({
         isLoading={isLoading}
         errorMessage={errorMessage}
         emptyMessage={!movies.length ? emptyMessage : ''}
-        loadingMessage="Carregando filmes..."
+        loadingLabel="Carregando obras"
       />
     )
   }
@@ -28,7 +28,7 @@ export function MovieListSection({
 
   return (
     <section className={sectionClassName} aria-label={ariaLabel}>
-      {movies.map((movie) => (
+      {movies.map((movie) =>
         variant === 'poster' ? (
           <MoviePosterCard
             key={movie.id}
@@ -38,8 +38,8 @@ export function MovieListSection({
           />
         ) : (
           <MovieCard key={movie.id} movie={movie} />
-        )
-      ))}
+        ),
+      )}
     </section>
   )
 }
