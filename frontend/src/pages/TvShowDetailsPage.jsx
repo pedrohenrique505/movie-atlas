@@ -9,6 +9,7 @@ import { MovieTrailer } from '../components/MovieTrailer'
 import { WatchProvidersSection } from '../components/WatchProvidersSection'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { api } from '../services/api'
+import { formatDateBR } from '../utils/date'
 
 function pluralize(value, singular, plural) {
   if (!value) {
@@ -20,7 +21,7 @@ function pluralize(value, singular, plural) {
 
 function buildTvShowMetadata(tvShow) {
   return [
-    tvShow.release_date,
+    formatDateBR(tvShow.release_date),
     tvShow.runtime ? `${tvShow.runtime} min` : null,
     pluralize(tvShow.number_of_seasons, 'temporada', 'temporadas'),
     pluralize(tvShow.number_of_episodes, 'episódio', 'episódios'),

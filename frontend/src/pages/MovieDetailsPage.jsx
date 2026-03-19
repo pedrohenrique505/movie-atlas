@@ -9,10 +9,11 @@ import { MovieTrailer } from '../components/MovieTrailer'
 import { WatchProvidersSection } from '../components/WatchProvidersSection'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { api } from '../services/api'
+import { formatDateBR } from '../utils/date'
 
 function buildMovieMetadata(movie) {
   return [
-    movie.release_date,
+    formatDateBR(movie.release_date),
     movie.runtime ? `${movie.runtime} min` : null,
     movie.genres?.length ? movie.genres.join(', ') : null,
     movie.status || null,

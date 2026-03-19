@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom'
 import { ProjectList } from '../components/ProjectList'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { api } from '../services/api'
+import { formatDateBR } from '../utils/date'
 import { formatDepartmentLabel } from '../utils/movieLabels'
 
 export function PersonPage() {
@@ -86,7 +87,9 @@ export function PersonPage() {
                   </span>
                 ) : null}
                 {person.birthday ? (
-                  <span className="details-hero__meta-item">Nascimento: {person.birthday}</span>
+                  <span className="details-hero__meta-item">
+                    Nascimento: {formatDateBR(person.birthday)}
+                  </span>
                 ) : null}
                 {person.place_of_birth ? (
                   <span className="details-hero__meta-item">{person.place_of_birth}</span>

@@ -76,7 +76,7 @@ describe('App routes', () => {
     expect(await screen.findByText(/upcoming one/i)).toBeInTheDocument()
     expect(await screen.findByAltText(/poster de trending one/i)).toBeInTheDocument()
     expect(await screen.findByText(/^NP$/i)).toBeInTheDocument()
-    expect(await screen.findByText(/data prevista de estreia: 2026-03-21/i)).toBeInTheDocument()
+    expect(await screen.findByText(/data prevista de estreia: 21\/03\/2026/i)).toBeInTheDocument()
     expect(document.title).toBe('Movie Atlas')
   })
 
@@ -114,7 +114,7 @@ describe('App routes', () => {
       }),
     ).toBeInTheDocument()
     expect(await screen.findByText(/devoradores de estrelas/i)).toBeInTheDocument()
-    expect(await screen.findByText(/data prevista de estreia: 2026-03-19/i)).toBeInTheDocument()
+    expect(await screen.findByText(/data prevista de estreia: 19\/03\/2026/i)).toBeInTheDocument()
     expect(document.title).toBe('Próximos lançamentos | Movie Atlas')
   })
 

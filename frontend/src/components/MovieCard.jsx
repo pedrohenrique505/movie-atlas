@@ -1,13 +1,14 @@
 import { Link } from 'react-router-dom'
 
 import { formatMovieStatus } from '../utils/movieLabels'
+import { formatDateBR } from '../utils/date'
 
 export function MovieCard({ movie }) {
   return (
     <article className="movie-card">
       <div className="movie-card__header">
         <p className="movie-card__badge">{formatMovieStatus(movie.status)}</p>
-        <p className="movie-card__date">{movie.release_date}</p>
+        <p className="movie-card__date">{formatDateBR(movie.release_date) || 'Data indisponível'}</p>
       </div>
 
       <h2>{movie.title}</h2>
