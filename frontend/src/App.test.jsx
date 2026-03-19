@@ -16,6 +16,7 @@ describe('App routes', () => {
               release_date: '2026-03-19',
               status: 'trending',
               synopsis: '...',
+              backdrop_image: 'https://image.tmdb.org/t/p/w1280/trending-one-backdrop.jpg',
               poster_image: 'https://image.tmdb.org/t/p/w780/trending-one.jpg',
               has_trailer: false,
             },
@@ -72,6 +73,13 @@ describe('App routes', () => {
     expect(screen.queryByRole('link', { name: /^home$/i })).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: /movie atlas/i })).toHaveAttribute('href', '/')
     expect(await screen.findAllByRole('heading', { name: /trending one/i })).toHaveLength(2)
+    expect(await screen.findByLabelText(/destaques em alta/i)).toHaveStyle({
+      backgroundImage: 'url(https://image.tmdb.org/t/p/w1280/trending-one-backdrop.jpg)',
+    })
+    expect(await screen.findByRole('link', { name: /^ver detalhes$/i })).toHaveAttribute(
+      'href',
+      '/movie/100',
+    )
     expect(await screen.findAllByRole('heading', { name: /em cartaz/i })).toHaveLength(2)
     expect(await screen.findAllByRole('heading', { name: /próximos lançamentos/i })).toHaveLength(2)
     expect((await screen.findByText(/now playing one/i)).closest('a')).toHaveAttribute(
@@ -82,7 +90,7 @@ describe('App routes', () => {
       'href',
       '/movie/300',
     )
-    expect(await screen.findAllByAltText(/poster de trending one/i)).toHaveLength(2)
+    expect(await screen.findByAltText(/poster de trending one/i)).toBeInTheDocument()
     expect(await screen.findByText(/^NP$/i)).toBeInTheDocument()
     expect(await screen.findByText(/data prevista de estreia: 21\/03\/2026/i)).toBeInTheDocument()
     expect(document.title).toBe('Movie Atlas')

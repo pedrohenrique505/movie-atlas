@@ -19,7 +19,7 @@ export function HomeTrendingBanner({ movies, isLoading, errorMessage }) {
 
     const intervalId = window.setInterval(() => {
       setActiveIndex((currentIndex) => (currentIndex + 1) % featuredMovies.length)
-    }, 4500)
+    }, 5000)
 
     return () => window.clearInterval(intervalId)
   }, [featuredMovies.length])
@@ -36,46 +36,45 @@ export function HomeTrendingBanner({ movies, isLoading, errorMessage }) {
   }
 
   const activeMovie = featuredMovies[activeIndex]
+  const backgroundImage = activeMovie.backdrop_image ?? activeMovie.poster_image ?? null
+  const heroStyle = backgroundImage ? { backgroundImage: `url(${backgroundImage})` } : undefined
 
   return (
-    <section className="home-banner" aria-label="Destaques em alta">
-      <div className="home-banner__copy">
-        <p className="eyebrow">Em alta</p>
-        <h2>{activeMovie.title}</h2>
-        <p className="lead">{activeMovie.synopsis}</p>
-        <p className="home-banner__date">
-          Estreia: {formatDateBR(activeMovie.release_date) || 'Data indisponível'}
-        </p>
-        <div className="cta-row">
+    <section className="home-hero-banner" aria-label="Destaques em alta" style={heroStyle}>
+      <div className="home-hero-banner__overlay" />
+
+      <div className="home-hero-banner__content">
+        <div className="home-hero-banner__copy">
+          <p className="eyebrow">Em alta</p>
+          <h2>{activeMovie.title}</h2>
+          <p className="home-hero-banner__meta">
+            {formatDateBR(activeMovie.release_date) || 'Data indisponível'}
+          </p>
+          <p className="lead">{activeMovie.synopsis}</p>
+        </div>
+
+        <div className="home-hero-banner__footer">
+          {featuredMovies.length > 1 ? (
+            <div className="home-hero-banner__dots" aria-label="Navegação dos destaques">
+              {featuredMovies.map((movie, index) => (
+                <button
+                  key={movie.id}
+                  type="button"
+                  className={`home-hero-banner__dot ${index === activeIndex ? 'active' : ''}`.trim()}
+                  aria-label={`Mostrar destaque ${index + 1}`}
+                  onClick={() => setActiveIndex(index)}
+                />
+              ))}
+            </div>
+          ) : (
+            <span />
+          )}
+
           <Link className="button-link primary" to={`/movie/${activeMovie.id}`}>
             Ver detalhes
           </Link>
         </div>
       </div>
-
-      <div className="home-banner__media">
-        {activeMovie.poster_image ? (
-          <img src={activeMovie.poster_image} alt={`Poster de ${activeMovie.title}`} />
-        ) : (
-          <div className="home-banner__fallback" aria-hidden="true">
-            <span>{activeMovie.title.slice(0, 2).toUpperCase()}</span>
-          </div>
-        )}
-      </div>
-
-      {featuredMovies.length > 1 ? (
-        <div className="home-banner__dots" aria-label="Navegação dos destaques">
-          {featuredMovies.map((movie, index) => (
-            <button
-              key={movie.id}
-              type="button"
-              className={`home-banner__dot ${index === activeIndex ? 'active' : ''}`.trim()}
-              aria-label={`Mostrar destaque ${index + 1}`}
-              onClick={() => setActiveIndex(index)}
-            />
-          ))}
-        </div>
-      ) : null}
     </section>
   )
 }
