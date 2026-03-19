@@ -99,7 +99,8 @@ class TMDbMovieService:
                 'include_image_language': f'{self.language},null,en',
             },
         )
-        return self._normalize_movie_details_payload(payload)
+        watch_providers = self._get_watch_providers('movie', movie_id)
+        return self._normalize_movie_details_payload(payload, watch_providers)
 
     def get_tv_show_details(self, tv_show_id):
         payload = self._request(
@@ -110,7 +111,8 @@ class TMDbMovieService:
                 'include_image_language': f'{self.language},null,en',
             },
         )
-        return self._normalize_tv_show_details_payload(payload)
+        watch_providers = self._get_watch_providers('tv', tv_show_id)
+        return self._normalize_tv_show_details_payload(payload, watch_providers)
 
     def search_movies(self, query):
         if not query.strip():
@@ -312,10 +314,11 @@ class TMDbMovieService:
             },
         }
 
-    def _normalize_movie_details_payload(self, payload):
+    def _normalize_movie_details_payload(self, payload, watch_providers=None):
         videos = payload.get('videos', {}).get('results', [])
         images = payload.get('images', {})
         credits = payload.get('credits', {})
+        normalized_videos = self._normalize_videos(videos)
         trailer = self._pick_trailer(videos)
 
         return {
@@ -330,16 +333,23 @@ class TMDbMovieService:
             'poster_image': self._build_image_url(payload.get('poster_path'), 'w780'),
             'backdrop_image': self._build_image_url(payload.get('backdrop_path'), 'w1280'),
             'images': self._normalize_images(images),
+            'media': {
+                'backdrops': self._normalize_image_group(images.get('backdrops', []), 'w1280'),
+                'posters': self._normalize_image_group(images.get('posters', []), 'w780'),
+                'videos': normalized_videos,
+            },
             'cast': self._normalize_cast(credits),
             'directors': self._normalize_directors(credits),
             'trailer': trailer,
+            'watch_providers': watch_providers or self._empty_watch_providers(),
         }
 
-    def _normalize_tv_show_details_payload(self, payload):
+    def _normalize_tv_show_details_payload(self, payload, watch_providers=None):
         videos = payload.get('videos', {}).get('results', [])
         images = payload.get('images', {})
         aggregate_credits = payload.get('aggregate_credits', {})
         credits = payload.get('credits', {})
+        normalized_videos = self._normalize_videos(videos)
         trailer = self._pick_trailer(videos)
 
         return {
@@ -354,6 +364,11 @@ class TMDbMovieService:
             'poster_image': self._build_image_url(payload.get('poster_path'), 'w780'),
             'backdrop_image': self._build_image_url(payload.get('backdrop_path'), 'w1280'),
             'images': self._normalize_images(images),
+            'media': {
+                'backdrops': self._normalize_image_group(images.get('backdrops', []), 'w1280'),
+                'posters': self._normalize_image_group(images.get('posters', []), 'w780'),
+                'videos': normalized_videos,
+            },
             'cast': self._normalize_tv_cast(aggregate_credits, credits),
             'creators': self._normalize_creators(payload, credits),
             'trailer': trailer,
@@ -364,6 +379,7 @@ class TMDbMovieService:
                 for company in payload.get('production_companies', [])
                 if company.get('name')
             ],
+            'watch_providers': watch_providers or self._empty_watch_providers(),
         }
 
     def _normalize_cast(self, credits_payload):
@@ -569,6 +585,112 @@ class TMDbMovieService:
                     image_paths.append(image_url)
 
         return image_paths[:6]
+
+    def _normalize_image_group(self, images_payload, size):
+        normalized_images = []
+        seen_paths = set()
+
+        for item in images_payload:
+            file_path = item.get('file_path')
+            if not file_path or file_path in seen_paths:
+                continue
+
+            seen_paths.add(file_path)
+            normalized_images.append(
+                {
+                    'preview_image': self._build_image_url(file_path, size),
+                    'full_image': self._build_image_url(file_path, 'original'),
+                }
+            )
+
+        return normalized_images[:10]
+
+    def _normalize_videos(self, videos_payload):
+        normalized_videos = []
+        seen_keys = set()
+
+        for video in videos_payload:
+            if video.get('site') != 'YouTube' or not video.get('key'):
+                continue
+
+            video_key = video.get('key')
+            if video_key in seen_keys:
+                continue
+
+            seen_keys.add(video_key)
+            normalized_videos.append(
+                {
+                    'name': video.get('name') or 'Vídeo',
+                    'type': video.get('type') or 'Video',
+                    'youtube_key': video_key,
+                    'embed_url': f'https://www.youtube.com/embed/{video_key}',
+                    'thumbnail_image': f'https://img.youtube.com/vi/{video_key}/hqdefault.jpg',
+                }
+            )
+
+        normalized_videos.sort(
+            key=lambda item: (
+                item['type'] != 'Trailer',
+                item['type'] != 'Teaser',
+                item['name'],
+            )
+        )
+
+        return normalized_videos[:10]
+
+    def _get_watch_providers(self, media_type, media_id):
+        payload = self._request(f'/{media_type}/{media_id}/watch/providers', {})
+        return self._normalize_watch_providers(payload)
+
+    def _normalize_watch_providers(self, payload):
+        results = payload.get('results', {})
+        region_payload = results.get(self.region) or results.get('US') or {}
+        link = region_payload.get('link')
+
+        categories = []
+        for source_key, label in (
+            ('flatrate', 'Streaming'),
+            ('rent', 'Aluguel'),
+            ('buy', 'Compra'),
+        ):
+            providers = self._normalize_watch_provider_items(region_payload.get(source_key, []), link)
+            if providers:
+                categories.append(
+                    {
+                        'key': source_key,
+                        'label': label,
+                        'providers': providers,
+                    }
+                )
+
+        return {
+            'link': link,
+            'categories': categories,
+        }
+
+    def _normalize_watch_provider_items(self, providers_payload, link):
+        providers = []
+        seen_ids = set()
+
+        for provider in providers_payload:
+            provider_id = provider.get('provider_id')
+            if provider_id in seen_ids:
+                continue
+
+            seen_ids.add(provider_id)
+            providers.append(
+                {
+                    'id': str(provider_id),
+                    'name': provider.get('provider_name') or '',
+                    'logo_image': self._build_image_url(provider.get('logo_path'), 'w300'),
+                    'link': link,
+                }
+            )
+
+        return providers
+
+    def _empty_watch_providers(self):
+        return {'link': None, 'categories': []}
 
     def _pick_trailer(self, videos):
         youtube_videos = [

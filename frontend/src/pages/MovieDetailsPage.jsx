@@ -4,8 +4,9 @@ import { useParams } from 'react-router-dom'
 import { CastCard } from '../components/CastCard'
 import { DetailsHero } from '../components/DetailsHero'
 import { HorizontalScroller } from '../components/HorizontalScroller'
-import { MovieMediaGallery } from '../components/MovieMediaGallery'
+import { MediaPanel } from '../components/MediaPanel'
 import { MovieTrailer } from '../components/MovieTrailer'
+import { WatchProvidersSection } from '../components/WatchProvidersSection'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { api } from '../services/api'
 
@@ -104,11 +105,9 @@ export function MovieDetailsPage() {
             )}
           </section>
 
-          <MovieMediaGallery
-            title={movie.title}
-            backdropImage={movie.backdrop_image}
-            images={movie.images}
-          />
+          <MediaPanel title={movie.title} media={movie.media} />
+
+          <WatchProvidersSection watchProviders={movie.watch_providers} />
 
           <MovieTrailer
             trailer={movie.trailer}

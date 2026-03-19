@@ -135,6 +135,29 @@ describe('App routes', () => {
             poster_image: 'https://image.tmdb.org/t/p/w780/poster.jpg',
             backdrop_image: 'https://image.tmdb.org/t/p/w1280/backdrop.jpg',
             images: ['https://image.tmdb.org/t/p/w780/img-1.jpg'],
+            media: {
+              backdrops: [
+                {
+                  preview_image: 'https://image.tmdb.org/t/p/w1280/img-1.jpg',
+                  full_image: 'https://image.tmdb.org/t/p/original/img-1.jpg',
+                },
+              ],
+              posters: [
+                {
+                  preview_image: 'https://image.tmdb.org/t/p/w780/poster-extra.jpg',
+                  full_image: 'https://image.tmdb.org/t/p/original/poster-extra.jpg',
+                },
+              ],
+              videos: [
+                {
+                  name: 'Trailer oficial',
+                  type: 'Trailer',
+                  youtube_key: 'trailer123',
+                  embed_url: 'https://www.youtube.com/embed/trailer123',
+                  thumbnail_image: 'https://img.youtube.com/vi/trailer123/hqdefault.jpg',
+                },
+              ],
+            },
             cast: [
               {
                 id: '501',
@@ -156,6 +179,23 @@ describe('App routes', () => {
               youtube_key: 'trailer123',
               embed_url: 'https://www.youtube.com/embed/trailer123',
             },
+            watch_providers: {
+              link: 'https://www.themoviedb.org/movie/101/watch',
+              categories: [
+                {
+                  key: 'flatrate',
+                  label: 'Streaming',
+                  providers: [
+                    {
+                      id: '8',
+                      name: 'Netflix',
+                      logo_image: 'https://image.tmdb.org/t/p/w300/netflix.jpg',
+                      link: 'https://www.themoviedb.org/movie/101/watch',
+                    },
+                  ],
+                },
+              ],
+            },
           }),
       }),
     )
@@ -175,6 +215,9 @@ describe('App routes', () => {
     expect(await screen.findByText(/matt damon/i)).toBeInTheDocument()
     expect(await screen.findByText(/christopher nolan/i)).toBeInTheDocument()
     expect(await screen.findByRole('button', { name: /assista ao trailer/i })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: /mídia/i })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: /onde assistir/i })).toBeInTheDocument()
+    expect(await screen.findByText(/netflix/i)).toBeInTheDocument()
     expect(screen.queryByText(/nota 7.3/i)).not.toBeInTheDocument()
     expect(document.title).toBe('The Odyssey | Movie Atlas')
   })
@@ -274,6 +317,24 @@ describe('App routes', () => {
             poster_image: 'https://image.tmdb.org/t/p/w780/tv-poster.jpg',
             backdrop_image: 'https://image.tmdb.org/t/p/w1280/tv-backdrop.jpg',
             images: ['https://image.tmdb.org/t/p/w780/tv-img-1.jpg'],
+            media: {
+              backdrops: [
+                {
+                  preview_image: 'https://image.tmdb.org/t/p/w1280/tv-img-1.jpg',
+                  full_image: 'https://image.tmdb.org/t/p/original/tv-img-1.jpg',
+                },
+              ],
+              posters: [],
+              videos: [
+                {
+                  name: 'Trailer oficial',
+                  type: 'Trailer',
+                  youtube_key: 'silo123',
+                  embed_url: 'https://www.youtube.com/embed/silo123',
+                  thumbnail_image: 'https://img.youtube.com/vi/silo123/hqdefault.jpg',
+                },
+              ],
+            },
             cast: [
               {
                 id: '501',
@@ -298,6 +359,10 @@ describe('App routes', () => {
             number_of_seasons: 2,
             number_of_episodes: 20,
             production_companies: ['AMC Studios'],
+            watch_providers: {
+              link: 'https://www.themoviedb.org/tv/85552/watch',
+              categories: [],
+            },
           }),
       }),
     )
@@ -313,6 +378,8 @@ describe('App routes', () => {
     expect(await screen.findByText(/20 episódios/i)).toBeInTheDocument()
     expect(await screen.findByText(/graham yost/i)).toBeInTheDocument()
     expect(await screen.findByText(/amc studios/i)).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: /mídia/i })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: /onde assistir/i })).toBeInTheDocument()
     expect(document.title).toBe('Silo | Movie Atlas')
   })
 
@@ -451,6 +518,11 @@ describe('App routes', () => {
             poster_image: 'https://image.tmdb.org/t/p/w780/poster.jpg',
             backdrop_image: 'https://image.tmdb.org/t/p/w1280/backdrop.jpg',
             images: [],
+            media: {
+              backdrops: [],
+              posters: [],
+              videos: [],
+            },
             cast: [],
             directors: [
               {
@@ -464,6 +536,10 @@ describe('App routes', () => {
               name: 'Trailer oficial',
               youtube_key: 'trailer123',
               embed_url: 'https://www.youtube.com/embed/trailer123',
+            },
+            watch_providers: {
+              link: null,
+              categories: [],
             },
           }),
       }),

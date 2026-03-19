@@ -4,8 +4,9 @@ import { useParams } from 'react-router-dom'
 import { CastCard } from '../components/CastCard'
 import { DetailsHero } from '../components/DetailsHero'
 import { HorizontalScroller } from '../components/HorizontalScroller'
-import { MovieMediaGallery } from '../components/MovieMediaGallery'
+import { MediaPanel } from '../components/MediaPanel'
 import { MovieTrailer } from '../components/MovieTrailer'
+import { WatchProvidersSection } from '../components/WatchProvidersSection'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { api } from '../services/api'
 
@@ -25,7 +26,7 @@ function buildTvShowMetadata(tvShow) {
     pluralize(tvShow.number_of_episodes, 'episódio', 'episódios'),
     tvShow.genres?.length ? tvShow.genres.join(', ') : null,
     tvShow.status || null,
-    tvShow.vote_average ? `Nota ${tvShow.vote_average}` : null,
+    tvShow.vote_average ? `Avaliação ${tvShow.vote_average}` : null,
   ].filter(Boolean)
 }
 
@@ -126,11 +127,9 @@ export function TvShowDetailsPage() {
             )}
           </section>
 
-          <MovieMediaGallery
-            title={tvShow.title}
-            backdropImage={tvShow.backdrop_image}
-            images={tvShow.images}
-          />
+          <MediaPanel title={tvShow.title} media={tvShow.media} />
+
+          <WatchProvidersSection watchProviders={tvShow.watch_providers} />
 
           <MovieTrailer
             trailer={tvShow.trailer}

@@ -428,9 +428,33 @@ class TMDbMovieServiceTests(SimpleTestCase):
                 ]
             },
         }
-        mock_response = MagicMock()
-        mock_response.read.return_value = json.dumps(response_data).encode('utf-8')
-        mock_urlopen.return_value.__enter__.return_value = mock_response
+        watch_providers_data = {
+            'results': {
+                'BR': {
+                    'link': 'https://www.themoviedb.org/movie/101/watch',
+                    'flatrate': [
+                        {
+                            'provider_id': 8,
+                            'provider_name': 'Netflix',
+                            'logo_path': '/netflix.jpg',
+                        }
+                    ],
+                }
+            }
+        }
+
+        def build_mock_response(payload):
+            mock_response = MagicMock()
+            mock_response.read.return_value = json.dumps(payload).encode('utf-8')
+            context_manager = MagicMock()
+            context_manager.__enter__.return_value = mock_response
+            context_manager.__exit__.return_value = False
+            return context_manager
+
+        mock_urlopen.side_effect = [
+            build_mock_response(response_data),
+            build_mock_response(watch_providers_data),
+        ]
 
         payload = TMDbMovieService().get_movie_details('101')
 
@@ -452,6 +476,25 @@ class TMDbMovieServiceTests(SimpleTestCase):
                 'https://image.tmdb.org/t/p/w780/img-2.jpg',
             ],
         )
+        self.assertEqual(
+            payload['media']['backdrops'],
+            [
+                {
+                    'preview_image': 'https://image.tmdb.org/t/p/w1280/img-1.jpg',
+                    'full_image': 'https://image.tmdb.org/t/p/original/img-1.jpg',
+                }
+            ],
+        )
+        self.assertEqual(
+            payload['media']['posters'],
+            [
+                {
+                    'preview_image': 'https://image.tmdb.org/t/p/w780/img-2.jpg',
+                    'full_image': 'https://image.tmdb.org/t/p/original/img-2.jpg',
+                }
+            ],
+        )
+        self.assertEqual(payload['media']['videos'][0]['thumbnail_image'], 'https://img.youtube.com/vi/trailer123/hqdefault.jpg')
         self.assertEqual(
             payload['cast'],
             [
@@ -480,6 +523,26 @@ class TMDbMovieServiceTests(SimpleTestCase):
                 'name': 'Trailer oficial',
                 'youtube_key': 'trailer123',
                 'embed_url': 'https://www.youtube.com/embed/trailer123',
+            },
+        )
+        self.assertEqual(
+            payload['watch_providers'],
+            {
+                'link': 'https://www.themoviedb.org/movie/101/watch',
+                'categories': [
+                    {
+                        'key': 'flatrate',
+                        'label': 'Streaming',
+                        'providers': [
+                            {
+                                'id': '8',
+                                'name': 'Netflix',
+                                'logo_image': 'https://image.tmdb.org/t/p/w300/netflix.jpg',
+                                'link': 'https://www.themoviedb.org/movie/101/watch',
+                            }
+                        ],
+                    }
+                ],
             },
         )
 
@@ -548,9 +611,33 @@ class TMDbMovieServiceTests(SimpleTestCase):
                 ]
             },
         }
-        mock_response = MagicMock()
-        mock_response.read.return_value = json.dumps(response_data).encode('utf-8')
-        mock_urlopen.return_value.__enter__.return_value = mock_response
+        watch_providers_data = {
+            'results': {
+                'BR': {
+                    'link': 'https://www.themoviedb.org/tv/85552/watch',
+                    'flatrate': [
+                        {
+                            'provider_id': 350,
+                            'provider_name': 'Apple TV+',
+                            'logo_path': '/apple-tv.jpg',
+                        }
+                    ],
+                }
+            }
+        }
+
+        def build_mock_response(payload):
+            mock_response = MagicMock()
+            mock_response.read.return_value = json.dumps(payload).encode('utf-8')
+            context_manager = MagicMock()
+            context_manager.__enter__.return_value = mock_response
+            context_manager.__exit__.return_value = False
+            return context_manager
+
+        mock_urlopen.side_effect = [
+            build_mock_response(response_data),
+            build_mock_response(watch_providers_data),
+        ]
 
         payload = TMDbMovieService().get_tv_show_details('85552')
 
@@ -564,6 +651,9 @@ class TMDbMovieServiceTests(SimpleTestCase):
         self.assertEqual(payload['number_of_seasons'], 2)
         self.assertEqual(payload['number_of_episodes'], 20)
         self.assertEqual(payload['production_companies'], ['AMC Studios'])
+        self.assertEqual(payload['media']['backdrops'][0]['preview_image'], 'https://image.tmdb.org/t/p/w1280/tv-img-1.jpg')
+        self.assertEqual(payload['media']['posters'][0]['preview_image'], 'https://image.tmdb.org/t/p/w780/tv-img-2.jpg')
+        self.assertEqual(payload['media']['videos'][0]['thumbnail_image'], 'https://img.youtube.com/vi/silo123/hqdefault.jpg')
         self.assertEqual(
             payload['cast'],
             [
@@ -592,6 +682,26 @@ class TMDbMovieServiceTests(SimpleTestCase):
                 'name': 'Trailer oficial',
                 'youtube_key': 'silo123',
                 'embed_url': 'https://www.youtube.com/embed/silo123',
+            },
+        )
+        self.assertEqual(
+            payload['watch_providers'],
+            {
+                'link': 'https://www.themoviedb.org/tv/85552/watch',
+                'categories': [
+                    {
+                        'key': 'flatrate',
+                        'label': 'Streaming',
+                        'providers': [
+                            {
+                                'id': '350',
+                                'name': 'Apple TV+',
+                                'logo_image': 'https://image.tmdb.org/t/p/w300/apple-tv.jpg',
+                                'link': 'https://www.themoviedb.org/tv/85552/watch',
+                            }
+                        ],
+                    }
+                ],
             },
         )
 

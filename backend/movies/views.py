@@ -88,6 +88,29 @@ def build_movie_details_example():
             'https://image.tmdb.org/t/p/w780/example-image-1.jpg',
             'https://image.tmdb.org/t/p/w780/example-image-2.jpg',
         ],
+        'media': {
+            'backdrops': [
+                {
+                    'preview_image': 'https://image.tmdb.org/t/p/w1280/example-backdrop-1.jpg',
+                    'full_image': 'https://image.tmdb.org/t/p/original/example-backdrop-1.jpg',
+                }
+            ],
+            'posters': [
+                {
+                    'preview_image': 'https://image.tmdb.org/t/p/w780/example-poster-1.jpg',
+                    'full_image': 'https://image.tmdb.org/t/p/original/example-poster-1.jpg',
+                }
+            ],
+            'videos': [
+                {
+                    'name': 'Trailer oficial',
+                    'type': 'Trailer',
+                    'youtube_key': 'abc123',
+                    'embed_url': 'https://www.youtube.com/embed/abc123',
+                    'thumbnail_image': 'https://img.youtube.com/vi/abc123/hqdefault.jpg',
+                }
+            ],
+        },
         'cast': [
             {
                 'id': '1',
@@ -109,6 +132,23 @@ def build_movie_details_example():
             'youtube_key': 'abc123',
             'embed_url': 'https://www.youtube.com/embed/abc123',
         },
+        'watch_providers': {
+            'link': 'https://www.themoviedb.org/movie/980489/watch',
+            'categories': [
+                {
+                    'key': 'flatrate',
+                    'label': 'Streaming',
+                    'providers': [
+                        {
+                            'id': '8',
+                            'name': 'Netflix',
+                            'logo_image': 'https://image.tmdb.org/t/p/w300/netflix.jpg',
+                            'link': 'https://www.themoviedb.org/movie/980489/watch',
+                        }
+                    ],
+                }
+            ],
+        },
     }
 
 
@@ -128,6 +168,29 @@ def build_tv_show_details_example():
             'https://image.tmdb.org/t/p/w780/example-tv-image-1.jpg',
             'https://image.tmdb.org/t/p/w780/example-tv-image-2.jpg',
         ],
+        'media': {
+            'backdrops': [
+                {
+                    'preview_image': 'https://image.tmdb.org/t/p/w1280/example-tv-backdrop-1.jpg',
+                    'full_image': 'https://image.tmdb.org/t/p/original/example-tv-backdrop-1.jpg',
+                }
+            ],
+            'posters': [
+                {
+                    'preview_image': 'https://image.tmdb.org/t/p/w780/example-tv-poster-1.jpg',
+                    'full_image': 'https://image.tmdb.org/t/p/original/example-tv-poster-1.jpg',
+                }
+            ],
+            'videos': [
+                {
+                    'name': 'Trailer oficial',
+                    'type': 'Trailer',
+                    'youtube_key': 'def456',
+                    'embed_url': 'https://www.youtube.com/embed/def456',
+                    'thumbnail_image': 'https://img.youtube.com/vi/def456/hqdefault.jpg',
+                }
+            ],
+        },
         'cast': [
             {
                 'id': '10',
@@ -152,6 +215,23 @@ def build_tv_show_details_example():
         'number_of_seasons': 2,
         'number_of_episodes': 20,
         'production_companies': ['AMC Studios'],
+        'watch_providers': {
+            'link': 'https://www.themoviedb.org/tv/85552/watch',
+            'categories': [
+                {
+                    'key': 'flatrate',
+                    'label': 'Streaming',
+                    'providers': [
+                        {
+                            'id': '8',
+                            'name': 'Netflix',
+                            'logo_image': 'https://image.tmdb.org/t/p/w300/netflix.jpg',
+                            'link': 'https://www.themoviedb.org/tv/85552/watch',
+                        }
+                    ],
+                }
+            ],
+        },
     }
 
 
@@ -620,6 +700,44 @@ class MovieDetailsView(APIView):
                         'poster_image': {'type': 'string', 'nullable': True},
                         'backdrop_image': {'type': 'string', 'nullable': True},
                         'images': {'type': 'array', 'items': {'type': 'string'}},
+                        'media': {
+                            'type': 'object',
+                            'properties': {
+                                'backdrops': {
+                                    'type': 'array',
+                                    'items': {
+                                        'type': 'object',
+                                        'properties': {
+                                            'preview_image': {'type': 'string'},
+                                            'full_image': {'type': 'string'},
+                                        },
+                                    },
+                                },
+                                'posters': {
+                                    'type': 'array',
+                                    'items': {
+                                        'type': 'object',
+                                        'properties': {
+                                            'preview_image': {'type': 'string'},
+                                            'full_image': {'type': 'string'},
+                                        },
+                                    },
+                                },
+                                'videos': {
+                                    'type': 'array',
+                                    'items': {
+                                        'type': 'object',
+                                        'properties': {
+                                            'name': {'type': 'string'},
+                                            'type': {'type': 'string'},
+                                            'youtube_key': {'type': 'string'},
+                                            'embed_url': {'type': 'string'},
+                                            'thumbnail_image': {'type': 'string'},
+                                        },
+                                    },
+                                },
+                            },
+                        },
                         'cast': {
                             'type': 'array',
                             'items': {
@@ -651,6 +769,34 @@ class MovieDetailsView(APIView):
                                 'name': {'type': 'string'},
                                 'youtube_key': {'type': 'string'},
                                 'embed_url': {'type': 'string'},
+                            },
+                        },
+                        'watch_providers': {
+                            'type': 'object',
+                            'properties': {
+                                'link': {'type': 'string', 'nullable': True},
+                                'categories': {
+                                    'type': 'array',
+                                    'items': {
+                                        'type': 'object',
+                                        'properties': {
+                                            'key': {'type': 'string'},
+                                            'label': {'type': 'string'},
+                                            'providers': {
+                                                'type': 'array',
+                                                'items': {
+                                                    'type': 'object',
+                                                    'properties': {
+                                                        'id': {'type': 'string'},
+                                                        'name': {'type': 'string'},
+                                                        'logo_image': {'type': 'string', 'nullable': True},
+                                                        'link': {'type': 'string', 'nullable': True},
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
                             },
                         },
                     },
@@ -700,6 +846,44 @@ class TvShowDetailsView(APIView):
                         'poster_image': {'type': 'string', 'nullable': True},
                         'backdrop_image': {'type': 'string', 'nullable': True},
                         'images': {'type': 'array', 'items': {'type': 'string'}},
+                        'media': {
+                            'type': 'object',
+                            'properties': {
+                                'backdrops': {
+                                    'type': 'array',
+                                    'items': {
+                                        'type': 'object',
+                                        'properties': {
+                                            'preview_image': {'type': 'string'},
+                                            'full_image': {'type': 'string'},
+                                        },
+                                    },
+                                },
+                                'posters': {
+                                    'type': 'array',
+                                    'items': {
+                                        'type': 'object',
+                                        'properties': {
+                                            'preview_image': {'type': 'string'},
+                                            'full_image': {'type': 'string'},
+                                        },
+                                    },
+                                },
+                                'videos': {
+                                    'type': 'array',
+                                    'items': {
+                                        'type': 'object',
+                                        'properties': {
+                                            'name': {'type': 'string'},
+                                            'type': {'type': 'string'},
+                                            'youtube_key': {'type': 'string'},
+                                            'embed_url': {'type': 'string'},
+                                            'thumbnail_image': {'type': 'string'},
+                                        },
+                                    },
+                                },
+                            },
+                        },
                         'cast': {
                             'type': 'array',
                             'items': {
@@ -736,6 +920,34 @@ class TvShowDetailsView(APIView):
                         'number_of_seasons': {'type': 'integer', 'nullable': True},
                         'number_of_episodes': {'type': 'integer', 'nullable': True},
                         'production_companies': {'type': 'array', 'items': {'type': 'string'}},
+                        'watch_providers': {
+                            'type': 'object',
+                            'properties': {
+                                'link': {'type': 'string', 'nullable': True},
+                                'categories': {
+                                    'type': 'array',
+                                    'items': {
+                                        'type': 'object',
+                                        'properties': {
+                                            'key': {'type': 'string'},
+                                            'label': {'type': 'string'},
+                                            'providers': {
+                                                'type': 'array',
+                                                'items': {
+                                                    'type': 'object',
+                                                    'properties': {
+                                                        'id': {'type': 'string'},
+                                                        'name': {'type': 'string'},
+                                                        'logo_image': {'type': 'string', 'nullable': True},
+                                                        'link': {'type': 'string', 'nullable': True},
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
                     },
                 },
                 examples=[
