@@ -106,4 +106,12 @@ export const api = {
   getPersonDetails(id) {
     return request(`/people/${id}`)
   },
+  async getTrendingPeople(options = {}) {
+    const page = options.page ?? 1
+    if (options.paginated) {
+      return requestPaginatedList('/people/trending', page)
+    }
+    const data = await requestPaginatedList('/people/trending', page)
+    return data.results
+  },
 }

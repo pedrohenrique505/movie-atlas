@@ -479,6 +479,67 @@ class TrendingMoviesView(APIView):
         return Response(payload)
 
 
+class TrendingPeopleView(APIView):
+    @extend_schema(
+        operation_id='list_trending_people',
+        summary='Lista pessoas em tendencia',
+        description='Consulta a API externa para buscar pessoas em alta e retorna no maximo 15 resultados.',
+        responses={
+            200: OpenApiResponse(
+                response={
+                    'type': 'object',
+                    'properties': {
+                        'results': {
+                            'type': 'array',
+                            'items': {
+                                'type': 'object',
+                                'properties': {
+                                    'id': {'type': 'string'},
+                                    'name': {'type': 'string'},
+                                    'known_for_department': {'type': 'string'},
+                                    'profile_image': {'type': 'string', 'nullable': True},
+                                    'known_for_titles': {
+                                        'type': 'array',
+                                        'items': {'type': 'string'},
+                                    },
+                                },
+                            },
+                        },
+                        'pagination': {
+                            'type': 'object',
+                            'properties': {
+                                'page': {'type': 'integer'},
+                                'page_size': {'type': 'integer'},
+                                'has_next': {'type': 'boolean'},
+                            },
+                        },
+                    },
+                },
+                examples=[
+                    OpenApiExample(
+                        'Trending people response',
+                        value=build_people_list_example(),
+                    )
+                ],
+            ),
+            503: OpenApiResponse(description='Falha de configuracao ou integracao com a API externa.'),
+        },
+    )
+    def get(self, request):
+        service = TMDbMovieService()
+        page = get_page_number(request)
+
+        try:
+            payload = service.get_trending_people(page=page)
+        except MovieServiceError as exc:
+            return Response(
+                {'detail': str(exc)},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        return Response(payload)
+
+
 class PopularMoviesView(APIView):
     @extend_schema(
         operation_id='list_popular_movies',

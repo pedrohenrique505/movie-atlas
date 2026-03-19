@@ -50,6 +50,21 @@ class TMDbMovieService:
     def get_trending_movies(self, page=1):
         return self._get_movie_list('/trending/movie/day', status_label='trending', page=page)
 
+    def get_trending_people(self, page=1):
+        normalized_page = self._normalize_page_number(page)
+        payload = self._request(
+            '/trending/person/day',
+            {
+                'language': self.language,
+                'page': normalized_page,
+            },
+        )
+        return self._normalize_people_payload(
+            payload,
+            page=normalized_page,
+            total_pages=payload.get('total_pages'),
+        )
+
     def get_now_playing_movies(self, page=1):
         return self._get_movie_list('/movie/now_playing', status_label='now_playing', page=page)
 
@@ -354,6 +369,38 @@ class TMDbMovieService:
                 'page': normalized_page,
                 'page_size': self.page_size,
                 'has_next': has_next,
+            },
+        }
+
+    def _normalize_people_payload(self, payload, page=1, total_pages=None):
+        results = []
+        seen_ids = set()
+
+        for item in payload.get('results', []):
+            person_id = str(item.get('id') or '')
+            if not person_id or person_id in seen_ids:
+                continue
+
+            seen_ids.add(person_id)
+            results.append(
+                {
+                    'id': person_id,
+                    'name': item.get('name') or '',
+                    'known_for_department': item.get('known_for_department') or '',
+                    'profile_image': self._build_image_url(item.get('profile_path'), 'w300'),
+                    'known_for_titles': self._normalize_known_for_titles(item.get('known_for', [])),
+                }
+            )
+
+            if len(results) >= self.page_size:
+                break
+
+        return {
+            'results': results,
+            'pagination': {
+                'page': page,
+                'page_size': self.page_size,
+                'has_next': bool(total_pages and page < total_pages),
             },
         }
 

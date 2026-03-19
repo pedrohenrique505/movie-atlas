@@ -908,6 +908,43 @@ class TMDbMovieServiceTests(SimpleTestCase):
             },
         )
 
+    @patch('movies.services.os.getenv', return_value='test-token')
+    @patch('movies.services.request.urlopen')
+    def test_get_trending_people_normalizes_response(self, mock_urlopen, _mock_getenv):
+        response_data = {
+            'total_pages': 4,
+            'results': [
+                {
+                    'id': 901,
+                    'name': 'Pessoa em Alta',
+                    'known_for_department': 'Acting',
+                    'profile_path': '/person-901.jpg',
+                    'known_for': [{'title': 'Obra Um'}, {'name': 'Obra Dois'}],
+                }
+            ],
+        }
+        mock_response = MagicMock()
+        mock_response.read.return_value = json.dumps(response_data).encode('utf-8')
+        mock_urlopen.return_value.__enter__.return_value = mock_response
+
+        payload = TMDbMovieService().get_trending_people(page=2)
+
+        self.assertEqual(
+            payload,
+            {
+                'results': [
+                    {
+                        'id': '901',
+                        'name': 'Pessoa em Alta',
+                        'known_for_department': 'Acting',
+                        'profile_image': 'https://image.tmdb.org/t/p/w300/person-901.jpg',
+                        'known_for_titles': ['Obra Um', 'Obra Dois'],
+                    }
+                ],
+                'pagination': {'page': 2, 'page_size': 15, 'has_next': True},
+            },
+        )
+
 
 class UpcomingMoviesIntegrationTests(APITestCase):
     @patch('movies.views.TMDbMovieService.get_upcoming_movies')
@@ -969,6 +1006,29 @@ class TrendingMoviesIntegrationTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), mock_get_trending_movies.return_value)
         mock_get_trending_movies.assert_called_once_with(page=3)
+
+
+class TrendingPeopleIntegrationTests(APITestCase):
+    @patch('movies.views.TMDbMovieService.get_trending_people')
+    def test_trending_people_endpoint_returns_service_payload(self, mock_get_trending_people):
+        mock_get_trending_people.return_value = {
+            'results': [
+                {
+                    'id': '901',
+                    'name': 'Pessoa em Alta',
+                    'known_for_department': 'Acting',
+                    'profile_image': 'https://image.tmdb.org/t/p/w300/person-901.jpg',
+                    'known_for_titles': ['Obra Um'],
+                }
+            ],
+            'pagination': {'page': 2, 'page_size': 15, 'has_next': True},
+        }
+
+        response = self.client.get('/api/people/trending?page=2')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), mock_get_trending_people.return_value)
+        mock_get_trending_people.assert_called_once_with(page=2)
 
 
 class SearchMoviesIntegrationTests(APITestCase):

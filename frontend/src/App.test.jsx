@@ -36,6 +36,18 @@ describe('App routes', () => {
           ],
           pagination: { page: 1, page_size: 15, has_next: true },
         },
+        'http://localhost:8000/api/people/trending?page=1': {
+          results: [
+            {
+              id: '150',
+              name: 'Zendaya',
+              known_for_department: 'Acting',
+              profile_image: 'https://image.tmdb.org/t/p/w300/zendaya.jpg',
+              known_for_titles: ['Duna', 'Challengers'],
+            },
+          ],
+          pagination: { page: 1, page_size: 15, has_next: true },
+        },
         'http://localhost:8000/api/movies/upcoming?page=1': {
           results: [
             {

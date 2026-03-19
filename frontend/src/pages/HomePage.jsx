@@ -1,4 +1,5 @@
 import { MovieGridSection } from '../components/MovieGridSection'
+import { PeopleGridSection } from '../components/PeopleGridSection'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { useMovieCollection } from '../hooks/useMovieCollection'
 import { api } from '../services/api'
@@ -9,6 +10,10 @@ export function HomePage() {
   const trending = useMovieCollection(
     api.getTrendingMovies,
     'Não foi possível carregar os filmes em alta.',
+  )
+  const trendingPeople = useMovieCollection(
+    api.getTrendingPeople,
+    'Não foi possível carregar as pessoas em alta.',
   )
   const nowPlaying = useMovieCollection(
     api.getNowPlayingMovies,
@@ -37,6 +42,15 @@ export function HomePage() {
         isLoading={trending.isLoading}
         errorMessage={trending.errorMessage}
         emptyMessage="Nenhum filme em alta encontrado."
+      />
+
+      <PeopleGridSection
+        title="Top pessoas em alta"
+        eyebrow="Destaques"
+        people={trendingPeople.movies}
+        isLoading={trendingPeople.isLoading}
+        errorMessage={trendingPeople.errorMessage}
+        emptyMessage="Nenhuma pessoa em alta encontrada."
       />
 
       <MovieGridSection
