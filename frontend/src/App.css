@@ -1356,7 +1356,7 @@
   }
 
   .carousel-controls {
-    width: 100%;
+    display: none;
   }
 
   .details-hero__content {
