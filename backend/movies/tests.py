@@ -945,6 +945,44 @@ class TMDbMovieServiceTests(SimpleTestCase):
             },
         )
 
+    @patch('movies.services.os.getenv', return_value='test-token')
+    @patch('movies.services.request.urlopen')
+    def test_get_top_rated_movies_normalizes_response(self, mock_urlopen, _mock_getenv):
+        response_data = {
+            'results': [
+                {
+                    'id': 951,
+                    'title': 'Filme Nota Alta',
+                    'release_date': '2026-04-18',
+                    'overview': 'Filme com grande avaliacao.',
+                    'poster_path': '/top-rated.jpg',
+                }
+            ]
+        }
+        mock_response = MagicMock()
+        mock_response.read.return_value = json.dumps(response_data).encode('utf-8')
+        mock_urlopen.return_value.__enter__.return_value = mock_response
+
+        payload = TMDbMovieService().get_top_rated_movies(page=1)
+
+        self.assertEqual(
+            payload,
+            {
+                'results': [
+                    {
+                        'id': '951',
+                        'title': 'Filme Nota Alta',
+                        'release_date': '2026-04-18',
+                        'status': 'top_rated',
+                        'synopsis': 'Filme com grande avaliacao.',
+                        'poster_image': 'https://image.tmdb.org/t/p/w780/top-rated.jpg',
+                        'has_trailer': False,
+                    }
+                ],
+                'pagination': {'page': 1, 'page_size': 15, 'has_next': False},
+            },
+        )
+
 
 class UpcomingMoviesIntegrationTests(APITestCase):
     @patch('movies.views.TMDbMovieService.get_upcoming_movies')
@@ -1087,6 +1125,31 @@ class PopularMoviesIntegrationTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), mock_get_popular_movies.return_value)
         mock_get_popular_movies.assert_called_once_with(page=2)
+
+
+class TopRatedMoviesIntegrationTests(APITestCase):
+    @patch('movies.views.TMDbMovieService.get_top_rated_movies')
+    def test_top_rated_movies_endpoint_returns_service_payload(self, mock_get_top_rated_movies):
+        mock_get_top_rated_movies.return_value = {
+            'results': [
+                {
+                    'id': '951',
+                    'title': 'Filme Nota Alta',
+                    'release_date': '2026-04-18',
+                    'status': 'top_rated',
+                    'synopsis': 'Filme com grande avaliacao.',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/top-rated.jpg',
+                    'has_trailer': False,
+                }
+            ],
+            'pagination': {'page': 2, 'page_size': 15, 'has_next': True},
+        }
+
+        response = self.client.get('/api/movies/top-rated?page=2')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), mock_get_top_rated_movies.return_value)
+        mock_get_top_rated_movies.assert_called_once_with(page=2)
 
 
 class NowPlayingMoviesIntegrationTests(APITestCase):

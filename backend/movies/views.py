@@ -600,6 +600,66 @@ class PopularMoviesView(APIView):
         return Response(payload)
 
 
+class TopRatedMoviesView(APIView):
+    @extend_schema(
+        operation_id='list_top_rated_movies',
+        summary='Lista filmes mais bem avaliados',
+        description='Consulta a API externa de filmes melhor avaliados e retorna no maximo 15 resultados.',
+        responses={
+            200: OpenApiResponse(
+                response={
+                    'type': 'object',
+                    'properties': {
+                        'results': {
+                            'type': 'array',
+                            'items': {
+                                'type': 'object',
+                                'properties': {
+                                    'id': {'type': 'string'},
+                                    'title': {'type': 'string'},
+                                    'release_date': {'type': 'string', 'format': 'date'},
+                                    'status': {'type': 'string'},
+                                    'synopsis': {'type': 'string'},
+                                    'poster_image': {'type': 'string', 'nullable': True},
+                                    'has_trailer': {'type': 'boolean'},
+                                },
+                            },
+                        },
+                        'pagination': {
+                            'type': 'object',
+                            'properties': {
+                                'page': {'type': 'integer'},
+                                'page_size': {'type': 'integer'},
+                                'has_next': {'type': 'boolean'},
+                            },
+                        },
+                    },
+                },
+                examples=[
+                    OpenApiExample(
+                        'Top rated movies response',
+                        value=build_movie_list_example(status='top_rated'),
+                    )
+                ],
+            ),
+            503: OpenApiResponse(description='Falha de configuracao ou integracao com a API externa.'),
+        },
+    )
+    def get(self, request):
+        service = TMDbMovieService()
+        page = get_page_number(request)
+
+        try:
+            payload = service.get_top_rated_movies(page=page)
+        except MovieServiceError as exc:
+            return Response(
+                {'detail': str(exc)},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        return Response(payload)
+
+
 class NowPlayingMoviesView(APIView):
     @extend_schema(
         operation_id='list_now_playing_movies',

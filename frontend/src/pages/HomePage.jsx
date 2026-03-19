@@ -19,6 +19,10 @@ export function HomePage() {
     api.getNowPlayingMovies,
     'Não foi possível carregar os filmes em cartaz.',
   )
+  const topRated = useMovieCollection(
+    api.getTopRatedMovies,
+    'Não foi possível carregar os filmes mais bem avaliados.',
+  )
   const upcoming = useMovieCollection(
     api.getUpcomingMovies,
     'Não foi possível carregar os próximos lançamentos.',
@@ -60,6 +64,15 @@ export function HomePage() {
         isLoading={nowPlaying.isLoading}
         errorMessage={nowPlaying.errorMessage}
         emptyMessage="Nenhum filme em cartaz encontrado."
+      />
+
+      <MovieGridSection
+        title="Filmes mais bem avaliados"
+        eyebrow="Avaliações"
+        movies={topRated.movies}
+        isLoading={topRated.isLoading}
+        errorMessage={topRated.errorMessage}
+        emptyMessage="Nenhum filme bem avaliado encontrado."
       />
 
       <MovieGridSection

@@ -36,6 +36,20 @@ describe('App routes', () => {
           ],
           pagination: { page: 1, page_size: 15, has_next: true },
         },
+        'http://localhost:8000/api/movies/top-rated?page=1': {
+          results: [
+            {
+              id: '250',
+              title: 'Top Rated One',
+              release_date: '2026-03-22',
+              status: 'top_rated',
+              synopsis: '...',
+              poster_image: 'https://image.tmdb.org/t/p/w780/top-rated-one.jpg',
+              has_trailer: false,
+            },
+          ],
+          pagination: { page: 1, page_size: 15, has_next: true },
+        },
         'http://localhost:8000/api/people/trending?page=1': {
           results: [
             {
@@ -84,10 +98,17 @@ describe('App routes', () => {
     expect(screen.queryByRole('link', { name: /^home$/i })).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: /movie atlas/i })).toHaveAttribute('href', '/')
     expect(await screen.findAllByRole('heading', { name: /em cartaz/i })).toHaveLength(2)
+    expect(await screen.findAllByRole('heading', { name: /top pessoas em alta/i })).toHaveLength(1)
+    expect(await screen.findAllByRole('heading', { name: /filmes mais bem avaliados/i })).toHaveLength(1)
     expect(await screen.findAllByRole('heading', { name: /próximos lançamentos/i })).toHaveLength(2)
     expect((await screen.findByText(/now playing one/i)).closest('a')).toHaveAttribute(
       'href',
       '/movie/200',
+    )
+    expect((await screen.findByText(/zendaya/i)).closest('a')).toHaveAttribute('href', '/person/150')
+    expect((await screen.findByText(/top rated one/i)).closest('a')).toHaveAttribute(
+      'href',
+      '/movie/250',
     )
     expect(await screen.findByRole('link', { name: /poster de upcoming one/i })).toHaveAttribute(
       'href',

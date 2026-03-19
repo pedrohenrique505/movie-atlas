@@ -71,6 +71,9 @@ class TMDbMovieService:
     def get_popular_movies(self, page=1):
         return self._get_media_list('/movie/popular', status_label='popular', page=page)
 
+    def get_top_rated_movies(self, page=1):
+        return self._get_media_list('/movie/top_rated', status_label='top_rated', page=page)
+
     def get_popular_tv_shows(self, page=1):
         return self._get_media_list(
             '/tv/popular',

@@ -57,6 +57,14 @@ export const api = {
     const data = await requestPaginatedList('/movies/popular', page)
     return data.results
   },
+  async getTopRatedMovies(options = {}) {
+    const page = options.page ?? 1
+    if (options.paginated) {
+      return requestPaginatedList('/movies/top-rated', page)
+    }
+    const data = await requestPaginatedList('/movies/top-rated', page)
+    return data.results
+  },
   async getUpcomingMovies(options = {}) {
     const page = options.page ?? 1
     if (options.paginated) {
