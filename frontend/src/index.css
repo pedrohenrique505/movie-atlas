@@ -1,3 +1,14 @@
+@import url('https://fonts.cdnfonts.com/css/chalet');
+
+@font-face {
+  font-family: 'Chalet Comprime';
+  src:
+    local('Chalet Comprime'),
+    local('ChaletComprime'),
+    local('Chalet-LondonNineteenSixty');
+  font-display: swap;
+}
+
 :root {
   --bg: #121212;
   --surface: #181818;
@@ -10,8 +21,8 @@
   --radius-md: 16px;
   --radius-lg: 22px;
   --transition-base: 180ms ease;
-  --sans: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  --heading: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --sans: 'Chalet', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --heading: 'Chalet Comprime', 'Chalet', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
   font: 17px/1.5 var(--sans);
   letter-spacing: 0.01em;
@@ -36,6 +47,7 @@ body {
   min-width: 320px;
   background: var(--bg);
   color: var(--text);
+  font-family: var(--sans);
 }
 
 #root {
@@ -47,19 +59,27 @@ h1,
 h2,
 h3 {
   font-family: var(--heading);
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text);
   margin: 0;
+  text-transform: uppercase;
 }
 
 h1 {
   font-size: clamp(2.8rem, 5vw, 5rem);
-  line-height: 0.95;
-  letter-spacing: -0.04em;
+  line-height: 0.9;
+  letter-spacing: 0.03em;
 }
 
 h2 {
   font-size: clamp(1.3rem, 2vw, 1.7rem);
+  line-height: 0.95;
+  letter-spacing: 0.035em;
+}
+
+h3 {
+  line-height: 1;
+  letter-spacing: 0.03em;
 }
 
 p {
@@ -70,6 +90,17 @@ a,
 button,
 input {
   font: inherit;
+}
+
+.eyebrow,
+.brand,
+.nav-link,
+.button-link,
+.filter-chip,
+.movie-card__badge {
+  font-family: var(--heading);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 code {
