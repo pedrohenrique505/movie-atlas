@@ -1,8 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 
+import { CloseIcon } from '../components/navigation/CloseIcon'
+import { HamburgerIcon } from '../components/navigation/HamburgerIcon'
 import { SearchIcon } from '../components/navigation/SearchIcon'
 import { useTypingPlaceholder } from '../hooks/useTypingPlaceholder'
+
+const navigationItems = [
+  { to: '/movies', label: 'Filmes' },
+  { to: '/tv-shows', label: 'Séries' },
+  { to: '/people', label: 'Pessoas' },
+  { to: '/upcoming', label: 'Lançamentos' },
+]
 
 export function AppLayout() {
   const navigate = useNavigate()
@@ -11,6 +20,7 @@ export function AppLayout() {
   const [query, setQuery] = useState(searchParams.get('q') ?? '')
   const [isTopbarVisible, setIsTopbarVisible] = useState(true)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const searchContainerRef = useRef(null)
   const searchInputRef = useRef(null)
 
@@ -31,6 +41,11 @@ export function AppLayout() {
       setQuery(searchParams.get('q') ?? '')
     }
   }, [location.pathname, searchParams])
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false)
+    setIsSearchOpen(false)
+  }, [location.pathname])
 
   useEffect(() => {
     let lastScrollY = window.scrollY
@@ -103,6 +118,7 @@ export function AppLayout() {
     event.preventDefault()
 
     if (!isSearchOpen) {
+      setIsMobileMenuOpen(false)
       setIsSearchOpen(true)
       return
     }
@@ -116,35 +132,34 @@ export function AppLayout() {
       <header
         className={`topbar ${isTopbarVisible ? 'topbar--visible' : 'topbar--hidden'}`.trim()}
       >
+        <button
+          type="button"
+          className="topbar-menu-toggle"
+          aria-label={isMobileMenuOpen ? 'Fechar menu' : 'Abrir menu'}
+          aria-expanded={isMobileMenuOpen}
+          aria-controls="mobile-navigation"
+          onClick={() => {
+            setIsSearchOpen(false)
+            setIsMobileMenuOpen((currentValue) => !currentValue)
+          }}
+        >
+          {isMobileMenuOpen ? <CloseIcon /> : <HamburgerIcon />}
+        </button>
+
         <NavLink className="brand" to="/">
           Movie Atlas
         </NavLink>
 
         <nav className="topnav" aria-label="Principal">
-          <NavLink
-            to="/movies"
-            className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
-          >
-            Filmes
-          </NavLink>
-          <NavLink
-            to="/tv-shows"
-            className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
-          >
-            Séries
-          </NavLink>
-          <NavLink
-            to="/people"
-            className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
-          >
-            Pessoas
-          </NavLink>
-          <NavLink
-            to="/upcoming"
-            className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
-          >
-            Lançamentos
-          </NavLink>
+          {navigationItems.map(({ to, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
+            >
+              {label}
+            </NavLink>
+          ))}
         </nav>
 
         <div className="topbar-tools" ref={searchContainerRef}>
@@ -153,10 +168,7 @@ export function AppLayout() {
             role="search"
             onSubmit={handleSearchSubmit}
           >
-            <div
-              className="search-shell__field"
-              aria-hidden={!isSearchOpen}
-            >
+            <div className="search-shell__field" aria-hidden={!isSearchOpen}>
               <span className="search-shell__icon" aria-hidden="true">
                 <SearchIcon />
               </span>
@@ -179,6 +191,44 @@ export function AppLayout() {
           </form>
         </div>
       </header>
+
+      <div
+        className={`mobile-nav ${isMobileMenuOpen ? 'mobile-nav--open' : ''}`.trim()}
+        aria-hidden={!isMobileMenuOpen}
+      >
+        <button
+          type="button"
+          className="mobile-nav__backdrop"
+          aria-label="Fechar menu"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+
+        <aside id="mobile-navigation" className="mobile-nav__panel" aria-label="Categorias">
+          <div className="mobile-nav__header">
+            <span className="eyebrow">Navegação</span>
+            <button
+              type="button"
+              className="carousel-button"
+              aria-label="Fechar menu"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <CloseIcon />
+            </button>
+          </div>
+
+          <nav className="mobile-nav__links" aria-label="Principal mobile">
+            {navigationItems.map(({ to, label }) => (
+              <NavLink
+                key={to}
+                to={to}
+                className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
+              >
+                {label}
+              </NavLink>
+            ))}
+          </nav>
+        </aside>
+      </div>
 
       <Outlet />
     </div>
