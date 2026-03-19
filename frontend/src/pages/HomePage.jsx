@@ -22,22 +22,20 @@ export function HomePage() {
 
   return (
     <main className="app-shell">
-      <section className="hero-panel hero-panel--home">
-        <div className="hero-copy home-hero__copy">
-          <h1 className="home-hero__title">
-            Descubra filmes em alta, em cartaz e os próximos lançamentos.
-          </h1>
-          <p className="lead">
-            Explore o catálogo com destaques atualizados e acesso rápido aos detalhes de cada obra.
-          </p>
-        </div>
-
-        <HomeTrendingBanner
-          movies={trending.movies}
-          isLoading={trending.isLoading}
-          errorMessage={trending.errorMessage}
-        />
+      <section className="home-intro">
+        <h1 className="home-hero__title">
+          Descubra filmes em alta, em cartaz e os próximos lançamentos.
+        </h1>
+        <p className="lead">
+          Explore o catálogo com destaques atualizados e acesso rápido aos detalhes de cada obra.
+        </p>
       </section>
+
+      <HomeTrendingBanner
+        movies={trending.movies}
+        isLoading={trending.isLoading}
+        errorMessage={trending.errorMessage}
+      />
 
       <MovieGridSection
         title="Em alta"

@@ -73,15 +73,15 @@ describe('App routes', () => {
     expect(screen.queryByRole('link', { name: /^home$/i })).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: /movie atlas/i })).toHaveAttribute('href', '/')
     const highlightsBanner = await screen.findByLabelText(/destaques em alta/i)
-    const activeSlide = highlightsBanner.querySelector('[data-active="true"]')
 
-    expect(activeSlide).toHaveStyle({
+    expect(highlightsBanner).toHaveStyle({
       backgroundImage: 'url(https://image.tmdb.org/t/p/w1280/trending-one-backdrop.jpg)',
     })
     expect(within(highlightsBanner).getByRole('link', { name: /^ver detalhes$/i })).toHaveAttribute(
       'href',
       '/movie/100',
     )
+    expect(highlightsBanner.querySelector('.home-hero-banner__slide')).not.toBeInTheDocument()
     expect(await screen.findAllByRole('heading', { name: /em cartaz/i })).toHaveLength(2)
     expect(await screen.findAllByRole('heading', { name: /próximos lançamentos/i })).toHaveLength(2)
     expect((await screen.findByText(/now playing one/i)).closest('a')).toHaveAttribute(

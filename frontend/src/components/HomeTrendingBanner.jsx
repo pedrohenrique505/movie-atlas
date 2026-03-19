@@ -35,24 +35,15 @@ export function HomeTrendingBanner({ movies, isLoading, errorMessage }) {
   }
 
   const activeMovie = featuredMovies[activeIndex]
+  const backdropImage = activeMovie.backdrop_image ?? activeMovie.poster_image ?? null
+  const heroStyle = backdropImage
+    ? {
+        backgroundImage: `url(${backdropImage})`,
+      }
+    : undefined
 
   return (
-    <section className="home-hero-banner" aria-label="Destaques em alta">
-      {featuredMovies.map((movie, index) => {
-        const backgroundImage = movie.backdrop_image ?? movie.poster_image ?? null
-        const slideStyle = backgroundImage ? { backgroundImage: `url(${backgroundImage})` } : undefined
-
-        return (
-          <div
-            key={movie.id}
-            className={`home-hero-banner__slide ${index === activeIndex ? 'is-active' : ''}`.trim()}
-            style={slideStyle}
-            aria-hidden={index !== activeIndex}
-            data-active={index === activeIndex ? 'true' : 'false'}
-          />
-        )
-      })}
-
+    <section className="home-hero-banner" aria-label="Destaques em alta" style={heroStyle}>
       <div className="home-hero-banner__overlay" />
 
       <div className="home-hero-banner__content">
@@ -69,7 +60,7 @@ export function HomeTrendingBanner({ movies, isLoading, errorMessage }) {
             ))}
           </div>
         ) : (
-          <span />
+          <span aria-hidden="true" />
         )}
 
         <Link className="button-link primary home-hero-banner__cta" to={`/movie/${activeMovie.id}`}>
