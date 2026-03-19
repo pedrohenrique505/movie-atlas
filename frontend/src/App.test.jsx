@@ -388,7 +388,6 @@ describe('App routes', () => {
     expect(await screen.findByText(/graham yost/i)).toBeInTheDocument()
     expect(await screen.findByText(/amc studios/i)).toBeInTheDocument()
     expect(await screen.findByRole('heading', { name: /mídia/i })).toBeInTheDocument()
-    expect(await screen.findByRole('heading', { name: /onde assistir/i })).toBeInTheDocument()
     expect(
       await screen.findByRole('link', { name: /onde posso assistir\?/i }),
     ).toHaveAttribute('href', 'https://www.themoviedb.org/tv/85552/watch')

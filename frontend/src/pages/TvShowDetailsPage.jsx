@@ -4,9 +4,9 @@ import { useParams } from 'react-router-dom'
 import { CastCard } from '../components/CastCard'
 import { DetailsHero } from '../components/DetailsHero'
 import { HorizontalScroller } from '../components/HorizontalScroller'
-import { MediaPanel } from '../components/MediaPanel'
-import { WatchProvidersSection } from '../components/WatchProvidersSection'
 import { LoadingSpinner } from '../components/LoadingSpinner'
+import { MediaPanel } from '../components/MediaPanel'
+import { WatchAvailabilityButton } from '../components/WatchAvailabilityButton'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { api } from '../services/api'
 import { formatDateBR } from '../utils/date'
@@ -102,6 +102,9 @@ export function TvShowDetailsPage() {
             metadataItems={buildTvShowMetadata(tvShow)}
             primaryCredit={tvShow.creators?.[0] ?? null}
             creditLabel="Criação"
+            secondaryAction={
+              <WatchAvailabilityButton link={tvShow.watch_providers?.link ?? null} />
+            }
           />
 
           {tvShow.production_companies?.length ? (
@@ -130,8 +133,6 @@ export function TvShowDetailsPage() {
           </section>
 
           <MediaPanel title={tvShow.title} media={tvShow.media} />
-
-          <WatchProvidersSection watchProviders={tvShow.watch_providers} />
         </>
       ) : null}
     </main>
