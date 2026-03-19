@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
+
 import './App.css'
 import { AppLayout } from './layout/AppLayout'
 import { HomePage } from './pages/HomePage'
@@ -20,15 +21,16 @@ function App() {
         <Route path="/movies" element={<MoviesPage />} />
         <Route path="/tv-shows" element={<TvShowsPage />} />
         <Route
-          path="/actors"
+          path="/people"
           element={
             <PeopleListingPage
-              title="Atores"
+              title="Pessoas"
               fetchPeople={api.getPopularActors}
-              errorMessageFallback="Não foi possível carregar os atores."
+              errorMessageFallback="Não foi possível carregar as pessoas."
             />
           }
         />
+        <Route path="/actors" element={<Navigate to="/people" replace />} />
         <Route
           path="/directors"
           element={
@@ -39,7 +41,6 @@ function App() {
             />
           }
         />
-        <Route path="/people" element={<Navigate to="/actors" replace />} />
         <Route path="/categories" element={<Navigate to="/movies" replace />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="/upcoming" element={<UpcomingPage />} />

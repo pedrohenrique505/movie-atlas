@@ -418,7 +418,7 @@ describe('App routes', () => {
     expect(document.title).toBe('Diretores | Movie Atlas')
   })
 
-  it('renders the actors page with api content', async () => {
+  it('renders the people page with api content', async () => {
     global.fetch = vi.fn(() =>
       Promise.resolve({
         ok: true,
@@ -439,18 +439,18 @@ describe('App routes', () => {
     )
 
     render(
-      <MemoryRouter initialEntries={['/actors']}>
+      <MemoryRouter initialEntries={['/people']}>
         <App />
       </MemoryRouter>,
     )
 
     expect(
       await screen.findByRole('heading', {
-        name: /atores/i,
+        name: /pessoas/i,
       }),
     ).toBeInTheDocument()
     expect(await screen.findByText(/person example/i)).toBeInTheDocument()
-    expect(document.title).toBe('Atores | Movie Atlas')
+    expect(document.title).toBe('Pessoas | Movie Atlas')
   })
 
   it('renders the person details page', async () => {

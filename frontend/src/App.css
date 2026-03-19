@@ -192,6 +192,11 @@
   padding: 1.25rem 0 0.75rem;
 }
 
+.page-heading h1 {
+  font-size: clamp(2rem, 3.4vw, 3.1rem);
+  line-height: 1.02;
+}
+
 .hero-copy,
 .page-copy {
   display: flex;
