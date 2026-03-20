@@ -840,6 +840,18 @@ class TMDbMovieServiceTests(SimpleTestCase):
                 'profile_image': 'https://image.tmdb.org/t/p/w780/person.jpg',
                 'top_works': [
                     {
+                        'id': '106',
+                        'title': 'Late Night Awards',
+                        'release_date': '2024-01-01',
+                        'media_type': 'tv',
+                        'poster_image': 'https://image.tmdb.org/t/p/w780/late-night-awards.jpg',
+                        'credit': 'Self',
+                        'popularity': 500.0,
+                        'vote_count': 900,
+                        'order': 1,
+                        'episode_count': 2,
+                    },
+                    {
                         'id': '102',
                         'title': 'Westworld',
                         'release_date': '2016-10-02',
@@ -862,18 +874,6 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'vote_count': 15000,
                         'order': 2,
                         'episode_count': 0,
-                    },
-                    {
-                        'id': '106',
-                        'title': 'Late Night Awards',
-                        'release_date': '2024-01-01',
-                        'media_type': 'tv',
-                        'poster_image': 'https://image.tmdb.org/t/p/w780/late-night-awards.jpg',
-                        'credit': 'Self',
-                        'popularity': 500.0,
-                        'vote_count': 900,
-                        'order': 1,
-                        'episode_count': 2,
                     },
                     {
                         'id': '201',
@@ -890,6 +890,18 @@ class TMDbMovieServiceTests(SimpleTestCase):
                 ],
                 'credits': [
                     {
+                        'id': '106',
+                        'title': 'Late Night Awards',
+                        'release_date': '2024-01-01',
+                        'media_type': 'tv',
+                        'poster_image': 'https://image.tmdb.org/t/p/w780/late-night-awards.jpg',
+                        'credit': 'Self',
+                        'popularity': 500.0,
+                        'vote_count': 900,
+                        'order': 1,
+                        'episode_count': 2,
+                    },
+                    {
                         'id': '102',
                         'title': 'Westworld',
                         'release_date': '2016-10-02',
@@ -912,18 +924,6 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'vote_count': 15000,
                         'order': 2,
                         'episode_count': 0,
-                    },
-                    {
-                        'id': '106',
-                        'title': 'Late Night Awards',
-                        'release_date': '2024-01-01',
-                        'media_type': 'tv',
-                        'poster_image': 'https://image.tmdb.org/t/p/w780/late-night-awards.jpg',
-                        'credit': 'Self',
-                        'popularity': 500.0,
-                        'vote_count': 900,
-                        'order': 1,
-                        'episode_count': 2,
                     },
                     {
                         'id': '201',
@@ -1087,7 +1087,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
 
         self.assertEqual(
             [project['id'] for project in payload],
-            ['302', '303', '304', '301'],
+            ['302', '303', '301', '304'],
         )
 
     def test_build_person_top_works_uses_combined_tv_score(self):
@@ -1148,7 +1148,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
             ]
         )
 
-        self.assertEqual([project['id'] for project in payload], ['402', '404', '401', '403'])
+        self.assertEqual([project['id'] for project in payload], ['402', '401', '404', '403'])
 
     def test_normalize_person_credits_uses_combined_score_for_deduplication(self):
         payload = TMDbMovieService()._normalize_person_credits(
