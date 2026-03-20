@@ -645,9 +645,9 @@ class TMDbMovieService:
         filtered = sorted(
             latest_projects.values(),
             key=lambda project: (
-                project['release_date'] != '',
+                project.get('popularity', 0),
+                project.get('vote_count', 0),
                 project['release_date'],
-                project['title'],
             ),
             reverse=True,
         )
@@ -683,6 +683,8 @@ class TMDbMovieService:
             'media_type': media_type,
             'poster_image': self._build_image_url(item.get('poster_path'), 'w780'),
             'credit': credit,
+            'popularity': self._normalize_person_project_popularity(item.get('popularity')),
+            'vote_count': self._normalize_person_project_vote_count(item.get('vote_count')),
         }
 
     def _normalize_person_credit_label(self, credit, is_cast):
@@ -738,6 +740,27 @@ class TMDbMovieService:
         }
 
         return credit_weights.get(normalized_credit, 5)
+
+    def _normalize_person_project_popularity(self, value):
+        if isinstance(value, bool):
+            return 0.0
+
+        if isinstance(value, (int, float)):
+            return float(value)
+
+        return 0.0
+
+    def _normalize_person_project_vote_count(self, value):
+        if isinstance(value, bool):
+            return 0
+
+        if isinstance(value, int):
+            return value
+
+        if isinstance(value, float):
+            return int(value)
+
+        return 0
 
     def _normalize_images(self, images_payload):
         image_paths = []
