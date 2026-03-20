@@ -842,9 +842,24 @@ class TMDbMovieServiceTests(SimpleTestCase):
                 ],
             },
         }
-        mock_response = MagicMock()
-        mock_response.read.return_value = json.dumps(response_data).encode('utf-8')
-        mock_urlopen.return_value.__enter__.return_value = mock_response
+        localized_response = MagicMock()
+        localized_response.read.return_value = json.dumps(response_data).encode('utf-8')
+        localized_context = MagicMock()
+        localized_context.__enter__.return_value = localized_response
+        localized_context.__exit__.return_value = False
+
+        people_language_response = MagicMock()
+        people_language_response.read.return_value = json.dumps(
+            {
+                'id': 777,
+                'name': 'Christopher Nolan',
+            }
+        ).encode('utf-8')
+        people_language_context = MagicMock()
+        people_language_context.__enter__.return_value = people_language_response
+        people_language_context.__exit__.return_value = False
+
+        mock_urlopen.side_effect = [localized_context, people_language_context]
 
         payload = TMDbMovieService().get_person_details('777')
 
@@ -984,6 +999,30 @@ class TMDbMovieServiceTests(SimpleTestCase):
                 ],
             },
         )
+
+    @patch('movies.services.os.getenv', return_value='test-token')
+    @patch('movies.services.request.urlopen')
+    def test_get_trending_people_requests_en_us_names(self, mock_urlopen, _mock_getenv):
+        response_data = {
+            'results': [
+                {
+                    'id': 777,
+                    'name': 'Bae Doona',
+                    'known_for_department': 'Acting',
+                    'profile_path': '/bae-doona.jpg',
+                    'known_for': [{'title': 'Cloud Atlas'}],
+                }
+            ],
+            'total_pages': 1,
+        }
+        mock_response = MagicMock()
+        mock_response.read.return_value = json.dumps(response_data).encode('utf-8')
+        mock_urlopen.return_value.__enter__.return_value = mock_response
+
+        TMDbMovieService().get_trending_people()
+
+        request_url = mock_urlopen.call_args.args[0].full_url
+        self.assertIn('language=en-US', request_url)
 
     def test_normalize_person_credits_filters_invalid_credits_and_keeps_duplicates(self):
         payload = TMDbMovieService()._normalize_person_credits(
