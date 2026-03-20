@@ -777,6 +777,18 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'job': 'Executive Producer',
                         'popularity': 88.3,
                         'vote_count': 5400,
+                        'genre_ids': [18, 9648, 10765],
+                    },
+                    {
+                        'id': 106,
+                        'name': 'Late Night Awards',
+                        'first_air_date': '2024-01-01',
+                        'media_type': 'tv',
+                        'poster_path': '/late-night-awards.jpg',
+                        'job': 'Self',
+                        'popularity': 500.0,
+                        'vote_count': 900,
+                        'genre_ids': [10767],
                     },
                     {
                         'id': 103,
@@ -933,6 +945,63 @@ class TMDbMovieServiceTests(SimpleTestCase):
                     'vote_count': 400,
                 }
             ],
+        )
+
+    def test_normalize_person_projects_filters_non_scripted_tv_formats(self):
+        payload = TMDbMovieService()._normalize_person_projects(
+            {
+                'cast': [
+                    {
+                        'id': 401,
+                        'name': 'Prestige Drama',
+                        'first_air_date': '2021-01-01',
+                        'media_type': 'tv',
+                        'poster_path': '/prestige-drama.jpg',
+                        'character': 'Lead',
+                        'popularity': 90.0,
+                        'vote_count': 3000,
+                        'genre_ids': [18, 9648],
+                    },
+                    {
+                        'id': 402,
+                        'name': 'Celebrity Talk Hour',
+                        'first_air_date': '2023-01-01',
+                        'media_type': 'tv',
+                        'poster_path': '/celebrity-talk-hour.jpg',
+                        'character': 'Self',
+                        'popularity': 300.0,
+                        'vote_count': 700,
+                        'genre_ids': [10767],
+                    },
+                    {
+                        'id': 403,
+                        'name': 'Competition Special',
+                        'first_air_date': '2022-05-01',
+                        'media_type': 'tv',
+                        'poster_path': '/competition-special.jpg',
+                        'character': 'Host',
+                        'popularity': 200.0,
+                        'vote_count': 500,
+                        'genre_ids': [10764],
+                    },
+                    {
+                        'id': 404,
+                        'title': 'Feature Film',
+                        'release_date': '2020-01-01',
+                        'media_type': 'movie',
+                        'poster_path': '/feature-film.jpg',
+                        'character': 'Lead',
+                        'popularity': 110.0,
+                        'vote_count': 4500,
+                    },
+                ],
+                'crew': [],
+            }
+        )
+
+        self.assertEqual(
+            [project['id'] for project in payload],
+            ['404', '401'],
         )
 
     def test_normalize_person_projects_sorts_by_popularity_vote_count_and_release_date(self):
