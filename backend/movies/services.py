@@ -40,6 +40,7 @@ class TMDbMovieService:
     image_base_url: str = 'https://image.tmdb.org/t/p'
     timeout: int = 10
     language: str = 'pt-BR'
+    people_language: str = 'en-US'
     region: str = 'BR'
     page_size: int = 15
 
@@ -63,7 +64,7 @@ class TMDbMovieService:
         payload = self._request(
             '/trending/person/day',
             {
-                'language': self.language,
+                'language': self.people_language,
                 'page': normalized_page,
             },
         )
@@ -164,6 +165,14 @@ class TMDbMovieService:
                 'append_to_response': 'combined_credits',
             },
         )
+        if self.people_language != self.language:
+            people_payload = self._request(
+                f'/person/{person_id}',
+                {
+                    'language': self.people_language,
+                },
+            )
+            payload['name'] = people_payload.get('name') or payload.get('name')
         return self._normalize_person_details_payload(payload)
 
     def _request(self, path, params):
@@ -333,7 +342,7 @@ class TMDbMovieService:
             payload = self._request(
                 '/person/popular',
                 {
-                    'language': self.language,
+                    'language': self.people_language,
                     'page': tmdb_page,
                 },
             )

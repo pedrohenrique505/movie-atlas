@@ -339,7 +339,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
             },
         )
 
-    def test_normalize_person_name_prefers_localized_name_with_original_in_parentheses(self):
+    def test_normalize_person_name_prefers_localized_name_without_original_suffix(self):
         payload = TMDbMovieService()._normalize_person_name(
             {
                 'name': 'Bae Doona',
@@ -347,7 +347,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
             }
         )
 
-        self.assertEqual(payload, 'Bae Doona (배두나)')
+        self.assertEqual(payload, 'Bae Doona')
 
     def test_normalize_media_title_prefers_localized_title_with_original_in_parentheses(self):
         payload = TMDbMovieService()._normalize_media_title(
