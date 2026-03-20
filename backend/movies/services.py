@@ -655,20 +655,14 @@ class TMDbMovieService:
 
         return sorted(
             latest_projects.values(),
-            key=lambda project: (
-                project.get('popularity', 0),
-                -project.get('order', self.page_size),
-            ),
+            key=self._person_project_sort_key,
             reverse=True,
         )
 
     def _build_person_top_works(self, credits):
         top_works = sorted(
             credits,
-            key=lambda project: (
-                project.get('popularity', 0),
-                -project.get('order', self.page_size),
-            ),
+            key=self._person_project_sort_key,
             reverse=True,
         )
 
@@ -685,6 +679,7 @@ class TMDbMovieService:
             'popularity': project['popularity'],
             'vote_count': project['vote_count'],
             'order': project['order'],
+            'episode_count': project['episode_count'],
         }
 
     def _normalize_person_project(self, item, is_cast):
@@ -720,6 +715,7 @@ class TMDbMovieService:
             'popularity': self._normalize_person_project_popularity(item.get('popularity')),
             'vote_count': self._normalize_person_project_vote_count(item.get('vote_count')),
             'order': self._normalize_person_project_order(item.get('order')),
+            'episode_count': self._normalize_person_project_episode_count(item.get('episode_count')),
         }
 
     def _normalize_person_credit_label(self, credit, is_cast):
@@ -742,6 +738,12 @@ class TMDbMovieService:
         current_popularity = current.get('popularity', 0)
         if candidate_popularity != current_popularity:
             return candidate_popularity > current_popularity
+
+        if candidate.get('media_type') == 'tv' and current.get('media_type') == 'tv':
+            candidate_episode_count = candidate.get('episode_count', 0)
+            current_episode_count = current.get('episode_count', 0)
+            if candidate_episode_count != current_episode_count:
+                return candidate_episode_count > current_episode_count
 
         candidate_order = candidate.get('order', self.page_size)
         current_order = current.get('order', self.page_size)
@@ -786,6 +788,31 @@ class TMDbMovieService:
             return normalized_value if normalized_value >= 0 else self.page_size
 
         return self.page_size
+
+    def _normalize_person_project_episode_count(self, value):
+        if isinstance(value, bool):
+            return 0
+
+        if isinstance(value, int):
+            return value if value >= 0 else 0
+
+        if isinstance(value, float) and value.is_integer():
+            normalized_value = int(value)
+            return normalized_value if normalized_value >= 0 else 0
+
+        return 0
+
+    def _person_project_sort_key(self, project):
+        if project.get('media_type') == 'tv':
+            return (
+                project.get('popularity', 0),
+                project.get('episode_count', 0),
+            )
+
+        return (
+            project.get('popularity', 0),
+            -project.get('order', self.page_size),
+        )
 
     def _normalize_images(self, images_payload):
         image_paths = []
