@@ -833,16 +833,6 @@ class TMDbMovieServiceTests(SimpleTestCase):
                 'profile_image': 'https://image.tmdb.org/t/p/w780/person.jpg',
                 'top_works': [
                     {
-                        'id': '102',
-                        'title': 'Westworld',
-                        'release_date': '2016-10-02',
-                        'media_type': 'tv',
-                        'poster_image': 'https://image.tmdb.org/t/p/w780/westworld.jpg',
-                        'credit': 'Executive Producer',
-                        'popularity': 88.3,
-                        'vote_count': 5400,
-                    },
-                    {
                         'id': '101',
                         'title': 'Inception',
                         'release_date': '2010-07-16',
@@ -851,6 +841,16 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'credit': 'Director',
                         'popularity': 85.5,
                         'vote_count': 15000,
+                    },
+                    {
+                        'id': '102',
+                        'title': 'Westworld',
+                        'release_date': '2016-10-02',
+                        'media_type': 'tv',
+                        'poster_image': 'https://image.tmdb.org/t/p/w780/westworld.jpg',
+                        'credit': 'Executive Producer',
+                        'popularity': 88.3,
+                        'vote_count': 5400,
                     },
                     {
                         'id': '201',
@@ -960,7 +960,8 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'department': '',
                     },
                 ],
-            }
+            },
+            birthday='1980-01-01',
         )
 
         self.assertEqual(
@@ -1029,7 +1030,8 @@ class TMDbMovieServiceTests(SimpleTestCase):
                     },
                 ],
                 'crew': [],
-            }
+            },
+            birthday='1980-01-01',
         )
 
         self.assertEqual(
@@ -1106,7 +1108,9 @@ class TMDbMovieServiceTests(SimpleTestCase):
                     'popularity': 0.0,
                     'vote_count': 0,
                 },
-            ]
+            ],
+            preferred_department='Acting',
+            birthday='1980-01-01',
         )
 
         self.assertEqual(
@@ -1152,7 +1156,9 @@ class TMDbMovieServiceTests(SimpleTestCase):
                     'popularity': 500.0,
                     'vote_count': 100,
                 },
-            ]
+            ],
+            preferred_department='Acting',
+            birthday='1980-01-01',
         )
 
         self.assertEqual([project['id'] for project in payload], ['501'])
@@ -1206,9 +1212,14 @@ class TMDbMovieServiceTests(SimpleTestCase):
                 'crew': [],
             },
             preferred_department='Acting',
+            birthday='1986-05-13',
         )
 
-        payload = TMDbMovieService()._build_person_top_works(credits)
+        payload = TMDbMovieService()._build_person_top_works(
+            credits,
+            preferred_department='Acting',
+            birthday='1986-05-13',
+        )
 
         self.assertEqual([project['title'] for project in payload], ['The Batman', 'Twilight'])
 
@@ -1241,6 +1252,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                 ],
             },
             preferred_department='Acting',
+            birthday='1986-05-13',
         )
 
         self.assertEqual(
@@ -1257,6 +1269,71 @@ class TMDbMovieServiceTests(SimpleTestCase):
                 'vote_count': 9000,
             },
         )
+
+    def test_normalize_person_credits_rejects_titles_before_person_birth_date(self):
+        payload = TMDbMovieService()._normalize_person_credits(
+            {
+                'cast': [
+                    {
+                        'id': 801,
+                        'title': 'Before Birth',
+                        'release_date': '1970-01-01',
+                        'media_type': 'movie',
+                        'poster_path': '/before-birth.jpg',
+                        'character': 'Lead',
+                        'popularity': 100.0,
+                        'vote_count': 1000,
+                    },
+                    {
+                        'id': 802,
+                        'title': 'After Birth',
+                        'release_date': '2015-01-01',
+                        'media_type': 'movie',
+                        'poster_path': '/after-birth.jpg',
+                        'character': 'Lead',
+                        'popularity': 90.0,
+                        'vote_count': 900,
+                    },
+                ],
+                'crew': [],
+            },
+            preferred_department='Acting',
+            birthday='1986-05-13',
+        )
+
+        self.assertEqual([project['id'] for project in payload], ['802'])
+
+    def test_build_person_top_works_prioritizes_department_aligned_real_credits(self):
+        payload = TMDbMovieService()._build_person_top_works(
+            [
+                {
+                    'id': '901',
+                    'title': 'Directing Credit',
+                    'release_date': '2014-01-01',
+                    'media_type': 'movie',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/directing-credit.jpg',
+                    'credit': 'Director',
+                    'credit_type': 'crew',
+                    'popularity': 85.0,
+                    'vote_count': 6000,
+                },
+                {
+                    'id': '902',
+                    'title': 'Acting Credit',
+                    'release_date': '2015-01-01',
+                    'media_type': 'movie',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/acting-credit.jpg',
+                    'credit': 'Supporting Role',
+                    'credit_type': 'cast',
+                    'popularity': 90.0,
+                    'vote_count': 4000,
+                },
+            ],
+            preferred_department='Directing',
+            birthday='1970-07-30',
+        )
+
+        self.assertEqual([project['id'] for project in payload], ['901', '902'])
 
     @patch('movies.services.os.getenv', return_value='test-token')
     @patch('movies.services.request.urlopen')
