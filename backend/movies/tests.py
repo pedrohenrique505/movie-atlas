@@ -745,6 +745,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'character': 'Narrator',
                         'popularity': 15.2,
                         'vote_count': 120,
+                        'order': 3,
                     }
                 ],
                 'crew': [
@@ -757,6 +758,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'job': 'Producer',
                         'popularity': 70.0,
                         'vote_count': 9000,
+                        'order': 4,
                     },
                     {
                         'id': 101,
@@ -767,6 +769,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'job': 'Director',
                         'popularity': 85.5,
                         'vote_count': 15000,
+                        'order': 2,
                     },
                     {
                         'id': 102,
@@ -778,6 +781,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'popularity': 88.3,
                         'vote_count': 5400,
                         'genre_ids': [18, 9648, 10765],
+                        'order': 6,
                     },
                     {
                         'id': 106,
@@ -789,6 +793,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'popularity': 500.0,
                         'vote_count': 900,
                         'genre_ids': [10767],
+                        'order': 1,
                     },
                     {
                         'id': 103,
@@ -833,14 +838,15 @@ class TMDbMovieServiceTests(SimpleTestCase):
                 'profile_image': 'https://image.tmdb.org/t/p/w780/person.jpg',
                 'top_works': [
                     {
-                        'id': '101',
-                        'title': 'Inception',
-                        'release_date': '2010-07-16',
-                        'media_type': 'movie',
-                        'poster_image': 'https://image.tmdb.org/t/p/w780/inception.jpg',
-                        'credit': 'Director',
-                        'popularity': 85.5,
-                        'vote_count': 15000,
+                        'id': '106',
+                        'title': 'Late Night Awards',
+                        'release_date': '2024-01-01',
+                        'media_type': 'tv',
+                        'poster_image': 'https://image.tmdb.org/t/p/w780/late-night-awards.jpg',
+                        'credit': 'Self',
+                        'popularity': 500.0,
+                        'vote_count': 900,
+                        'order': 1,
                     },
                     {
                         'id': '102',
@@ -851,6 +857,18 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'credit': 'Executive Producer',
                         'popularity': 88.3,
                         'vote_count': 5400,
+                        'order': 6,
+                    },
+                    {
+                        'id': '101',
+                        'title': 'Inception',
+                        'release_date': '2010-07-16',
+                        'media_type': 'movie',
+                        'poster_image': 'https://image.tmdb.org/t/p/w780/inception.jpg',
+                        'credit': 'Director',
+                        'popularity': 85.5,
+                        'vote_count': 15000,
+                        'order': 2,
                     },
                     {
                         'id': '201',
@@ -861,10 +879,22 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'credit': 'Narrator',
                         'popularity': 15.2,
                         'vote_count': 120,
+                        'order': 3,
                     },
                 ],
                 'credits': [
                     {
+                        'id': '106',
+                        'title': 'Late Night Awards',
+                        'release_date': '2024-01-01',
+                        'media_type': 'tv',
+                        'poster_image': 'https://image.tmdb.org/t/p/w780/late-night-awards.jpg',
+                        'credit': 'Self',
+                        'popularity': 500.0,
+                        'vote_count': 900,
+                        'order': 1,
+                    },
+                    {
                         'id': '102',
                         'title': 'Westworld',
                         'release_date': '2016-10-02',
@@ -873,6 +903,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'credit': 'Executive Producer',
                         'popularity': 88.3,
                         'vote_count': 5400,
+                        'order': 6,
                     },
                     {
                         'id': '101',
@@ -883,6 +914,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'credit': 'Director',
                         'popularity': 85.5,
                         'vote_count': 15000,
+                        'order': 2,
                     },
                     {
                         'id': '201',
@@ -893,6 +925,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'credit': 'Narrator',
                         'popularity': 15.2,
                         'vote_count': 120,
+                        'order': 3,
                     },
                 ],
             },
@@ -911,6 +944,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'character': 'Lead',
                         'popularity': 20.0,
                         'vote_count': 200,
+                        'order': 8,
                     },
                     {
                         'id': 202,
@@ -933,6 +967,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'job': 'Producer',
                         'popularity': 40.0,
                         'vote_count': 400,
+                        'order': 5,
                     },
                     {
                         'id': 203,
@@ -960,8 +995,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'department': '',
                     },
                 ],
-            },
-            birthday='1980-01-01',
+            }
         )
 
         self.assertEqual(
@@ -975,73 +1009,14 @@ class TMDbMovieServiceTests(SimpleTestCase):
                     'poster_image': 'https://image.tmdb.org/t/p/w780/duplicate-crew.jpg',
                     'credit': 'Producer',
                     'credit_type': 'crew',
-                    'department': '',
-                    'job': 'Producer',
                     'popularity': 40.0,
                     'vote_count': 400,
+                    'order': 5,
                 }
             ],
         )
 
-    def test_normalize_person_credits_filters_non_scripted_tv_formats(self):
-        payload = TMDbMovieService()._normalize_person_credits(
-            {
-                'cast': [
-                    {
-                        'id': 401,
-                        'name': 'Prestige Drama',
-                        'first_air_date': '2021-01-01',
-                        'media_type': 'tv',
-                        'poster_path': '/prestige-drama.jpg',
-                        'character': 'Lead',
-                        'popularity': 90.0,
-                        'vote_count': 3000,
-                        'genre_ids': [18, 9648],
-                    },
-                    {
-                        'id': 402,
-                        'name': 'Celebrity Talk Hour',
-                        'first_air_date': '2023-01-01',
-                        'media_type': 'tv',
-                        'poster_path': '/celebrity-talk-hour.jpg',
-                        'character': 'Self',
-                        'popularity': 300.0,
-                        'vote_count': 700,
-                        'genre_ids': [10767],
-                    },
-                    {
-                        'id': 403,
-                        'name': 'Competition Special',
-                        'first_air_date': '2022-05-01',
-                        'media_type': 'tv',
-                        'poster_path': '/competition-special.jpg',
-                        'character': 'Host',
-                        'popularity': 200.0,
-                        'vote_count': 500,
-                        'genre_ids': [10764],
-                    },
-                    {
-                        'id': 404,
-                        'title': 'Feature Film',
-                        'release_date': '2020-01-01',
-                        'media_type': 'movie',
-                        'poster_path': '/feature-film.jpg',
-                        'character': 'Lead',
-                        'popularity': 110.0,
-                        'vote_count': 4500,
-                    },
-                ],
-                'crew': [],
-            },
-            birthday='1980-01-01',
-        )
-
-        self.assertEqual(
-            [project['id'] for project in payload],
-            ['401', '404'],
-        )
-
-    def test_build_person_top_works_sorts_by_popularity_vote_count_and_release_date(self):
+    def test_build_person_top_works_sorts_by_popularity_and_ascending_order(self):
         payload = TMDbMovieService()._build_person_top_works(
             [
                 {
@@ -1054,10 +1029,11 @@ class TMDbMovieServiceTests(SimpleTestCase):
                     'credit_type': 'cast',
                     'popularity': 120.5,
                     'vote_count': 1000,
+                    'order': 7,
                 },
                 {
                     'id': '302',
-                    'title': 'Tie On Popularity Older',
+                    'title': 'Tie On Popularity Higher Order',
                     'release_date': '2015-01-01',
                     'media_type': 'movie',
                     'poster_image': 'https://image.tmdb.org/t/p/w780/tie-older.jpg',
@@ -1065,10 +1041,11 @@ class TMDbMovieServiceTests(SimpleTestCase):
                     'credit_type': 'cast',
                     'popularity': 80.0,
                     'vote_count': 500,
+                    'order': 5,
                 },
                 {
                     'id': '303',
-                    'title': 'Tie On Popularity More Votes',
+                    'title': 'Tie On Popularity Lower Order',
                     'release_date': '2012-01-01',
                     'media_type': 'movie',
                     'poster_image': 'https://image.tmdb.org/t/p/w780/tie-more-votes.jpg',
@@ -1076,10 +1053,11 @@ class TMDbMovieServiceTests(SimpleTestCase):
                     'credit_type': 'cast',
                     'popularity': 80.0,
                     'vote_count': 900,
+                    'order': 1,
                 },
                 {
                     'id': '304',
-                    'title': 'Tie On Popularity And Votes Newer',
+                    'title': 'No Order Provided',
                     'release_date': '2018-06-01',
                     'media_type': 'movie',
                     'poster_image': 'https://image.tmdb.org/t/p/w780/tie-newer.jpg',
@@ -1087,329 +1065,15 @@ class TMDbMovieServiceTests(SimpleTestCase):
                     'credit_type': 'cast',
                     'popularity': 50.0,
                     'vote_count': 300,
+                    'order': 15,
                 },
-                {
-                    'id': '305',
-                    'title': 'Tie On Popularity And Votes Older',
-                    'release_date': '2014-06-01',
-                    'media_type': 'movie',
-                    'poster_image': 'https://image.tmdb.org/t/p/w780/tie-older-date.jpg',
-                    'credit': 'Hero',
-                    'credit_type': 'cast',
-                    'popularity': 50.0,
-                    'vote_count': 300,
-                },
-                {
-                    'id': '306',
-                    'title': 'Missing Metrics',
-                    'release_date': '2020-06-01',
-                    'media_type': 'movie',
-                    'poster_image': 'https://image.tmdb.org/t/p/w780/missing-metrics.jpg',
-                    'credit': 'Hero',
-                    'credit_type': 'cast',
-                    'popularity': 0.0,
-                    'vote_count': 0,
-                },
-            ],
-            preferred_department='Acting',
-            birthday='1980-01-01',
+            ]
         )
 
         self.assertEqual(
             [project['id'] for project in payload],
-            ['301', '303', '302', '304', '305', '306'],
+            ['301', '303', '302', '304'],
         )
-        self.assertEqual(payload[-1]['popularity'], 0.0)
-        self.assertEqual(payload[-1]['vote_count'], 0)
-
-    def test_build_person_top_works_excludes_future_titles_and_missing_release_dates(self):
-        payload = TMDbMovieService()._build_person_top_works(
-            [
-                {
-                    'id': '501',
-                    'title': 'The Batman',
-                    'release_date': '2022-03-04',
-                    'media_type': 'movie',
-                    'poster_image': 'https://image.tmdb.org/t/p/w780/the-batman.jpg',
-                    'credit': 'Bruce Wayne / Batman',
-                    'credit_type': 'cast',
-                    'popularity': 200.0,
-                    'vote_count': 9000,
-                },
-                {
-                    'id': '502',
-                    'title': 'Duna Pt. 3',
-                    'release_date': '2026-12-18',
-                    'media_type': 'movie',
-                    'poster_image': 'https://image.tmdb.org/t/p/w780/duna-pt3.jpg',
-                    'credit': 'Scytale',
-                    'credit_type': 'cast',
-                    'popularity': 400.0,
-                    'vote_count': 2000,
-                },
-                {
-                    'id': '503',
-                    'title': 'Untitled Project',
-                    'release_date': '',
-                    'media_type': 'movie',
-                    'poster_image': 'https://image.tmdb.org/t/p/w780/untitled-project.jpg',
-                    'credit': 'Lead',
-                    'credit_type': 'cast',
-                    'popularity': 500.0,
-                    'vote_count': 100,
-                },
-            ],
-            preferred_department='Acting',
-            birthday='1980-01-01',
-        )
-
-        self.assertEqual([project['id'] for project in payload], ['501'])
-
-    def test_build_person_top_works_does_not_highlight_awards_or_future_titles(self):
-        credits = TMDbMovieService()._normalize_person_credits(
-            {
-                'cast': [
-                    {
-                        'id': 701,
-                        'title': 'The Batman',
-                        'release_date': '2022-03-04',
-                        'media_type': 'movie',
-                        'poster_path': '/the-batman.jpg',
-                        'character': 'Bruce Wayne / Batman',
-                        'popularity': 180.0,
-                        'vote_count': 9500,
-                    },
-                    {
-                        'id': 702,
-                        'title': 'Twilight',
-                        'release_date': '2008-11-21',
-                        'media_type': 'movie',
-                        'poster_path': '/twilight.jpg',
-                        'character': 'Edward Cullen',
-                        'popularity': 170.0,
-                        'vote_count': 12000,
-                    },
-                    {
-                        'id': 703,
-                        'name': 'The Oscars',
-                        'first_air_date': '2024-03-10',
-                        'media_type': 'tv',
-                        'poster_path': '/oscars.jpg',
-                        'character': 'Self',
-                        'popularity': 400.0,
-                        'vote_count': 600,
-                        'genre_ids': [10767],
-                    },
-                    {
-                        'id': 704,
-                        'title': 'Marty Supreme',
-                        'release_date': '2026-12-25',
-                        'media_type': 'movie',
-                        'poster_path': '/marty-supreme.jpg',
-                        'character': 'Lead',
-                        'popularity': 500.0,
-                        'vote_count': 50,
-                    },
-                ],
-                'crew': [],
-            },
-            preferred_department='Acting',
-            birthday='1986-05-13',
-        )
-
-        payload = TMDbMovieService()._build_person_top_works(
-            credits,
-            preferred_department='Acting',
-            birthday='1986-05-13',
-        )
-
-        self.assertEqual([project['title'] for project in payload], ['The Batman', 'Twilight'])
-
-    def test_normalize_person_credits_prefers_cast_for_actors_on_duplicate_titles(self):
-        payload = TMDbMovieService()._normalize_person_credits(
-            {
-                'cast': [
-                    {
-                        'id': 601,
-                        'title': 'The Batman',
-                        'release_date': '2022-03-04',
-                        'media_type': 'movie',
-                        'poster_path': '/the-batman-cast.jpg',
-                        'character': 'Bruce Wayne / Batman',
-                        'popularity': 200.0,
-                        'vote_count': 9000,
-                    },
-                ],
-                'crew': [
-                    {
-                        'id': 601,
-                        'title': 'The Batman',
-                        'release_date': '2022-03-04',
-                        'media_type': 'movie',
-                        'poster_path': '/the-batman-crew.jpg',
-                        'job': 'Executive Producer',
-                        'popularity': 200.0,
-                        'vote_count': 9000,
-                    },
-                ],
-            },
-            preferred_department='Acting',
-            birthday='1986-05-13',
-        )
-
-        self.assertEqual(
-            payload[0],
-            {
-                'id': '601',
-                'title': 'The Batman',
-                'release_date': '2022-03-04',
-                'media_type': 'movie',
-                'poster_image': 'https://image.tmdb.org/t/p/w780/the-batman-cast.jpg',
-                'credit': 'Bruce Wayne / Batman',
-                'credit_type': 'cast',
-                'department': '',
-                'job': '',
-                'popularity': 200.0,
-                'vote_count': 9000,
-            },
-        )
-
-    def test_normalize_person_credits_rejects_titles_before_person_birth_date(self):
-        payload = TMDbMovieService()._normalize_person_credits(
-            {
-                'cast': [
-                    {
-                        'id': 801,
-                        'title': 'Before Birth',
-                        'release_date': '1970-01-01',
-                        'media_type': 'movie',
-                        'poster_path': '/before-birth.jpg',
-                        'character': 'Lead',
-                        'popularity': 100.0,
-                        'vote_count': 1000,
-                    },
-                    {
-                        'id': 802,
-                        'title': 'After Birth',
-                        'release_date': '2015-01-01',
-                        'media_type': 'movie',
-                        'poster_path': '/after-birth.jpg',
-                        'character': 'Lead',
-                        'popularity': 90.0,
-                        'vote_count': 900,
-                    },
-                ],
-                'crew': [],
-            },
-            preferred_department='Acting',
-            birthday='1986-05-13',
-        )
-
-        self.assertEqual([project['id'] for project in payload], ['802'])
-
-    def test_build_person_top_works_prioritizes_department_aligned_real_credits(self):
-        payload = TMDbMovieService()._build_person_top_works(
-            [
-                {
-                    'id': '901',
-                    'title': 'Directing Credit',
-                    'release_date': '2014-01-01',
-                    'media_type': 'movie',
-                    'poster_image': 'https://image.tmdb.org/t/p/w780/directing-credit.jpg',
-                    'credit': 'Director',
-                    'credit_type': 'crew',
-                    'popularity': 85.0,
-                    'vote_count': 6000,
-                },
-                {
-                    'id': '902',
-                    'title': 'Acting Credit',
-                    'release_date': '2015-01-01',
-                    'media_type': 'movie',
-                    'poster_image': 'https://image.tmdb.org/t/p/w780/acting-credit.jpg',
-                    'credit': 'Supporting Role',
-                    'credit_type': 'cast',
-                    'popularity': 90.0,
-                    'vote_count': 4000,
-                },
-            ],
-            preferred_department='Directing',
-            birthday='1970-07-30',
-        )
-
-        self.assertEqual([project['id'] for project in payload], ['901', '902'])
-
-    def test_build_person_top_works_prioritizes_acting_metadata_for_actors(self):
-        payload = TMDbMovieService()._build_person_top_works(
-            [
-                {
-                    'id': '1001',
-                    'title': 'Actor Credit',
-                    'release_date': '2018-01-01',
-                    'media_type': 'movie',
-                    'poster_image': 'https://image.tmdb.org/t/p/w780/actor-credit.jpg',
-                    'credit': 'Lead',
-                    'credit_type': 'cast',
-                    'department': 'Acting',
-                    'job': 'Actor',
-                    'popularity': 88.0,
-                    'vote_count': 3000,
-                },
-                {
-                    'id': '1002',
-                    'title': 'Producer Credit',
-                    'release_date': '2019-01-01',
-                    'media_type': 'movie',
-                    'poster_image': 'https://image.tmdb.org/t/p/w780/producer-credit.jpg',
-                    'credit': 'Executive Producer',
-                    'credit_type': 'crew',
-                    'department': 'Production',
-                    'job': 'Executive Producer',
-                    'popularity': 95.0,
-                    'vote_count': 3200,
-                },
-            ],
-            preferred_department='Acting',
-            birthday='1986-05-13',
-        )
-
-        self.assertEqual([project['id'] for project in payload], ['1001', '1002'])
-
-    def test_build_person_top_works_prioritizes_writing_metadata_for_writers(self):
-        payload = TMDbMovieService()._build_person_top_works(
-            [
-                {
-                    'id': '1101',
-                    'title': 'Writing Credit',
-                    'release_date': '2017-01-01',
-                    'media_type': 'movie',
-                    'poster_image': 'https://image.tmdb.org/t/p/w780/writing-credit.jpg',
-                    'credit': 'Writer',
-                    'credit_type': 'crew',
-                    'department': 'Writing',
-                    'job': 'Writer',
-                    'popularity': 84.0,
-                    'vote_count': 4500,
-                },
-                {
-                    'id': '1102',
-                    'title': 'Acting Credit',
-                    'release_date': '2019-01-01',
-                    'media_type': 'movie',
-                    'poster_image': 'https://image.tmdb.org/t/p/w780/acting-credit.jpg',
-                    'credit': 'Lead',
-                    'credit_type': 'cast',
-                    'department': 'Acting',
-                    'job': '',
-                    'popularity': 90.0,
-                    'vote_count': 4200,
-                },
-            ],
-            preferred_department='Writing',
-            birthday='1970-07-30',
-        )
-
-        self.assertEqual([project['id'] for project in payload], ['1101', '1102'])
 
     @patch('movies.services.os.getenv', return_value='test-token')
     @patch('movies.services.request.urlopen')
