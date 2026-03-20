@@ -975,6 +975,8 @@ class TMDbMovieServiceTests(SimpleTestCase):
                     'poster_image': 'https://image.tmdb.org/t/p/w780/duplicate-crew.jpg',
                     'credit': 'Producer',
                     'credit_type': 'crew',
+                    'department': '',
+                    'job': 'Producer',
                     'popularity': 40.0,
                     'vote_count': 400,
                 }
@@ -1265,6 +1267,8 @@ class TMDbMovieServiceTests(SimpleTestCase):
                 'poster_image': 'https://image.tmdb.org/t/p/w780/the-batman-cast.jpg',
                 'credit': 'Bruce Wayne / Batman',
                 'credit_type': 'cast',
+                'department': '',
+                'job': '',
                 'popularity': 200.0,
                 'vote_count': 9000,
             },
@@ -1334,6 +1338,78 @@ class TMDbMovieServiceTests(SimpleTestCase):
         )
 
         self.assertEqual([project['id'] for project in payload], ['901', '902'])
+
+    def test_build_person_top_works_prioritizes_acting_metadata_for_actors(self):
+        payload = TMDbMovieService()._build_person_top_works(
+            [
+                {
+                    'id': '1001',
+                    'title': 'Actor Credit',
+                    'release_date': '2018-01-01',
+                    'media_type': 'movie',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/actor-credit.jpg',
+                    'credit': 'Lead',
+                    'credit_type': 'cast',
+                    'department': 'Acting',
+                    'job': 'Actor',
+                    'popularity': 88.0,
+                    'vote_count': 3000,
+                },
+                {
+                    'id': '1002',
+                    'title': 'Producer Credit',
+                    'release_date': '2019-01-01',
+                    'media_type': 'movie',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/producer-credit.jpg',
+                    'credit': 'Executive Producer',
+                    'credit_type': 'crew',
+                    'department': 'Production',
+                    'job': 'Executive Producer',
+                    'popularity': 95.0,
+                    'vote_count': 3200,
+                },
+            ],
+            preferred_department='Acting',
+            birthday='1986-05-13',
+        )
+
+        self.assertEqual([project['id'] for project in payload], ['1001', '1002'])
+
+    def test_build_person_top_works_prioritizes_writing_metadata_for_writers(self):
+        payload = TMDbMovieService()._build_person_top_works(
+            [
+                {
+                    'id': '1101',
+                    'title': 'Writing Credit',
+                    'release_date': '2017-01-01',
+                    'media_type': 'movie',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/writing-credit.jpg',
+                    'credit': 'Writer',
+                    'credit_type': 'crew',
+                    'department': 'Writing',
+                    'job': 'Writer',
+                    'popularity': 84.0,
+                    'vote_count': 4500,
+                },
+                {
+                    'id': '1102',
+                    'title': 'Acting Credit',
+                    'release_date': '2019-01-01',
+                    'media_type': 'movie',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/acting-credit.jpg',
+                    'credit': 'Lead',
+                    'credit_type': 'cast',
+                    'department': 'Acting',
+                    'job': '',
+                    'popularity': 90.0,
+                    'vote_count': 4200,
+                },
+            ],
+            preferred_department='Writing',
+            birthday='1970-07-30',
+        )
+
+        self.assertEqual([project['id'] for project in payload], ['1101', '1102'])
 
     @patch('movies.services.os.getenv', return_value='test-token')
     @patch('movies.services.request.urlopen')
