@@ -1,4 +1,5 @@
 import json
+import math
 import os
 from dataclasses import dataclass
 from datetime import date
@@ -792,15 +793,17 @@ class TMDbMovieService:
         return 0
 
     def _person_project_rank_score(self, project):
-        popularity = project.get('popularity', 0) or 0
+        popularity = max(project.get('popularity', 0) or 0, 0)
+        order = max(project.get('order', 999) or 999, 0)
+        popularity_score = math.log1p(popularity)
+        relevance_score = 1 / (order + 1)
 
         if project.get('media_type') == 'tv':
             episode_count = max(project.get('episode_count', 0) or 0, 0)
-            return popularity + (episode_count * 1.5)
+            episode_bonus = 1 + min(math.log1p(episode_count) * 0.15, 0.5)
+            return popularity_score * relevance_score * episode_bonus
 
-        order = project.get('order', self.page_size) or self.page_size
-        order_bonus = max(self.page_size - order, 0) * 3
-        return popularity + order_bonus
+        return popularity_score * relevance_score
 
     def _normalize_images(self, images_payload):
         image_paths = []
