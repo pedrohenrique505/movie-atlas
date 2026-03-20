@@ -770,6 +770,28 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'poster_path': '/westworld.jpg',
                         'job': 'Executive Producer',
                     },
+                    {
+                        'id': 103,
+                        'media_type': 'movie',
+                        'release_date': '2020-01-01',
+                        'poster_path': '/missing-title.jpg',
+                        'job': 'Director',
+                    },
+                    {
+                        'id': 104,
+                        'title': 'Invalid Media Type',
+                        'media_type': 'person',
+                        'release_date': '2021-01-01',
+                        'poster_path': '/invalid-media-type.jpg',
+                        'job': 'Director',
+                    },
+                    {
+                        'id': 105,
+                        'title': 'Missing Job',
+                        'media_type': 'movie',
+                        'release_date': '2022-01-01',
+                        'poster_path': '/missing-job.jpg',
+                    },
                 ],
             },
         }
@@ -801,10 +823,10 @@ class TMDbMovieServiceTests(SimpleTestCase):
                     {
                         'id': '101',
                         'title': 'Inception',
-                        'release_date': '2014-01-01',
+                        'release_date': '2010-07-16',
                         'media_type': 'movie',
-                        'poster_image': 'https://image.tmdb.org/t/p/w780/inception-new.jpg',
-                        'credit': 'Producer',
+                        'poster_image': 'https://image.tmdb.org/t/p/w780/inception.jpg',
+                        'credit': 'Director',
                     },
                     {
                         'id': '201',
@@ -816,6 +838,79 @@ class TMDbMovieServiceTests(SimpleTestCase):
                     },
                 ],
             },
+        )
+
+    def test_normalize_person_projects_filters_invalid_and_duplicate_credits(self):
+        payload = TMDbMovieService()._normalize_person_projects(
+            {
+                'cast': [
+                    {
+                        'id': 201,
+                        'title': 'Duplicate Movie',
+                        'release_date': '2001-01-01',
+                        'media_type': 'movie',
+                        'poster_path': '/duplicate-cast.jpg',
+                        'character': 'Lead',
+                    },
+                    {
+                        'id': 202,
+                        'title': 'Missing Cast Credit',
+                        'release_date': '2002-01-01',
+                        'media_type': 'movie',
+                        'poster_path': '/missing-cast-credit.jpg',
+                        'character': '',
+                    },
+                ],
+                'crew': [
+                    {
+                        'id': 201,
+                        'title': 'Duplicate Movie',
+                        'release_date': '2005-01-01',
+                        'media_type': 'movie',
+                        'poster_path': '/duplicate-crew.jpg',
+                        'job': 'Producer',
+                    },
+                    {
+                        'id': 203,
+                        'title': '',
+                        'release_date': '2003-01-01',
+                        'media_type': 'movie',
+                        'poster_path': '/missing-title.jpg',
+                        'job': 'Director',
+                    },
+                    {
+                        'id': 204,
+                        'title': 'Unsupported Media Type',
+                        'release_date': '2004-01-01',
+                        'media_type': 'person',
+                        'poster_path': '/unsupported-media.jpg',
+                        'job': 'Director',
+                    },
+                    {
+                        'id': 205,
+                        'title': 'Missing Crew Credit',
+                        'release_date': '2006-01-01',
+                        'media_type': 'movie',
+                        'poster_path': '/missing-crew-credit.jpg',
+                        'job': '',
+                        'department': '',
+                    },
+                ],
+            }
+        )
+
+        self.assertEqual(
+            payload,
+            [
+                {
+                    'id': '201',
+                    'title': 'Duplicate Movie',
+                    'release_date': '2005-01-01',
+                    'media_type': 'movie',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/duplicate-crew.jpg',
+                    'credit': 'Producer',
+                }
+            ],
         )
 
     @patch('movies.services.os.getenv', return_value='test-token')
