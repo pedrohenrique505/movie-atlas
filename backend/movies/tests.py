@@ -1027,38 +1027,38 @@ class TMDbMovieServiceTests(SimpleTestCase):
             ],
         )
 
-    def test_build_person_top_works_sorts_by_popularity_and_ascending_order(self):
+    def test_build_person_top_works_uses_combined_movie_score(self):
         payload = TMDbMovieService()._build_person_top_works(
             [
                 {
                     'id': '301',
-                    'title': 'Most Popular',
+                    'title': 'Higher Popularity But Worse Order',
                     'release_date': '2010-01-01',
                     'media_type': 'movie',
                     'poster_image': 'https://image.tmdb.org/t/p/w780/most-popular.jpg',
                     'credit': 'Hero',
                     'credit_type': 'cast',
-                    'popularity': 120.5,
+                    'popularity': 100.0,
                     'vote_count': 1000,
-                    'order': 7,
+                    'order': 15,
                     'episode_count': 0,
                 },
                 {
                     'id': '302',
-                    'title': 'Tie On Popularity Higher Order',
+                    'title': 'Lower Popularity But Better Order',
                     'release_date': '2015-01-01',
                     'media_type': 'movie',
                     'poster_image': 'https://image.tmdb.org/t/p/w780/tie-older.jpg',
                     'credit': 'Hero',
                     'credit_type': 'cast',
-                    'popularity': 80.0,
+                    'popularity': 95.0,
                     'vote_count': 500,
-                    'order': 5,
+                    'order': 1,
                     'episode_count': 0,
                 },
                 {
                     'id': '303',
-                    'title': 'Tie On Popularity Lower Order',
+                    'title': 'Same Popularity Better Order',
                     'release_date': '2012-01-01',
                     'media_type': 'movie',
                     'poster_image': 'https://image.tmdb.org/t/p/w780/tie-more-votes.jpg',
@@ -1071,15 +1071,15 @@ class TMDbMovieServiceTests(SimpleTestCase):
                 },
                 {
                     'id': '304',
-                    'title': 'No Order Provided',
+                    'title': 'Same Popularity Worse Order',
                     'release_date': '2018-06-01',
                     'media_type': 'movie',
                     'poster_image': 'https://image.tmdb.org/t/p/w780/tie-newer.jpg',
                     'credit': 'Hero',
                     'credit_type': 'cast',
-                    'popularity': 50.0,
+                    'popularity': 80.0,
                     'vote_count': 300,
-                    'order': 15,
+                    'order': 12,
                     'episode_count': 0,
                 },
             ]
@@ -1087,15 +1087,15 @@ class TMDbMovieServiceTests(SimpleTestCase):
 
         self.assertEqual(
             [project['id'] for project in payload],
-            ['301', '303', '302', '304'],
+            ['302', '301', '303', '304'],
         )
 
-    def test_build_person_top_works_sorts_tv_by_popularity_and_episode_count(self):
+    def test_build_person_top_works_uses_combined_tv_score(self):
         payload = TMDbMovieService()._build_person_top_works(
             [
                 {
                     'id': '401',
-                    'title': 'Most Popular TV',
+                    'title': 'Higher Popularity Fewer Episodes',
                     'release_date': '2019-01-01',
                     'media_type': 'tv',
                     'poster_image': 'https://image.tmdb.org/t/p/w780/most-popular-tv.jpg',
@@ -1108,20 +1108,20 @@ class TMDbMovieServiceTests(SimpleTestCase):
                 },
                 {
                     'id': '402',
-                    'title': 'Tie Popularity More Episodes',
+                    'title': 'Lower Popularity More Episodes',
                     'release_date': '2018-01-01',
                     'media_type': 'tv',
                     'poster_image': 'https://image.tmdb.org/t/p/w780/tie-tv-a.jpg',
                     'credit': 'Lead',
                     'credit_type': 'cast',
-                    'popularity': 80.0,
+                    'popularity': 92.0,
                     'vote_count': 1000,
                     'order': 50,
                     'episode_count': 12,
                 },
                 {
                     'id': '403',
-                    'title': 'Tie Popularity Fewer Episodes',
+                    'title': 'Same Popularity Fewer Episodes',
                     'release_date': '2020-01-01',
                     'media_type': 'tv',
                     'poster_image': 'https://image.tmdb.org/t/p/w780/tie-tv-b.jpg',
@@ -1134,21 +1134,57 @@ class TMDbMovieServiceTests(SimpleTestCase):
                 },
                 {
                     'id': '404',
-                    'title': 'Missing Episode Count',
+                    'title': 'Same Popularity More Episodes',
                     'release_date': '2021-01-01',
                     'media_type': 'tv',
                     'poster_image': 'https://image.tmdb.org/t/p/w780/missing-episode-count.jpg',
                     'credit': 'Lead',
                     'credit_type': 'cast',
-                    'popularity': 60.0,
+                    'popularity': 80.0,
                     'vote_count': 200,
                     'order': 1,
-                    'episode_count': 0,
+                    'episode_count': 10,
                 },
             ]
         )
 
-        self.assertEqual([project['id'] for project in payload], ['401', '402', '403', '404'])
+        self.assertEqual([project['id'] for project in payload], ['402', '401', '404', '403'])
+
+    def test_normalize_person_credits_uses_combined_score_for_deduplication(self):
+        payload = TMDbMovieService()._normalize_person_credits(
+            {
+                'cast': [
+                    {
+                        'id': 501,
+                        'title': 'Duplicate Movie',
+                        'release_date': '2010-01-01',
+                        'media_type': 'movie',
+                        'poster_path': '/duplicate-cast.jpg',
+                        'character': 'Lead',
+                        'popularity': 95.0,
+                        'vote_count': 100,
+                        'order': 1,
+                    },
+                ],
+                'crew': [
+                    {
+                        'id': 501,
+                        'title': 'Duplicate Movie',
+                        'release_date': '2012-01-01',
+                        'media_type': 'movie',
+                        'poster_path': '/duplicate-crew.jpg',
+                        'job': 'Producer',
+                        'popularity': 100.0,
+                        'vote_count': 400,
+                        'order': 15,
+                    },
+                ],
+            }
+        )
+
+        self.assertEqual(payload[0]['id'], '501')
+        self.assertEqual(payload[0]['credit'], 'Lead')
+        self.assertEqual(payload[0]['order'], 1)
 
     @patch('movies.services.os.getenv', return_value='test-token')
     @patch('movies.services.request.urlopen')
