@@ -11,6 +11,13 @@ class MovieServiceError(Exception):
     pass
 
 
+NON_SCRIPTED_TV_GENRE_IDS = {
+    10763,  # News
+    10764,  # Reality
+    10767,  # Talk
+}
+
+
 PRODUCTION_STATUS_LABELS = {
     'released': 'Lançado',
     'post production': 'Pós-produção',
@@ -663,6 +670,10 @@ class TMDbMovieService:
         if media_type not in {'movie', 'tv'}:
             return None
 
+        genre_ids = self._normalize_person_project_genre_ids(item.get('genre_ids'))
+        if not self._should_include_person_project(media_type, genre_ids):
+            return None
+
         title = item.get('title') or item.get('name') or item.get('original_title') or ''
         if not title:
             return None
@@ -701,6 +712,18 @@ class TMDbMovieService:
             return credit.strip()
 
         return ''
+
+    def _should_include_person_project(self, media_type, genre_ids):
+        if media_type == 'movie':
+            return True
+
+        if media_type != 'tv':
+            return False
+
+        if not genre_ids:
+            return True
+
+        return not any(genre_id in NON_SCRIPTED_TV_GENRE_IDS for genre_id in genre_ids)
 
     def _should_replace_person_project(self, candidate, current):
         candidate_priority = self._person_project_priority(candidate)
@@ -761,6 +784,32 @@ class TMDbMovieService:
             return int(value)
 
         return 0
+
+    def _normalize_person_project_genre_ids(self, value):
+        if not isinstance(value, list):
+            return []
+
+        normalized_genre_ids = []
+        seen_ids = set()
+
+        for item in value:
+            if isinstance(item, bool):
+                continue
+
+            if isinstance(item, int):
+                genre_id = item
+            elif isinstance(item, float) and item.is_integer():
+                genre_id = int(item)
+            else:
+                continue
+
+            if genre_id in seen_ids:
+                continue
+
+            seen_ids.add(genre_id)
+            normalized_genre_ids.append(genre_id)
+
+        return normalized_genre_ids
 
     def _normalize_images(self, images_payload):
         image_paths = []
