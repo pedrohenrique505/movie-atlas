@@ -642,21 +642,9 @@ class TMDbMovieService:
             if normalized_project is not None:
                 combined.append(normalized_project)
 
-        latest_projects = {}
-
-        for item in combined:
-            if not item['title']:
-                continue
-
-            project_key = (item['media_type'], item['id'] or item['title'])
-            current_item = latest_projects.get(project_key)
-
-            if current_item is None or self._should_replace_person_project(item, current_item):
-                latest_projects[project_key] = item
-
         return sorted(
-            latest_projects.values(),
-            key=self._person_project_rank_score,
+            combined,
+            key=self._person_project_release_date_sort_key,
             reverse=True,
         )
 
@@ -734,17 +722,6 @@ class TMDbMovieService:
 
         return ''
 
-    def _should_replace_person_project(self, candidate, current):
-        candidate_score = self._person_project_rank_score(candidate)
-        current_score = self._person_project_rank_score(current)
-        if candidate_score != current_score:
-            return candidate_score > current_score
-
-        if candidate.get('poster_image') and not current.get('poster_image'):
-            return True
-
-        return False
-
     def _normalize_person_project_popularity(self, value):
         if isinstance(value, bool):
             return 0.0
@@ -806,6 +783,10 @@ class TMDbMovieService:
             return popularity_score * relevance_score * episode_bonus
 
         return popularity_score * relevance_score
+
+    def _person_project_release_date_sort_key(self, project):
+        release_date = project.get('release_date') or ''
+        return (bool(release_date), release_date)
 
     def _normalize_images(self, images_payload):
         image_paths = []
