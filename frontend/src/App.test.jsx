@@ -559,6 +559,7 @@ describe('App routes', () => {
             name: 'Christopher Nolan',
             biography: 'Biografia resumida.',
             known_for_department: 'Directing',
+            known_for_titles: ['Obra indevida'],
             birthday: '1970-07-30',
             place_of_birth: 'London, England, UK',
             profile_image: 'https://image.tmdb.org/t/p/w780/person.jpg',
@@ -595,6 +596,7 @@ describe('App routes', () => {
       'href',
       '/movie/101',
     )
+    expect(screen.queryByText(/obra indevida/i)).not.toBeInTheDocument()
     expect(document.title).toBe('Christopher Nolan | Movie Atlas')
   })
 
