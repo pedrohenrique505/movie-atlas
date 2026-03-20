@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 
 import App from './App'
@@ -575,6 +575,14 @@ describe('App routes', () => {
             ],
             credits: [
               {
+                id: '303',
+                title: 'Oppenheimer',
+                release_date: '2023-07-21',
+                media_type: 'movie',
+                poster_image: 'https://image.tmdb.org/t/p/w780/oppenheimer.jpg',
+                credit: 'Writer',
+              },
+              {
                 id: '202',
                 title: 'Memento',
                 release_date: '2000-10-11',
@@ -604,10 +612,17 @@ describe('App routes', () => {
     expect(await screen.findByRole('heading', { name: /filmografia/i })).toBeInTheDocument()
     expect(await screen.findByText(/inception/i)).toBeInTheDocument()
     expect(await screen.findByText(/memento/i)).toBeInTheDocument()
+    expect(await screen.findByText(/oppenheimer/i)).toBeInTheDocument()
     expect(await screen.findByRole('link', { name: /poster de inception/i })).toHaveAttribute(
       'href',
       '/movie/101',
     )
+    const filmography = screen.getByRole('region', { name: /filmografia da pessoa/i })
+    const filmographyItems = within(filmography).getAllByRole('listitem')
+    expect(filmographyItems[0]).toHaveTextContent(/2023/)
+    expect(filmographyItems[0]).toHaveTextContent(/oppenheimer/i)
+    expect(filmographyItems[1]).toHaveTextContent(/2000/)
+    expect(filmographyItems[1]).toHaveTextContent(/memento/i)
     expect(screen.queryByText(/obra indevida/i)).not.toBeInTheDocument()
     expect(document.title).toBe('Christopher Nolan | Movie Atlas')
   })

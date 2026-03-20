@@ -876,6 +876,18 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'episode_count': 36,
                     },
                     {
+                        'id': '101',
+                        'title': 'Inception',
+                        'release_date': '2014-01-01',
+                        'media_type': 'movie',
+                        'poster_image': 'https://image.tmdb.org/t/p/w780/inception-new.jpg',
+                        'credit': 'Producer',
+                        'popularity': 70.0,
+                        'vote_count': 9000,
+                        'order': 4,
+                        'episode_count': 0,
+                    },
+                    {
                         'id': '201',
                         'title': 'Actor Credit',
                         'release_date': '2001-01-01',
@@ -902,18 +914,6 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'episode_count': 2,
                     },
                     {
-                        'id': '101',
-                        'title': 'Inception',
-                        'release_date': '2010-07-16',
-                        'media_type': 'movie',
-                        'poster_image': 'https://image.tmdb.org/t/p/w780/inception.jpg',
-                        'credit': 'Director',
-                        'popularity': 85.5,
-                        'vote_count': 15000,
-                        'order': 2,
-                        'episode_count': 0,
-                    },
-                    {
                         'id': '102',
                         'title': 'Westworld',
                         'release_date': '2016-10-02',
@@ -924,6 +924,30 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'vote_count': 5400,
                         'order': 6,
                         'episode_count': 36,
+                    },
+                    {
+                        'id': '101',
+                        'title': 'Inception',
+                        'release_date': '2014-01-01',
+                        'media_type': 'movie',
+                        'poster_image': 'https://image.tmdb.org/t/p/w780/inception-new.jpg',
+                        'credit': 'Producer',
+                        'popularity': 70.0,
+                        'vote_count': 9000,
+                        'order': 4,
+                        'episode_count': 0,
+                    },
+                    {
+                        'id': '101',
+                        'title': 'Inception',
+                        'release_date': '2010-07-16',
+                        'media_type': 'movie',
+                        'poster_image': 'https://image.tmdb.org/t/p/w780/inception.jpg',
+                        'credit': 'Director',
+                        'popularity': 85.5,
+                        'vote_count': 15000,
+                        'order': 2,
+                        'episode_count': 0,
                     },
                     {
                         'id': '201',
@@ -941,7 +965,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
             },
         )
 
-    def test_normalize_person_credits_filters_invalid_and_duplicate_credits(self):
+    def test_normalize_person_credits_filters_invalid_credits_and_keeps_duplicates(self):
         payload = TMDbMovieService()._normalize_person_credits(
             {
                 'cast': [
@@ -1022,6 +1046,19 @@ class TMDbMovieServiceTests(SimpleTestCase):
                     'popularity': 40.0,
                     'vote_count': 400,
                     'order': 5,
+                    'episode_count': 0,
+                },
+                {
+                    'id': '201',
+                    'title': 'Duplicate Movie',
+                    'release_date': '2001-01-01',
+                    'media_type': 'movie',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/duplicate-cast.jpg',
+                    'credit': 'Lead',
+                    'credit_type': 'cast',
+                    'popularity': 20.0,
+                    'vote_count': 200,
+                    'order': 8,
                     'episode_count': 0,
                 }
             ],
@@ -1150,7 +1187,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
 
         self.assertEqual([project['id'] for project in payload], ['404', '403', '401', '402'])
 
-    def test_normalize_person_credits_uses_combined_score_for_deduplication(self):
+    def test_normalize_person_credits_sorts_filmography_by_release_date_desc(self):
         payload = TMDbMovieService()._normalize_person_credits(
             {
                 'cast': [
@@ -1182,9 +1219,11 @@ class TMDbMovieServiceTests(SimpleTestCase):
             }
         )
 
-        self.assertEqual(payload[0]['id'], '501')
-        self.assertEqual(payload[0]['credit'], 'Lead')
-        self.assertEqual(payload[0]['order'], 1)
+        self.assertEqual(
+            [project['release_date'] for project in payload],
+            ['2012-01-01', '2010-01-01'],
+        )
+        self.assertEqual([project['credit'] for project in payload], ['Producer', 'Lead'])
 
     @patch('movies.services.os.getenv', return_value='test-token')
     @patch('movies.services.request.urlopen')
