@@ -831,7 +831,39 @@ class TMDbMovieServiceTests(SimpleTestCase):
                 'birthday': '1970-07-30',
                 'place_of_birth': 'London, England, UK',
                 'profile_image': 'https://image.tmdb.org/t/p/w780/person.jpg',
-                'projects': [
+                'top_works': [
+                    {
+                        'id': '102',
+                        'title': 'Westworld',
+                        'release_date': '2016-10-02',
+                        'media_type': 'tv',
+                        'poster_image': 'https://image.tmdb.org/t/p/w780/westworld.jpg',
+                        'credit': 'Executive Producer',
+                        'popularity': 88.3,
+                        'vote_count': 5400,
+                    },
+                    {
+                        'id': '101',
+                        'title': 'Inception',
+                        'release_date': '2010-07-16',
+                        'media_type': 'movie',
+                        'poster_image': 'https://image.tmdb.org/t/p/w780/inception.jpg',
+                        'credit': 'Director',
+                        'popularity': 85.5,
+                        'vote_count': 15000,
+                    },
+                    {
+                        'id': '201',
+                        'title': 'Actor Credit',
+                        'release_date': '2001-01-01',
+                        'media_type': 'movie',
+                        'poster_image': 'https://image.tmdb.org/t/p/w780/actor-credit.jpg',
+                        'credit': 'Narrator',
+                        'popularity': 15.2,
+                        'vote_count': 120,
+                    },
+                ],
+                'credits': [
                     {
                         'id': '102',
                         'title': 'Westworld',
@@ -866,8 +898,8 @@ class TMDbMovieServiceTests(SimpleTestCase):
             },
         )
 
-    def test_normalize_person_projects_filters_invalid_and_duplicate_credits(self):
-        payload = TMDbMovieService()._normalize_person_projects(
+    def test_normalize_person_credits_filters_invalid_and_duplicate_credits(self):
+        payload = TMDbMovieService()._normalize_person_credits(
             {
                 'cast': [
                     {
@@ -941,14 +973,15 @@ class TMDbMovieServiceTests(SimpleTestCase):
                     'media_type': 'movie',
                     'poster_image': 'https://image.tmdb.org/t/p/w780/duplicate-crew.jpg',
                     'credit': 'Producer',
+                    'credit_type': 'crew',
                     'popularity': 40.0,
                     'vote_count': 400,
                 }
             ],
         )
 
-    def test_normalize_person_projects_filters_non_scripted_tv_formats(self):
-        payload = TMDbMovieService()._normalize_person_projects(
+    def test_normalize_person_credits_filters_non_scripted_tv_formats(self):
+        payload = TMDbMovieService()._normalize_person_credits(
             {
                 'cast': [
                     {
@@ -1001,76 +1034,79 @@ class TMDbMovieServiceTests(SimpleTestCase):
 
         self.assertEqual(
             [project['id'] for project in payload],
-            ['404', '401'],
+            ['401', '404'],
         )
 
-    def test_normalize_person_projects_sorts_by_popularity_vote_count_and_release_date(self):
-        payload = TMDbMovieService()._normalize_person_projects(
-            {
-                'cast': [
-                    {
-                        'id': 301,
-                        'title': 'Most Popular',
-                        'release_date': '2010-01-01',
-                        'media_type': 'movie',
-                        'poster_path': '/most-popular.jpg',
-                        'character': 'Hero',
-                        'popularity': 120.5,
-                        'vote_count': 1000,
-                    },
-                    {
-                        'id': 302,
-                        'title': 'Tie On Popularity Older',
-                        'release_date': '2015-01-01',
-                        'media_type': 'movie',
-                        'poster_path': '/tie-older.jpg',
-                        'character': 'Hero',
-                        'popularity': 80.0,
-                        'vote_count': 500,
-                    },
-                    {
-                        'id': 303,
-                        'title': 'Tie On Popularity More Votes',
-                        'release_date': '2012-01-01',
-                        'media_type': 'movie',
-                        'poster_path': '/tie-more-votes.jpg',
-                        'character': 'Hero',
-                        'popularity': 80.0,
-                        'vote_count': 900,
-                    },
-                    {
-                        'id': 304,
-                        'title': 'Tie On Popularity And Votes Newer',
-                        'release_date': '2018-06-01',
-                        'media_type': 'movie',
-                        'poster_path': '/tie-newer.jpg',
-                        'character': 'Hero',
-                        'popularity': 50.0,
-                        'vote_count': 300,
-                    },
-                    {
-                        'id': 305,
-                        'title': 'Tie On Popularity And Votes Older',
-                        'release_date': '2014-06-01',
-                        'media_type': 'movie',
-                        'poster_path': '/tie-older-date.jpg',
-                        'character': 'Hero',
-                        'popularity': 50.0,
-                        'vote_count': 300,
-                    },
-                    {
-                        'id': 306,
-                        'title': 'Missing Metrics',
-                        'release_date': '2020-06-01',
-                        'media_type': 'movie',
-                        'poster_path': '/missing-metrics.jpg',
-                        'character': 'Hero',
-                        'popularity': 'invalid',
-                        'vote_count': None,
-                    },
-                ],
-                'crew': [],
-            }
+    def test_build_person_top_works_sorts_by_popularity_vote_count_and_release_date(self):
+        payload = TMDbMovieService()._build_person_top_works(
+            [
+                {
+                    'id': '301',
+                    'title': 'Most Popular',
+                    'release_date': '2010-01-01',
+                    'media_type': 'movie',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/most-popular.jpg',
+                    'credit': 'Hero',
+                    'credit_type': 'cast',
+                    'popularity': 120.5,
+                    'vote_count': 1000,
+                },
+                {
+                    'id': '302',
+                    'title': 'Tie On Popularity Older',
+                    'release_date': '2015-01-01',
+                    'media_type': 'movie',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/tie-older.jpg',
+                    'credit': 'Hero',
+                    'credit_type': 'cast',
+                    'popularity': 80.0,
+                    'vote_count': 500,
+                },
+                {
+                    'id': '303',
+                    'title': 'Tie On Popularity More Votes',
+                    'release_date': '2012-01-01',
+                    'media_type': 'movie',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/tie-more-votes.jpg',
+                    'credit': 'Hero',
+                    'credit_type': 'cast',
+                    'popularity': 80.0,
+                    'vote_count': 900,
+                },
+                {
+                    'id': '304',
+                    'title': 'Tie On Popularity And Votes Newer',
+                    'release_date': '2018-06-01',
+                    'media_type': 'movie',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/tie-newer.jpg',
+                    'credit': 'Hero',
+                    'credit_type': 'cast',
+                    'popularity': 50.0,
+                    'vote_count': 300,
+                },
+                {
+                    'id': '305',
+                    'title': 'Tie On Popularity And Votes Older',
+                    'release_date': '2014-06-01',
+                    'media_type': 'movie',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/tie-older-date.jpg',
+                    'credit': 'Hero',
+                    'credit_type': 'cast',
+                    'popularity': 50.0,
+                    'vote_count': 300,
+                },
+                {
+                    'id': '306',
+                    'title': 'Missing Metrics',
+                    'release_date': '2020-06-01',
+                    'media_type': 'movie',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/missing-metrics.jpg',
+                    'credit': 'Hero',
+                    'credit_type': 'cast',
+                    'popularity': 0.0,
+                    'vote_count': 0,
+                },
+            ]
         )
 
         self.assertEqual(
@@ -1079,6 +1115,148 @@ class TMDbMovieServiceTests(SimpleTestCase):
         )
         self.assertEqual(payload[-1]['popularity'], 0.0)
         self.assertEqual(payload[-1]['vote_count'], 0)
+
+    def test_build_person_top_works_excludes_future_titles_and_missing_release_dates(self):
+        payload = TMDbMovieService()._build_person_top_works(
+            [
+                {
+                    'id': '501',
+                    'title': 'The Batman',
+                    'release_date': '2022-03-04',
+                    'media_type': 'movie',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/the-batman.jpg',
+                    'credit': 'Bruce Wayne / Batman',
+                    'credit_type': 'cast',
+                    'popularity': 200.0,
+                    'vote_count': 9000,
+                },
+                {
+                    'id': '502',
+                    'title': 'Duna Pt. 3',
+                    'release_date': '2026-12-18',
+                    'media_type': 'movie',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/duna-pt3.jpg',
+                    'credit': 'Scytale',
+                    'credit_type': 'cast',
+                    'popularity': 400.0,
+                    'vote_count': 2000,
+                },
+                {
+                    'id': '503',
+                    'title': 'Untitled Project',
+                    'release_date': '',
+                    'media_type': 'movie',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/untitled-project.jpg',
+                    'credit': 'Lead',
+                    'credit_type': 'cast',
+                    'popularity': 500.0,
+                    'vote_count': 100,
+                },
+            ]
+        )
+
+        self.assertEqual([project['id'] for project in payload], ['501'])
+
+    def test_build_person_top_works_does_not_highlight_awards_or_future_titles(self):
+        credits = TMDbMovieService()._normalize_person_credits(
+            {
+                'cast': [
+                    {
+                        'id': 701,
+                        'title': 'The Batman',
+                        'release_date': '2022-03-04',
+                        'media_type': 'movie',
+                        'poster_path': '/the-batman.jpg',
+                        'character': 'Bruce Wayne / Batman',
+                        'popularity': 180.0,
+                        'vote_count': 9500,
+                    },
+                    {
+                        'id': 702,
+                        'title': 'Twilight',
+                        'release_date': '2008-11-21',
+                        'media_type': 'movie',
+                        'poster_path': '/twilight.jpg',
+                        'character': 'Edward Cullen',
+                        'popularity': 170.0,
+                        'vote_count': 12000,
+                    },
+                    {
+                        'id': 703,
+                        'name': 'The Oscars',
+                        'first_air_date': '2024-03-10',
+                        'media_type': 'tv',
+                        'poster_path': '/oscars.jpg',
+                        'character': 'Self',
+                        'popularity': 400.0,
+                        'vote_count': 600,
+                        'genre_ids': [10767],
+                    },
+                    {
+                        'id': 704,
+                        'title': 'Marty Supreme',
+                        'release_date': '2026-12-25',
+                        'media_type': 'movie',
+                        'poster_path': '/marty-supreme.jpg',
+                        'character': 'Lead',
+                        'popularity': 500.0,
+                        'vote_count': 50,
+                    },
+                ],
+                'crew': [],
+            },
+            preferred_department='Acting',
+        )
+
+        payload = TMDbMovieService()._build_person_top_works(credits)
+
+        self.assertEqual([project['title'] for project in payload], ['The Batman', 'Twilight'])
+
+    def test_normalize_person_credits_prefers_cast_for_actors_on_duplicate_titles(self):
+        payload = TMDbMovieService()._normalize_person_credits(
+            {
+                'cast': [
+                    {
+                        'id': 601,
+                        'title': 'The Batman',
+                        'release_date': '2022-03-04',
+                        'media_type': 'movie',
+                        'poster_path': '/the-batman-cast.jpg',
+                        'character': 'Bruce Wayne / Batman',
+                        'popularity': 200.0,
+                        'vote_count': 9000,
+                    },
+                ],
+                'crew': [
+                    {
+                        'id': 601,
+                        'title': 'The Batman',
+                        'release_date': '2022-03-04',
+                        'media_type': 'movie',
+                        'poster_path': '/the-batman-crew.jpg',
+                        'job': 'Executive Producer',
+                        'popularity': 200.0,
+                        'vote_count': 9000,
+                    },
+                ],
+            },
+            preferred_department='Acting',
+        )
+
+        self.assertEqual(
+            payload[0],
+            {
+                'id': '601',
+                'title': 'The Batman',
+                'release_date': '2022-03-04',
+                'media_type': 'movie',
+                'poster_image': 'https://image.tmdb.org/t/p/w780/the-batman-cast.jpg',
+                'credit': 'Bruce Wayne / Batman',
+                'credit_type': 'cast',
+                'popularity': 200.0,
+                'vote_count': 9000,
+            },
+        )
 
     @patch('movies.services.os.getenv', return_value='test-token')
     @patch('movies.services.request.urlopen')
@@ -1600,7 +1778,17 @@ class PersonDetailsIntegrationTests(APITestCase):
             'birthday': '1970-07-30',
             'place_of_birth': 'London, England, UK',
             'profile_image': 'https://image.tmdb.org/t/p/w780/person.jpg',
-            'projects': [
+            'top_works': [
+                {
+                    'id': '101',
+                    'title': 'Inception',
+                    'release_date': '2010-07-16',
+                    'media_type': 'movie',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/inception.jpg',
+                    'credit': 'Director',
+                }
+            ],
+            'credits': [
                 {
                     'id': '101',
                     'title': 'Inception',

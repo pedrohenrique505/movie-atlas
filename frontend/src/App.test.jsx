@@ -563,13 +563,23 @@ describe('App routes', () => {
             birthday: '1970-07-30',
             place_of_birth: 'London, England, UK',
             profile_image: 'https://image.tmdb.org/t/p/w780/person.jpg',
-            projects: [
+            top_works: [
               {
                 id: '101',
                 title: 'Inception',
                 release_date: '2010-07-16',
                 media_type: 'movie',
                 poster_image: 'https://image.tmdb.org/t/p/w780/inception.jpg',
+                credit: 'Director',
+              },
+            ],
+            credits: [
+              {
+                id: '202',
+                title: 'Memento',
+                release_date: '2000-10-11',
+                media_type: 'movie',
+                poster_image: 'https://image.tmdb.org/t/p/w780/memento.jpg',
                 credit: 'Director',
               },
             ],
@@ -590,8 +600,10 @@ describe('App routes', () => {
       }),
     ).toBeInTheDocument()
     expect(await screen.findByText(/direção/i)).toBeInTheDocument()
-    expect(await screen.findByRole('heading', { name: /obras/i })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: /principais obras/i })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: /filmografia/i })).toBeInTheDocument()
     expect(await screen.findByText(/inception/i)).toBeInTheDocument()
+    expect(await screen.findByText(/memento/i)).toBeInTheDocument()
     expect(await screen.findByRole('link', { name: /poster de inception/i })).toHaveAttribute(
       'href',
       '/movie/101',
