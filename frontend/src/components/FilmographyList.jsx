@@ -28,22 +28,28 @@ export function FilmographyList({
         </div>
       </div>
 
-      <div className="filmography-list" role="list" aria-labelledby={labelledBy}>
+      <ul className="filmography-list" aria-labelledby={labelledBy}>
         {projects.map((project, index) => (
-          <Link
+          <li
             key={`${project.media_type}-${project.id}-${index}`}
             className="filmography-list__item"
-            role="listitem"
-            to={project.media_type === 'tv' ? `/tv-show/${project.id}` : `/movie/${project.id}`}
           >
+            <span className="filmography-list__bullet" aria-hidden="true">
+              •
+            </span>
             <span className="filmography-list__year">{getYearLabel(project.release_date)}</span>
             <div className="filmography-list__content">
-              <strong>{project.title}</strong>
+              <Link
+                className="filmography-list__title"
+                to={project.media_type === 'tv' ? `/tv-show/${project.id}` : `/movie/${project.id}`}
+              >
+                {project.title}
+              </Link>
               {project.credit ? <span>{project.credit}</span> : null}
             </div>
-          </Link>
+          </li>
         ))}
-      </div>
+      </ul>
     </section>
   )
 }
