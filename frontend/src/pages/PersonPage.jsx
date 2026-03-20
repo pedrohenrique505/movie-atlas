@@ -105,7 +105,20 @@ export function PersonPage() {
             </div>
           </section>
 
-          <ProjectList projects={person.projects} />
+          <ProjectList
+            projects={person.top_works}
+            title="Principais obras"
+            labelledBy="person-top-works-heading"
+            ariaLabel="Principais obras da pessoa"
+            emptyMessage="Principais obras indisponiveis."
+          />
+          <ProjectList
+            projects={person.credits}
+            title="Filmografia"
+            labelledBy="person-filmography-heading"
+            ariaLabel="Filmografia da pessoa"
+            emptyMessage="Filmografia indisponivel."
+          />
         </div>
       ) : null}
     </main>

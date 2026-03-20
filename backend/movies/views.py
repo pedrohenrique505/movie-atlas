@@ -270,14 +270,16 @@ def build_person_details_example():
         'birthday': '1980-06-15',
         'place_of_birth': 'Sao Paulo, Brasil',
         'profile_image': 'https://image.tmdb.org/t/p/w780/example-person.jpg',
-        'projects': [
+        'top_works': [
             {
-                'id': '980489',
-                'title': 'Gran Turismo 2',
-                'release_date': '2026-06-24',
+                'id': '98',
+                'title': 'Filme Exemplo',
+                'release_date': '2024-06-24',
                 'media_type': 'movie',
                 'poster_image': 'https://image.tmdb.org/t/p/w780/example-project-poster.jpg',
                 'credit': 'Director',
+                'popularity': 88.4,
+                'vote_count': 9200,
             },
             {
                 'id': '77',
@@ -286,6 +288,40 @@ def build_person_details_example():
                 'media_type': 'tv',
                 'poster_image': 'https://image.tmdb.org/t/p/w780/example-tv-poster.jpg',
                 'credit': 'Executive Producer',
+                'popularity': 74.1,
+                'vote_count': 4100,
+            },
+        ],
+        'credits': [
+            {
+                'id': '980489',
+                'title': 'Gran Turismo 2',
+                'release_date': '2026-06-24',
+                'media_type': 'movie',
+                'poster_image': 'https://image.tmdb.org/t/p/w780/example-project-poster.jpg',
+                'credit': 'Director',
+                'popularity': 95.0,
+                'vote_count': 120,
+            },
+            {
+                'id': '98',
+                'title': 'Filme Exemplo',
+                'release_date': '2024-06-24',
+                'media_type': 'movie',
+                'poster_image': 'https://image.tmdb.org/t/p/w780/example-project-poster.jpg',
+                'credit': 'Director',
+                'popularity': 88.4,
+                'vote_count': 9200,
+            },
+            {
+                'id': '77',
+                'title': 'Serie Exemplo',
+                'release_date': '2025-04-10',
+                'media_type': 'tv',
+                'poster_image': 'https://image.tmdb.org/t/p/w780/example-tv-poster.jpg',
+                'credit': 'Executive Producer',
+                'popularity': 74.1,
+                'vote_count': 4100,
             },
         ],
     }
@@ -1260,7 +1296,7 @@ class PersonDetailsView(APIView):
                         'birthday': {'type': 'string', 'format': 'date', 'nullable': True},
                         'place_of_birth': {'type': 'string'},
                         'profile_image': {'type': 'string', 'nullable': True},
-                        'projects': {
+                        'top_works': {
                             'type': 'array',
                             'items': {
                                 'type': 'object',
@@ -1271,6 +1307,24 @@ class PersonDetailsView(APIView):
                                     'media_type': {'type': 'string'},
                                     'poster_image': {'type': 'string', 'nullable': True},
                                     'credit': {'type': 'string'},
+                                    'popularity': {'type': 'number'},
+                                    'vote_count': {'type': 'integer'},
+                                },
+                            },
+                        },
+                        'credits': {
+                            'type': 'array',
+                            'items': {
+                                'type': 'object',
+                                'properties': {
+                                    'id': {'type': 'string'},
+                                    'title': {'type': 'string'},
+                                    'release_date': {'type': 'string', 'format': 'date'},
+                                    'media_type': {'type': 'string'},
+                                    'poster_image': {'type': 'string', 'nullable': True},
+                                    'credit': {'type': 'string'},
+                                    'popularity': {'type': 'number'},
+                                    'vote_count': {'type': 'integer'},
                                 },
                             },
                         },
