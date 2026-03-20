@@ -1087,7 +1087,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
 
         self.assertEqual(
             [project['id'] for project in payload],
-            ['302', '301', '303', '304'],
+            ['302', '303', '304', '301'],
         )
 
     def test_build_person_top_works_uses_combined_tv_score(self):
@@ -1148,7 +1148,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
             ]
         )
 
-        self.assertEqual([project['id'] for project in payload], ['402', '401', '404', '403'])
+        self.assertEqual([project['id'] for project in payload], ['402', '404', '401', '403'])
 
     def test_normalize_person_credits_uses_combined_score_for_deduplication(self):
         payload = TMDbMovieService()._normalize_person_credits(
