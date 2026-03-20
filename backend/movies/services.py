@@ -741,10 +741,13 @@ class TMDbMovieService:
         if not title:
             return None
 
+        normalized_job = self._normalize_person_project_job(item.get('job'))
+        normalized_department = self._normalize_person_project_department(item.get('department'))
+
         if is_cast:
             credit = item.get('character') or item.get('roles')
         else:
-            credit = item.get('job') or item.get('department')
+            credit = normalized_job or normalized_department
 
         credit = self._normalize_person_credit_label(credit, is_cast=is_cast)
         if not credit:
@@ -758,6 +761,8 @@ class TMDbMovieService:
             'poster_image': self._build_image_url(item.get('poster_path'), 'w780'),
             'credit': credit,
             'credit_type': 'cast' if is_cast else 'crew',
+            'department': normalized_department,
+            'job': normalized_job,
             'popularity': self._normalize_person_project_popularity(item.get('popularity')),
             'vote_count': self._normalize_person_project_vote_count(item.get('vote_count')),
         }
@@ -934,23 +939,45 @@ class TMDbMovieService:
         normalized_department = preferred_department.casefold()
         credit_type = project.get('credit_type') or ''
         normalized_credit = (project.get('credit') or '').casefold()
+        normalized_job = (project.get('job') or '').casefold()
+        normalized_project_department = (project.get('department') or '').casefold()
 
         if normalized_department == 'acting':
-            return 18 if credit_type == 'cast' else 0
+            if credit_type != 'cast':
+                return 0
+            if normalized_project_department == 'acting':
+                return 22
+            if normalized_job in {'actor', 'actress'}:
+                return 20
+            return 18
         if normalized_department == 'directing':
-            if credit_type == 'crew' and normalized_credit in {'director', 'series director'}:
+            if credit_type != 'crew':
+                return 0
+            if normalized_job in {'director', 'series director'}:
+                return 22
+            if normalized_project_department == 'directing':
                 return 18
-            if credit_type == 'crew':
-                return 6
-            return 0
+            if normalized_credit in {'director', 'series director'}:
+                return 16
+            return 4
         if normalized_department == 'writing':
-            if credit_type == 'crew' and normalized_credit in {'writer', 'screenplay', 'story', 'teleplay'}:
+            if credit_type != 'crew':
+                return 0
+            if normalized_job in {'writer', 'screenplay', 'story', 'teleplay'}:
+                return 22
+            if normalized_job == 'creator':
+                return 20
+            if normalized_project_department == 'writing':
                 return 18
-            if credit_type == 'crew' and normalized_credit == 'creator':
-                return 14
-            return 0
+            if normalized_credit in {'writer', 'screenplay', 'story', 'teleplay', 'creator'}:
+                return 16
+            return 4
         if normalized_department in {'production', 'creator'}:
-            if credit_type == 'crew':
+            if credit_type != 'crew':
+                return 0
+            if normalized_project_department in {'production', 'creator'}:
+                return 14
+            if normalized_job in {'producer', 'executive producer', 'creator'}:
                 return 12
             return 0
 
@@ -959,9 +986,21 @@ class TMDbMovieService:
     def _person_top_work_credit_bonus(self, project):
         credit_type = project.get('credit_type') or ''
         normalized_credit = (project.get('credit') or '').casefold()
+        normalized_job = (project.get('job') or '').casefold()
+        normalized_department = (project.get('department') or '').casefold()
 
+        if credit_type == 'cast' and normalized_department == 'acting':
+            return 10
         if credit_type == 'cast':
             return 8
+        if normalized_job in {'director', 'series director'}:
+            return 10
+        if normalized_job in {'writer', 'screenplay', 'story', 'teleplay', 'creator'}:
+            return 8
+        if normalized_department == 'directing':
+            return 6
+        if normalized_department == 'writing':
+            return 5
         if normalized_credit in {'director', 'series director'}:
             return 8
         if normalized_credit in {'writer', 'screenplay', 'story', 'teleplay', 'creator'}:
@@ -970,6 +1009,18 @@ class TMDbMovieService:
             return 3
 
         return 1
+
+    def _normalize_person_project_job(self, value):
+        if not isinstance(value, str):
+            return ''
+
+        return value.strip()
+
+    def _normalize_person_project_department(self, value):
+        if not isinstance(value, str):
+            return ''
+
+        return value.strip()
 
     def _normalize_images(self, images_payload):
         image_paths = []
