@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
+import { FilmographyList } from '../components/FilmographyList'
 import { ProjectList } from '../components/ProjectList'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
@@ -112,7 +113,7 @@ export function PersonPage() {
             ariaLabel="Principais obras da pessoa"
             emptyMessage="Principais obras indisponiveis."
           />
-          <ProjectList
+          <FilmographyList
             projects={person.credits}
             title="Filmografia"
             labelledBy="person-filmography-heading"
