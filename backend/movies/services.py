@@ -793,10 +793,11 @@ class TMDbMovieService:
 
     def _person_project_rank_score(self, project):
         if project.get('media_type') == 'tv':
-            return project.get('popularity', 0) + (project.get('episode_count', 0) * 5)
+            episode_count = max(project.get('episode_count', 0), 0)
+            return project.get('popularity', 0) * (episode_count / self.page_size)
 
-        order_benefit = max(self.page_size - project.get('order', self.page_size), 0)
-        return project.get('popularity', 0) + (order_benefit * 10)
+        order_benefit = max(self.page_size - project.get('order', self.page_size) + 1, 1)
+        return project.get('popularity', 0) * (order_benefit / self.page_size)
 
     def _normalize_images(self, images_payload):
         image_paths = []
