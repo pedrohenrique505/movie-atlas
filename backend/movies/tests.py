@@ -852,18 +852,6 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'episode_count': 2,
                     },
                     {
-                        'id': '102',
-                        'title': 'Westworld',
-                        'release_date': '2016-10-02',
-                        'media_type': 'tv',
-                        'poster_image': 'https://image.tmdb.org/t/p/w780/westworld.jpg',
-                        'credit': 'Executive Producer',
-                        'popularity': 88.3,
-                        'vote_count': 5400,
-                        'order': 6,
-                        'episode_count': 36,
-                    },
-                    {
                         'id': '101',
                         'title': 'Inception',
                         'release_date': '2010-07-16',
@@ -874,6 +862,18 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'vote_count': 15000,
                         'order': 2,
                         'episode_count': 0,
+                    },
+                    {
+                        'id': '102',
+                        'title': 'Westworld',
+                        'release_date': '2016-10-02',
+                        'media_type': 'tv',
+                        'poster_image': 'https://image.tmdb.org/t/p/w780/westworld.jpg',
+                        'credit': 'Executive Producer',
+                        'popularity': 88.3,
+                        'vote_count': 5400,
+                        'order': 6,
+                        'episode_count': 36,
                     },
                     {
                         'id': '201',
@@ -902,18 +902,6 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'episode_count': 2,
                     },
                     {
-                        'id': '102',
-                        'title': 'Westworld',
-                        'release_date': '2016-10-02',
-                        'media_type': 'tv',
-                        'poster_image': 'https://image.tmdb.org/t/p/w780/westworld.jpg',
-                        'credit': 'Executive Producer',
-                        'popularity': 88.3,
-                        'vote_count': 5400,
-                        'order': 6,
-                        'episode_count': 36,
-                    },
-                    {
                         'id': '101',
                         'title': 'Inception',
                         'release_date': '2010-07-16',
@@ -924,6 +912,18 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'vote_count': 15000,
                         'order': 2,
                         'episode_count': 0,
+                    },
+                    {
+                        'id': '102',
+                        'title': 'Westworld',
+                        'release_date': '2016-10-02',
+                        'media_type': 'tv',
+                        'poster_image': 'https://image.tmdb.org/t/p/w780/westworld.jpg',
+                        'credit': 'Executive Producer',
+                        'popularity': 88.3,
+                        'vote_count': 5400,
+                        'order': 6,
+                        'episode_count': 36,
                     },
                     {
                         'id': '201',
@@ -1087,7 +1087,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
 
         self.assertEqual(
             [project['id'] for project in payload],
-            ['302', '303', '301', '304'],
+            ['302', '303', '304', '301'],
         )
 
     def test_build_person_top_works_uses_combined_tv_score(self):
@@ -1148,7 +1148,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
             ]
         )
 
-        self.assertEqual([project['id'] for project in payload], ['402', '401', '404', '403'])
+        self.assertEqual([project['id'] for project in payload], ['404', '403', '401', '402'])
 
     def test_normalize_person_credits_uses_combined_score_for_deduplication(self):
         payload = TMDbMovieService()._normalize_person_credits(
