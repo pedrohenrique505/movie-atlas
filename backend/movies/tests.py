@@ -743,6 +743,8 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'media_type': 'movie',
                         'poster_path': '/actor-credit.jpg',
                         'character': 'Narrator',
+                        'popularity': 15.2,
+                        'vote_count': 120,
                     }
                 ],
                 'crew': [
@@ -753,6 +755,8 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'media_type': 'movie',
                         'poster_path': '/inception-new.jpg',
                         'job': 'Producer',
+                        'popularity': 70.0,
+                        'vote_count': 9000,
                     },
                     {
                         'id': 101,
@@ -761,6 +765,8 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'media_type': 'movie',
                         'poster_path': '/inception.jpg',
                         'job': 'Director',
+                        'popularity': 85.5,
+                        'vote_count': 15000,
                     },
                     {
                         'id': 102,
@@ -769,6 +775,8 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'media_type': 'tv',
                         'poster_path': '/westworld.jpg',
                         'job': 'Executive Producer',
+                        'popularity': 88.3,
+                        'vote_count': 5400,
                     },
                     {
                         'id': 103,
@@ -819,6 +827,8 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'media_type': 'tv',
                         'poster_image': 'https://image.tmdb.org/t/p/w780/westworld.jpg',
                         'credit': 'Executive Producer',
+                        'popularity': 88.3,
+                        'vote_count': 5400,
                     },
                     {
                         'id': '101',
@@ -827,6 +837,8 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'media_type': 'movie',
                         'poster_image': 'https://image.tmdb.org/t/p/w780/inception.jpg',
                         'credit': 'Director',
+                        'popularity': 85.5,
+                        'vote_count': 15000,
                     },
                     {
                         'id': '201',
@@ -835,6 +847,8 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'media_type': 'movie',
                         'poster_image': 'https://image.tmdb.org/t/p/w780/actor-credit.jpg',
                         'credit': 'Narrator',
+                        'popularity': 15.2,
+                        'vote_count': 120,
                     },
                 ],
             },
@@ -851,6 +865,8 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'media_type': 'movie',
                         'poster_path': '/duplicate-cast.jpg',
                         'character': 'Lead',
+                        'popularity': 20.0,
+                        'vote_count': 200,
                     },
                     {
                         'id': 202,
@@ -859,6 +875,8 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'media_type': 'movie',
                         'poster_path': '/missing-cast-credit.jpg',
                         'character': '',
+                        'popularity': 10.0,
+                        'vote_count': 50,
                     },
                 ],
                 'crew': [
@@ -869,6 +887,8 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'media_type': 'movie',
                         'poster_path': '/duplicate-crew.jpg',
                         'job': 'Producer',
+                        'popularity': 40.0,
+                        'vote_count': 400,
                     },
                     {
                         'id': 203,
@@ -909,9 +929,87 @@ class TMDbMovieServiceTests(SimpleTestCase):
                     'media_type': 'movie',
                     'poster_image': 'https://image.tmdb.org/t/p/w780/duplicate-crew.jpg',
                     'credit': 'Producer',
+                    'popularity': 40.0,
+                    'vote_count': 400,
                 }
             ],
         )
+
+    def test_normalize_person_projects_sorts_by_popularity_vote_count_and_release_date(self):
+        payload = TMDbMovieService()._normalize_person_projects(
+            {
+                'cast': [
+                    {
+                        'id': 301,
+                        'title': 'Most Popular',
+                        'release_date': '2010-01-01',
+                        'media_type': 'movie',
+                        'poster_path': '/most-popular.jpg',
+                        'character': 'Hero',
+                        'popularity': 120.5,
+                        'vote_count': 1000,
+                    },
+                    {
+                        'id': 302,
+                        'title': 'Tie On Popularity Older',
+                        'release_date': '2015-01-01',
+                        'media_type': 'movie',
+                        'poster_path': '/tie-older.jpg',
+                        'character': 'Hero',
+                        'popularity': 80.0,
+                        'vote_count': 500,
+                    },
+                    {
+                        'id': 303,
+                        'title': 'Tie On Popularity More Votes',
+                        'release_date': '2012-01-01',
+                        'media_type': 'movie',
+                        'poster_path': '/tie-more-votes.jpg',
+                        'character': 'Hero',
+                        'popularity': 80.0,
+                        'vote_count': 900,
+                    },
+                    {
+                        'id': 304,
+                        'title': 'Tie On Popularity And Votes Newer',
+                        'release_date': '2018-06-01',
+                        'media_type': 'movie',
+                        'poster_path': '/tie-newer.jpg',
+                        'character': 'Hero',
+                        'popularity': 50.0,
+                        'vote_count': 300,
+                    },
+                    {
+                        'id': 305,
+                        'title': 'Tie On Popularity And Votes Older',
+                        'release_date': '2014-06-01',
+                        'media_type': 'movie',
+                        'poster_path': '/tie-older-date.jpg',
+                        'character': 'Hero',
+                        'popularity': 50.0,
+                        'vote_count': 300,
+                    },
+                    {
+                        'id': 306,
+                        'title': 'Missing Metrics',
+                        'release_date': '2020-06-01',
+                        'media_type': 'movie',
+                        'poster_path': '/missing-metrics.jpg',
+                        'character': 'Hero',
+                        'popularity': 'invalid',
+                        'vote_count': None,
+                    },
+                ],
+                'crew': [],
+            }
+        )
+
+        self.assertEqual(
+            [project['id'] for project in payload],
+            ['301', '303', '302', '304', '305', '306'],
+        )
+        self.assertEqual(payload[-1]['popularity'], 0.0)
+        self.assertEqual(payload[-1]['vote_count'], 0)
 
     @patch('movies.services.os.getenv', return_value='test-token')
     @patch('movies.services.request.urlopen')
