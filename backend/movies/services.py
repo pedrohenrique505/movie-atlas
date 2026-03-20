@@ -655,14 +655,14 @@ class TMDbMovieService:
 
         return sorted(
             latest_projects.values(),
-            key=self._person_project_sort_key,
+            key=self._person_project_rank_score,
             reverse=True,
         )
 
     def _build_person_top_works(self, credits):
         top_works = sorted(
             credits,
-            key=self._person_project_sort_key,
+            key=self._person_project_rank_score,
             reverse=True,
         )
 
@@ -734,21 +734,10 @@ class TMDbMovieService:
         return ''
 
     def _should_replace_person_project(self, candidate, current):
-        candidate_popularity = candidate.get('popularity', 0)
-        current_popularity = current.get('popularity', 0)
-        if candidate_popularity != current_popularity:
-            return candidate_popularity > current_popularity
-
-        if candidate.get('media_type') == 'tv' and current.get('media_type') == 'tv':
-            candidate_episode_count = candidate.get('episode_count', 0)
-            current_episode_count = current.get('episode_count', 0)
-            if candidate_episode_count != current_episode_count:
-                return candidate_episode_count > current_episode_count
-
-        candidate_order = candidate.get('order', self.page_size)
-        current_order = current.get('order', self.page_size)
-        if candidate_order != current_order:
-            return candidate_order < current_order
+        candidate_score = self._person_project_rank_score(candidate)
+        current_score = self._person_project_rank_score(current)
+        if candidate_score != current_score:
+            return candidate_score > current_score
 
         if candidate.get('poster_image') and not current.get('poster_image'):
             return True
@@ -802,17 +791,12 @@ class TMDbMovieService:
 
         return 0
 
-    def _person_project_sort_key(self, project):
+    def _person_project_rank_score(self, project):
         if project.get('media_type') == 'tv':
-            return (
-                project.get('popularity', 0),
-                project.get('episode_count', 0),
-            )
+            return project.get('popularity', 0) + project.get('episode_count', 0)
 
-        return (
-            project.get('popularity', 0),
-            -project.get('order', self.page_size),
-        )
+        order_benefit = max(self.page_size - project.get('order', self.page_size), 0)
+        return project.get('popularity', 0) + order_benefit
 
     def _normalize_images(self, images_payload):
         image_paths = []
