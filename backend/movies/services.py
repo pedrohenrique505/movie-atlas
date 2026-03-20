@@ -954,7 +954,7 @@ class TMDbMovieService:
         return ''
 
     def _normalize_person_name(self, payload):
-        return self._build_display_name(payload.get('name'), payload.get('original_name'))
+        return (payload.get('name') or payload.get('original_name') or '').strip()
 
     def _normalize_media_title(self, payload):
         localized = payload.get('title') or payload.get('name')
