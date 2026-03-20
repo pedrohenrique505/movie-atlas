@@ -603,6 +603,12 @@ class TMDbMovieService:
         return unique_creators[:5]
 
     def _normalize_person_details_payload(self, payload):
+        preferred_department = payload.get('known_for_department') or ''
+        credits = self._normalize_person_credits(
+            payload.get('combined_credits', {}),
+            preferred_department=preferred_department,
+        )
+
         return {
             'id': str(payload['id']),
             'name': payload.get('name') or '',
@@ -611,7 +617,8 @@ class TMDbMovieService:
             'birthday': payload.get('birthday') or '',
             'place_of_birth': payload.get('place_of_birth') or '',
             'profile_image': self._build_image_url(payload.get('profile_path'), 'w780'),
-            'projects': self._normalize_person_projects(payload.get('combined_credits', {})),
+            'top_works': [self._public_person_project(project) for project in self._build_person_top_works(credits)],
+            'credits': [self._public_person_project(project) for project in credits],
         }
 
     def _normalize_known_for_titles(self, known_for_payload):
@@ -624,7 +631,7 @@ class TMDbMovieService:
 
         return titles[:3]
 
-    def _normalize_person_projects(self, credits_payload):
+    def _normalize_person_credits(self, credits_payload, preferred_department=''):
         combined = []
 
         for item in credits_payload.get('cast', []):
@@ -646,20 +653,54 @@ class TMDbMovieService:
             project_key = (item['media_type'], item['id'] or item['title'])
             current_item = latest_projects.get(project_key)
 
-            if current_item is None or self._should_replace_person_project(item, current_item):
+            if current_item is None or self._should_replace_person_project(
+                item,
+                current_item,
+                preferred_department=preferred_department,
+            ):
                 latest_projects[project_key] = item
 
-        filtered = sorted(
+        return sorted(
             latest_projects.values(),
             key=lambda project: (
+                project['release_date'] != '',
+                project['release_date'],
                 project.get('popularity', 0),
                 project.get('vote_count', 0),
-                project['release_date'],
             ),
             reverse=True,
         )
 
-        return filtered[:12]
+    def _build_person_top_works(self, credits):
+        released_credits = [
+            credit
+            for credit in credits
+            if self._is_released_person_project(credit.get('release_date') or '')
+        ]
+
+        top_works = sorted(
+            released_credits,
+            key=lambda project: (
+                project.get('popularity', 0),
+                project.get('vote_count', 0),
+                project.get('release_date') or '',
+            ),
+            reverse=True,
+        )
+
+        return top_works[:12]
+
+    def _public_person_project(self, project):
+        return {
+            'id': project['id'],
+            'title': project['title'],
+            'release_date': project['release_date'],
+            'media_type': project['media_type'],
+            'poster_image': project['poster_image'],
+            'credit': project['credit'],
+            'popularity': project['popularity'],
+            'vote_count': project['vote_count'],
+        }
 
     def _normalize_person_project(self, item, is_cast):
         item_id = item.get('id')
@@ -694,6 +735,7 @@ class TMDbMovieService:
             'media_type': media_type,
             'poster_image': self._build_image_url(item.get('poster_path'), 'w780'),
             'credit': credit,
+            'credit_type': 'cast' if is_cast else 'crew',
             'popularity': self._normalize_person_project_popularity(item.get('popularity')),
             'vote_count': self._normalize_person_project_vote_count(item.get('vote_count')),
         }
@@ -725,9 +767,15 @@ class TMDbMovieService:
 
         return not any(genre_id in NON_SCRIPTED_TV_GENRE_IDS for genre_id in genre_ids)
 
-    def _should_replace_person_project(self, candidate, current):
-        candidate_priority = self._person_project_priority(candidate)
-        current_priority = self._person_project_priority(current)
+    def _should_replace_person_project(self, candidate, current, preferred_department=''):
+        candidate_priority = self._person_project_priority(
+            candidate,
+            preferred_department=preferred_department,
+        )
+        current_priority = self._person_project_priority(
+            current,
+            preferred_department=preferred_department,
+        )
         if candidate_priority != current_priority:
             return candidate_priority > current_priority
 
@@ -742,13 +790,25 @@ class TMDbMovieService:
 
         return False
 
-    def _person_project_priority(self, project):
+    def _person_project_priority(self, project, preferred_department=''):
+        priority = self._person_credit_type_priority(
+            project.get('credit_type') or '',
+            preferred_department=preferred_department,
+        )
         credit = (project.get('credit') or '').strip()
         if credit:
-            return 10 + self._person_credit_weight(credit)
+            return priority + self._person_credit_weight(credit)
         if project.get('poster_image'):
-            return 1
-        return 0
+            return priority
+        return max(priority - 1, 0)
+
+    def _person_credit_type_priority(self, credit_type, preferred_department=''):
+        normalized_department = preferred_department.casefold()
+        if normalized_department == 'acting':
+            return 20 if credit_type == 'cast' else 10
+        if normalized_department in {'directing', 'writing', 'production', 'creator'}:
+            return 20 if credit_type == 'crew' else 10
+        return 15
 
     def _person_credit_weight(self, credit):
         normalized_credit = credit.casefold()
@@ -810,6 +870,17 @@ class TMDbMovieService:
             normalized_genre_ids.append(genre_id)
 
         return normalized_genre_ids
+
+    def _is_released_person_project(self, release_date):
+        if not release_date:
+            return False
+
+        try:
+            parsed_release_date = date.fromisoformat(release_date)
+        except ValueError:
+            return False
+
+        return parsed_release_date <= timezone.localdate()
 
     def _normalize_images(self, images_payload):
         image_paths = []
