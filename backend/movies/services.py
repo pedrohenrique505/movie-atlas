@@ -621,28 +621,14 @@ class TMDbMovieService:
         combined = []
 
         for item in credits_payload.get('cast', []):
-            combined.append(
-                {
-                    'id': str(item['id']),
-                    'title': item.get('title') or item.get('name') or item.get('original_title') or '',
-                    'release_date': item.get('release_date') or item.get('first_air_date') or '',
-                    'media_type': item.get('media_type') or 'movie',
-                    'poster_image': self._build_image_url(item.get('poster_path'), 'w780'),
-                    'credit': item.get('character') or 'Elenco',
-                }
-            )
+            normalized_project = self._normalize_person_project(item, is_cast=True)
+            if normalized_project is not None:
+                combined.append(normalized_project)
 
         for item in credits_payload.get('crew', []):
-            combined.append(
-                {
-                    'id': str(item['id']),
-                    'title': item.get('title') or item.get('name') or item.get('original_title') or '',
-                    'release_date': item.get('release_date') or item.get('first_air_date') or '',
-                    'media_type': item.get('media_type') or 'movie',
-                    'poster_image': self._build_image_url(item.get('poster_path'), 'w780'),
-                    'credit': item.get('job') or item.get('department') or 'Equipe',
-                }
-            )
+            normalized_project = self._normalize_person_project(item, is_cast=False)
+            if normalized_project is not None:
+                combined.append(normalized_project)
 
         latest_projects = {}
 
@@ -653,7 +639,7 @@ class TMDbMovieService:
             project_key = (item['media_type'], item['id'] or item['title'])
             current_item = latest_projects.get(project_key)
 
-            if current_item is None or self._is_more_recent_project(item, current_item):
+            if current_item is None or self._should_replace_person_project(item, current_item):
                 latest_projects[project_key] = item
 
         filtered = sorted(
@@ -668,7 +654,58 @@ class TMDbMovieService:
 
         return filtered[:12]
 
-    def _is_more_recent_project(self, candidate, current):
+    def _normalize_person_project(self, item, is_cast):
+        item_id = item.get('id')
+        if item_id is None:
+            return None
+
+        media_type = item.get('media_type') or 'movie'
+        if media_type not in {'movie', 'tv'}:
+            return None
+
+        title = item.get('title') or item.get('name') or item.get('original_title') or ''
+        if not title:
+            return None
+
+        if is_cast:
+            credit = item.get('character') or item.get('roles')
+        else:
+            credit = item.get('job') or item.get('department')
+
+        credit = self._normalize_person_credit_label(credit, is_cast=is_cast)
+        if not credit:
+            return None
+
+        return {
+            'id': str(item_id),
+            'title': title,
+            'release_date': item.get('release_date') or item.get('first_air_date') or '',
+            'media_type': media_type,
+            'poster_image': self._build_image_url(item.get('poster_path'), 'w780'),
+            'credit': credit,
+        }
+
+    def _normalize_person_credit_label(self, credit, is_cast):
+        if isinstance(credit, list):
+            for entry in credit:
+                if not isinstance(entry, dict):
+                    continue
+                label = entry.get('character') or entry.get('job')
+                if label:
+                    return label
+            return ''
+
+        if isinstance(credit, str):
+            return credit.strip()
+
+        return ''
+
+    def _should_replace_person_project(self, candidate, current):
+        candidate_priority = self._person_project_priority(candidate)
+        current_priority = self._person_project_priority(current)
+        if candidate_priority != current_priority:
+            return candidate_priority > current_priority
+
         candidate_date = candidate.get('release_date') or ''
         current_date = current.get('release_date') or ''
 
@@ -679,6 +716,28 @@ class TMDbMovieService:
             return True
 
         return False
+
+    def _person_project_priority(self, project):
+        credit = (project.get('credit') or '').strip()
+        if credit:
+            return 10 + self._person_credit_weight(credit)
+        if project.get('poster_image'):
+            return 1
+        return 0
+
+    def _person_credit_weight(self, credit):
+        normalized_credit = credit.casefold()
+        credit_weights = {
+            'director': 9,
+            'series director': 9,
+            'writer': 8,
+            'screenplay': 8,
+            'creator': 8,
+            'executive producer': 7,
+            'producer': 6,
+        }
+
+        return credit_weights.get(normalized_credit, 5)
 
     def _normalize_images(self, images_payload):
         image_paths = []
