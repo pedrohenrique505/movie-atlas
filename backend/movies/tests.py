@@ -782,6 +782,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'vote_count': 5400,
                         'genre_ids': [18, 9648, 10765],
                         'order': 6,
+                        'episode_count': 36,
                     },
                     {
                         'id': 106,
@@ -794,6 +795,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'vote_count': 900,
                         'genre_ids': [10767],
                         'order': 1,
+                        'episode_count': 2,
                     },
                     {
                         'id': 103,
@@ -847,6 +849,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'popularity': 500.0,
                         'vote_count': 900,
                         'order': 1,
+                        'episode_count': 2,
                     },
                     {
                         'id': '102',
@@ -858,6 +861,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'popularity': 88.3,
                         'vote_count': 5400,
                         'order': 6,
+                        'episode_count': 36,
                     },
                     {
                         'id': '101',
@@ -869,6 +873,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'popularity': 85.5,
                         'vote_count': 15000,
                         'order': 2,
+                        'episode_count': 0,
                     },
                     {
                         'id': '201',
@@ -880,6 +885,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'popularity': 15.2,
                         'vote_count': 120,
                         'order': 3,
+                        'episode_count': 0,
                     },
                 ],
                 'credits': [
@@ -893,6 +899,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'popularity': 500.0,
                         'vote_count': 900,
                         'order': 1,
+                        'episode_count': 2,
                     },
                     {
                         'id': '102',
@@ -904,6 +911,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'popularity': 88.3,
                         'vote_count': 5400,
                         'order': 6,
+                        'episode_count': 36,
                     },
                     {
                         'id': '101',
@@ -915,6 +923,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'popularity': 85.5,
                         'vote_count': 15000,
                         'order': 2,
+                        'episode_count': 0,
                     },
                     {
                         'id': '201',
@@ -926,6 +935,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'popularity': 15.2,
                         'vote_count': 120,
                         'order': 3,
+                        'episode_count': 0,
                     },
                 ],
             },
@@ -1012,6 +1022,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                     'popularity': 40.0,
                     'vote_count': 400,
                     'order': 5,
+                    'episode_count': 0,
                 }
             ],
         )
@@ -1030,6 +1041,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                     'popularity': 120.5,
                     'vote_count': 1000,
                     'order': 7,
+                    'episode_count': 0,
                 },
                 {
                     'id': '302',
@@ -1042,6 +1054,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                     'popularity': 80.0,
                     'vote_count': 500,
                     'order': 5,
+                    'episode_count': 0,
                 },
                 {
                     'id': '303',
@@ -1054,6 +1067,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                     'popularity': 80.0,
                     'vote_count': 900,
                     'order': 1,
+                    'episode_count': 0,
                 },
                 {
                     'id': '304',
@@ -1066,6 +1080,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                     'popularity': 50.0,
                     'vote_count': 300,
                     'order': 15,
+                    'episode_count': 0,
                 },
             ]
         )
@@ -1074,6 +1089,66 @@ class TMDbMovieServiceTests(SimpleTestCase):
             [project['id'] for project in payload],
             ['301', '303', '302', '304'],
         )
+
+    def test_build_person_top_works_sorts_tv_by_popularity_and_episode_count(self):
+        payload = TMDbMovieService()._build_person_top_works(
+            [
+                {
+                    'id': '401',
+                    'title': 'Most Popular TV',
+                    'release_date': '2019-01-01',
+                    'media_type': 'tv',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/most-popular-tv.jpg',
+                    'credit': 'Lead',
+                    'credit_type': 'cast',
+                    'popularity': 100.0,
+                    'vote_count': 1500,
+                    'order': 20,
+                    'episode_count': 3,
+                },
+                {
+                    'id': '402',
+                    'title': 'Tie Popularity More Episodes',
+                    'release_date': '2018-01-01',
+                    'media_type': 'tv',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/tie-tv-a.jpg',
+                    'credit': 'Lead',
+                    'credit_type': 'cast',
+                    'popularity': 80.0,
+                    'vote_count': 1000,
+                    'order': 50,
+                    'episode_count': 12,
+                },
+                {
+                    'id': '403',
+                    'title': 'Tie Popularity Fewer Episodes',
+                    'release_date': '2020-01-01',
+                    'media_type': 'tv',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/tie-tv-b.jpg',
+                    'credit': 'Lead',
+                    'credit_type': 'cast',
+                    'popularity': 80.0,
+                    'vote_count': 5000,
+                    'order': 1,
+                    'episode_count': 2,
+                },
+                {
+                    'id': '404',
+                    'title': 'Missing Episode Count',
+                    'release_date': '2021-01-01',
+                    'media_type': 'tv',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/missing-episode-count.jpg',
+                    'credit': 'Lead',
+                    'credit_type': 'cast',
+                    'popularity': 60.0,
+                    'vote_count': 200,
+                    'order': 1,
+                    'episode_count': 0,
+                },
+            ]
+        )
+
+        self.assertEqual([project['id'] for project in payload], ['401', '402', '403', '404'])
 
     @patch('movies.services.os.getenv', return_value='test-token')
     @patch('movies.services.request.urlopen')
