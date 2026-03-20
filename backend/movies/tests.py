@@ -339,6 +339,26 @@ class TMDbMovieServiceTests(SimpleTestCase):
             },
         )
 
+    def test_normalize_person_name_prefers_localized_name_with_original_in_parentheses(self):
+        payload = TMDbMovieService()._normalize_person_name(
+            {
+                'name': 'Bae Doona',
+                'original_name': '배두나',
+            }
+        )
+
+        self.assertEqual(payload, 'Bae Doona (배두나)')
+
+    def test_normalize_media_title_prefers_localized_title_with_original_in_parentheses(self):
+        payload = TMDbMovieService()._normalize_media_title(
+            {
+                'name': 'Pursuit of Jade',
+                'original_name': '逐玉',
+            }
+        )
+
+        self.assertEqual(payload, 'Pursuit of Jade (逐玉)')
+
     @patch('movies.services.os.getenv', return_value='test-token')
     @patch('movies.services.request.urlopen')
     def test_get_popular_actors_uses_distinct_logical_pages(self, mock_urlopen, _mock_getenv):
