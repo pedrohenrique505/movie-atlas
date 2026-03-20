@@ -256,7 +256,7 @@ class TMDbMovieService:
             results.append(
                 {
                     'id': str(item['id']),
-                    'title': self._pick_first_value(item, title_fields),
+                    'title': self._normalize_media_title(item),
                     'release_date': release_date,
                     'status': status_label,
                     'synopsis': item.get('overview') or 'Sinopse ainda não disponível.',
@@ -288,7 +288,7 @@ class TMDbMovieService:
                     {
                         'id': str(item['id']),
                         'media_type': 'person',
-                        'name': item.get('name') or '',
+                        'name': self._normalize_person_name(item),
                         'known_for_department': item.get('known_for_department') or '',
                         'profile_image': self._build_image_url(item.get('profile_path'), 'w300'),
                         'known_for_titles': self._normalize_known_for_titles(item.get('known_for', [])),
@@ -299,10 +299,7 @@ class TMDbMovieService:
                     {
                         'id': str(item['id']),
                         'media_type': media_type,
-                        'title': self._pick_first_value(
-                            item,
-                            ('title', 'name', 'original_title', 'original_name'),
-                        ),
+                        'title': self._normalize_media_title(item),
                         'release_date': item.get('release_date') or item.get('first_air_date') or '',
                         'status': 'search_result',
                         'synopsis': item.get('overview') or 'Sinopse ainda não disponível.',
@@ -355,7 +352,7 @@ class TMDbMovieService:
                 filtered_people.append(
                     {
                         'id': person_id,
-                        'name': item.get('name') or '',
+                        'name': self._normalize_person_name(item),
                         'known_for_department': item.get('known_for_department') or '',
                         'profile_image': self._build_image_url(item.get('profile_path'), 'w300'),
                         'known_for_titles': self._normalize_known_for_titles(
@@ -396,7 +393,7 @@ class TMDbMovieService:
             results.append(
                 {
                     'id': person_id,
-                    'name': item.get('name') or '',
+                    'name': self._normalize_person_name(item),
                     'known_for_department': item.get('known_for_department') or '',
                     'profile_image': self._build_image_url(item.get('profile_path'), 'w300'),
                     'known_for_titles': self._normalize_known_for_titles(item.get('known_for', [])),
@@ -424,7 +421,7 @@ class TMDbMovieService:
 
         return {
             'id': str(payload['id']),
-            'title': payload.get('title') or payload.get('original_title') or '',
+            'title': self._normalize_media_title(payload),
             'synopsis': payload.get('overview') or 'Sinopse ainda não disponível.',
             'release_date': payload.get('release_date') or '',
             'runtime': payload.get('runtime'),
@@ -455,7 +452,7 @@ class TMDbMovieService:
 
         return {
             'id': str(payload['id']),
-            'title': payload.get('name') or payload.get('original_name') or '',
+            'title': self._normalize_media_title(payload),
             'synopsis': payload.get('overview') or 'Sinopse ainda não disponível.',
             'release_date': payload.get('first_air_date') or '',
             'runtime': self._pick_episode_runtime(payload.get('episode_run_time', [])),
@@ -490,7 +487,7 @@ class TMDbMovieService:
             cast.append(
                 {
                     'id': str(person['id']),
-                    'name': person.get('name') or '',
+                    'name': self._normalize_person_name(person),
                     'character': person.get('character') or '',
                     'profile_image': self._build_image_url(person.get('profile_path'), 'w300'),
                 }
@@ -508,7 +505,7 @@ class TMDbMovieService:
             directors.append(
                 {
                     'id': str(person['id']),
-                    'name': person.get('name') or '',
+                    'name': self._normalize_person_name(person),
                     'department': person.get('known_for_department')
                     or person.get('department')
                     or 'Directing',
@@ -562,7 +559,7 @@ class TMDbMovieService:
             creators.append(
                 {
                     'id': person_id,
-                    'name': person.get('name') or '',
+                    'name': self._normalize_person_name(person),
                     'department': crew_person.get('known_for_department')
                     or crew_person.get('department')
                     or 'Creator',
@@ -584,7 +581,7 @@ class TMDbMovieService:
             fallback_creators.append(
                 {
                     'id': str(person['id']),
-                    'name': person.get('name') or '',
+                    'name': self._normalize_person_name(person),
                     'department': person.get('known_for_department')
                     or person.get('department')
                     or person.get('job')
@@ -609,7 +606,7 @@ class TMDbMovieService:
 
         return {
             'id': str(payload['id']),
-            'name': payload.get('name') or '',
+            'name': self._normalize_person_name(payload),
             'biography': payload.get('biography') or 'Biografia ainda não disponível.',
             'known_for_department': payload.get('known_for_department') or '',
             'birthday': birthday,
@@ -623,7 +620,7 @@ class TMDbMovieService:
         titles = []
 
         for item in known_for_payload:
-            title = item.get('title') or item.get('name') or item.get('original_title') or ''
+            title = self._normalize_media_title(item)
             if title and title not in titles:
                 titles.append(title)
 
@@ -680,7 +677,7 @@ class TMDbMovieService:
         if media_type not in {'movie', 'tv'}:
             return None
 
-        title = item.get('title') or item.get('name') or item.get('original_title') or ''
+        title = self._normalize_media_title(item)
         if not title:
             return None
 
@@ -955,6 +952,23 @@ class TMDbMovieService:
             if value:
                 return value
         return ''
+
+    def _normalize_person_name(self, payload):
+        return self._build_display_name(payload.get('name'), payload.get('original_name'))
+
+    def _normalize_media_title(self, payload):
+        localized = payload.get('title') or payload.get('name')
+        original = payload.get('original_title') or payload.get('original_name')
+        return self._build_display_name(localized, original)
+
+    def _build_display_name(self, localized, original):
+        localized_value = (localized or '').strip()
+        original_value = (original or '').strip()
+
+        if localized_value and original_value and localized_value != original_value:
+            return f'{localized_value} ({original_value})'
+
+        return localized_value or original_value
 
     def _is_upcoming_release_date(self, release_date):
         if not release_date:
