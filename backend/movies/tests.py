@@ -21,6 +21,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                     'release_date': '2026-03-20',
                     'overview': 'Descricao',
                     'poster_path': f'/poster-{item_id}.jpg',
+                    'vote_average': 6.8,
                 }
                 for item_id in range(1, 18)
             ]
@@ -37,6 +38,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
             payload['results'][0]['poster_image'],
             'https://image.tmdb.org/t/p/w780/poster-1.jpg',
         )
+        self.assertEqual(payload['results'][0]['vote_average'], 6.8)
         self.assertEqual(payload['results'][-1]['id'], '15')
 
     @patch('movies.services.os.getenv', return_value='test-token')
@@ -50,6 +52,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                     'release_date': '2026-03-20',
                     'overview': 'Em exibicao nos cinemas.',
                     'poster_path': '/cartaz.jpg',
+                    'vote_average': 7.1,
                 }
             ]
         }
@@ -69,6 +72,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'release_date': '2026-03-20',
                         'status': 'now_playing',
                         'synopsis': 'Em exibicao nos cinemas.',
+                        'vote_average': 7.1,
                         'poster_image': 'https://image.tmdb.org/t/p/w780/cartaz.jpg',
                         'has_trailer': False,
                     }
@@ -109,6 +113,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'release_date': '2025-10-01',
                         'status': 'tv_show',
                         'synopsis': 'Uma serie popular.',
+                        'vote_average': 7.4,
                         'poster_image': 'https://image.tmdb.org/t/p/w780/serie.jpg',
                         'has_trailer': False,
                     }
@@ -200,6 +205,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                     'overview': 'Filme aprovado.',
                     'poster_path': '/approved.jpg',
                     'vote_count': 50,
+                    'vote_average': 6.9,
                 },
                 {
                     'id': 102,
@@ -218,6 +224,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
         payload = TMDbMovieService().get_popular_movies()
 
         self.assertEqual([item['id'] for item in payload['results']], ['101'])
+        self.assertEqual(payload['results'][0]['vote_average'], 6.9)
 
     @patch('movies.services.timezone.localdate', return_value=date(2026, 3, 19))
     @patch('movies.services.os.getenv', return_value='test-token')
@@ -236,6 +243,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                     'release_date': '2026-07-17',
                     'overview': 'Uma nova adaptacao epica.',
                     'poster_path': '/odyssey.jpg',
+                    'vote_average': 8.3,
                 }
             ]
         }
@@ -255,6 +263,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'release_date': '2026-07-17',
                         'status': 'upcoming',
                         'synopsis': 'Uma nova adaptacao epica.',
+                        'vote_average': 8.3,
                         'poster_image': 'https://image.tmdb.org/t/p/w780/odyssey.jpg',
                         'has_trailer': False,
                     }
@@ -345,6 +354,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'release_date': '2026-03-19',
                         'status': 'upcoming',
                         'synopsis': 'Estreia hoje.',
+                        'vote_average': None,
                         'poster_image': 'https://image.tmdb.org/t/p/w780/hoje.jpg',
                         'has_trailer': False,
                     },
@@ -354,6 +364,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'release_date': '2026-03-20',
                         'status': 'upcoming',
                         'synopsis': 'Estreia amanha.',
+                        'vote_average': None,
                         'poster_image': 'https://image.tmdb.org/t/p/w780/futuro.jpg',
                         'has_trailer': False,
                     },
@@ -954,18 +965,6 @@ class TMDbMovieServiceTests(SimpleTestCase):
                 'profile_image': 'https://image.tmdb.org/t/p/w780/person.jpg',
                 'top_works': [
                     {
-                        'id': '106',
-                        'title': 'Late Night Awards',
-                        'release_date': '2024-01-01',
-                        'media_type': 'tv',
-                        'poster_image': 'https://image.tmdb.org/t/p/w780/late-night-awards.jpg',
-                        'credit': 'Self',
-                        'popularity': 500.0,
-                        'vote_count': 900,
-                        'order': 1,
-                        'episode_count': 2,
-                    },
-                    {
                         'id': '101',
                         'title': 'Inception',
                         'release_date': '2010-07-16',
@@ -1000,6 +999,18 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'vote_count': 9000,
                         'order': 4,
                         'episode_count': 0,
+                    },
+                    {
+                        'id': '106',
+                        'title': 'Late Night Awards',
+                        'release_date': '2024-01-01',
+                        'media_type': 'tv',
+                        'poster_image': 'https://image.tmdb.org/t/p/w780/late-night-awards.jpg',
+                        'credit': 'Self',
+                        'popularity': 500.0,
+                        'vote_count': 900,
+                        'order': 1,
+                        'episode_count': 2,
                     },
                     {
                         'id': '201',
@@ -1202,59 +1213,59 @@ class TMDbMovieServiceTests(SimpleTestCase):
             ],
         )
 
-    def test_build_person_top_works_uses_combined_movie_score(self):
+    def test_build_person_top_works_prioritizes_vote_count_over_popularity_for_movies(self):
         payload = TMDbMovieService()._build_person_top_works(
             [
                 {
                     'id': '301',
-                    'title': 'Higher Popularity But Worse Order',
+                    'title': 'Higher Votes Lower Popularity',
                     'release_date': '2010-01-01',
                     'media_type': 'movie',
                     'poster_image': 'https://image.tmdb.org/t/p/w780/most-popular.jpg',
                     'credit': 'Hero',
                     'credit_type': 'cast',
-                    'popularity': 100.0,
-                    'vote_count': 1000,
-                    'order': 15,
+                    'popularity': 60.0,
+                    'vote_count': 4000,
+                    'order': 10,
                     'episode_count': 0,
                 },
                 {
                     'id': '302',
-                    'title': 'Lower Popularity But Better Order',
+                    'title': 'Higher Popularity Lower Votes',
                     'release_date': '2015-01-01',
                     'media_type': 'movie',
                     'poster_image': 'https://image.tmdb.org/t/p/w780/tie-older.jpg',
                     'credit': 'Hero',
                     'credit_type': 'cast',
-                    'popularity': 95.0,
-                    'vote_count': 500,
-                    'order': 1,
-                    'episode_count': 0,
-                },
-                {
-                    'id': '303',
-                    'title': 'Same Popularity Better Order',
-                    'release_date': '2012-01-01',
-                    'media_type': 'movie',
-                    'poster_image': 'https://image.tmdb.org/t/p/w780/tie-more-votes.jpg',
-                    'credit': 'Hero',
-                    'credit_type': 'cast',
-                    'popularity': 80.0,
+                    'popularity': 300.0,
                     'vote_count': 900,
                     'order': 1,
                     'episode_count': 0,
                 },
                 {
+                    'id': '303',
+                    'title': 'Same Votes Higher Popularity',
+                    'release_date': '2012-01-01',
+                    'media_type': 'movie',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/tie-more-votes.jpg',
+                    'credit': 'Hero',
+                    'credit_type': 'cast',
+                    'popularity': 120.0,
+                    'vote_count': 700,
+                    'order': 4,
+                    'episode_count': 0,
+                },
+                {
                     'id': '304',
-                    'title': 'Same Popularity Worse Order',
+                    'title': 'Same Votes Lower Popularity',
                     'release_date': '2018-06-01',
                     'media_type': 'movie',
                     'poster_image': 'https://image.tmdb.org/t/p/w780/tie-newer.jpg',
                     'credit': 'Hero',
                     'credit_type': 'cast',
-                    'popularity': 80.0,
-                    'vote_count': 300,
-                    'order': 12,
+                    'popularity': 20.0,
+                    'vote_count': 700,
+                    'order': 4,
                     'episode_count': 0,
                 },
             ]
@@ -1262,68 +1273,89 @@ class TMDbMovieServiceTests(SimpleTestCase):
 
         self.assertEqual(
             [project['id'] for project in payload],
-            ['302', '303', '304', '301'],
+            ['301', '302', '303', '304'],
         )
 
-    def test_build_person_top_works_uses_combined_tv_score(self):
+    def test_build_person_top_works_applies_order_penalty_only_to_cast(self):
         payload = TMDbMovieService()._build_person_top_works(
             [
                 {
                     'id': '401',
-                    'title': 'Higher Popularity Fewer Episodes',
+                    'title': 'Crew Work High Order',
                     'release_date': '2019-01-01',
-                    'media_type': 'tv',
+                    'media_type': 'movie',
                     'poster_image': 'https://image.tmdb.org/t/p/w780/most-popular-tv.jpg',
-                    'credit': 'Lead',
-                    'credit_type': 'cast',
-                    'popularity': 100.0,
-                    'vote_count': 1500,
-                    'order': 20,
-                    'episode_count': 3,
+                    'credit': 'Producer',
+                    'credit_type': 'crew',
+                    'popularity': 90.0,
+                    'vote_count': 1400,
+                    'order': 80,
+                    'episode_count': 0,
                 },
                 {
                     'id': '402',
-                    'title': 'Lower Popularity More Episodes',
+                    'title': 'Cast Work High Order',
                     'release_date': '2018-01-01',
-                    'media_type': 'tv',
+                    'media_type': 'movie',
                     'poster_image': 'https://image.tmdb.org/t/p/w780/tie-tv-a.jpg',
                     'credit': 'Lead',
                     'credit_type': 'cast',
-                    'popularity': 92.0,
-                    'vote_count': 1000,
-                    'order': 50,
-                    'episode_count': 12,
+                    'popularity': 90.0,
+                    'vote_count': 1400,
+                    'order': 20,
+                    'episode_count': 0,
                 },
                 {
                     'id': '403',
-                    'title': 'Same Popularity Fewer Episodes',
+                    'title': 'Cast Work Better Order',
+                    'release_date': '2020-01-01',
+                    'media_type': 'movie',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/tie-tv-b.jpg',
+                    'credit': 'Lead',
+                    'credit_type': 'cast',
+                    'popularity': 90.0,
+                    'vote_count': 1400,
+                    'order': 1,
+                    'episode_count': 0,
+                },
+            ]
+        )
+
+        self.assertEqual([project['id'] for project in payload], ['401', '403', '402'])
+
+    def test_build_person_top_works_keeps_tv_episode_bonus_small(self):
+        payload = TMDbMovieService()._build_person_top_works(
+            [
+                {
+                    'id': '501',
+                    'title': 'TV With Many Episodes',
                     'release_date': '2020-01-01',
                     'media_type': 'tv',
                     'poster_image': 'https://image.tmdb.org/t/p/w780/tie-tv-b.jpg',
                     'credit': 'Lead',
                     'credit_type': 'cast',
-                    'popularity': 80.0,
-                    'vote_count': 5000,
+                    'popularity': 90.0,
+                    'vote_count': 1500,
                     'order': 1,
-                    'episode_count': 2,
+                    'episode_count': 80,
                 },
                 {
-                    'id': '404',
-                    'title': 'Same Popularity More Episodes',
+                    'id': '502',
+                    'title': 'TV With Fewer Episodes But More Votes',
                     'release_date': '2021-01-01',
                     'media_type': 'tv',
                     'poster_image': 'https://image.tmdb.org/t/p/w780/missing-episode-count.jpg',
                     'credit': 'Lead',
                     'credit_type': 'cast',
-                    'popularity': 80.0,
-                    'vote_count': 200,
+                    'popularity': 85.0,
+                    'vote_count': 2200,
                     'order': 1,
-                    'episode_count': 10,
+                    'episode_count': 8,
                 },
             ]
         )
 
-        self.assertEqual([project['id'] for project in payload], ['404', '403', '401', '402'])
+        self.assertEqual([project['id'] for project in payload], ['502', '501'])
 
     def test_normalize_person_credits_sorts_filmography_by_release_date_desc(self):
         payload = TMDbMovieService()._normalize_person_credits(
@@ -1501,6 +1533,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                     'release_date': '2026-04-18',
                     'overview': 'Filme com grande avaliacao.',
                     'poster_path': '/top-rated.jpg',
+                    'vote_average': 9.1,
                 }
             ]
         }
@@ -1520,6 +1553,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'release_date': '2026-04-18',
                         'status': 'top_rated',
                         'synopsis': 'Filme com grande avaliacao.',
+                        'vote_average': 9.1,
                         'poster_image': 'https://image.tmdb.org/t/p/w780/top-rated.jpg',
                         'has_trailer': False,
                     }
