@@ -289,6 +289,7 @@ class TMDbMovieService:
                     'release_date': release_date,
                     'status': status_label,
                     'synopsis': item.get('overview') or 'Sinopse ainda não disponível.',
+                    'vote_average': vote_average,
                     'poster_image': self._build_image_url(item.get('poster_path'), 'w780'),
                     'has_trailer': False,
                 }
@@ -796,19 +797,23 @@ class TMDbMovieService:
         return 0
 
     def _person_project_rank_score(self, project):
+        vote_count = max(project.get('vote_count', 0) or 0, 0)
         popularity = max(project.get('popularity', 0) or 0, 0)
-        raw_order = project.get('order')
-        order = 999 if raw_order is None else max(raw_order, 0)
-        popularity_score = math.log1p(popularity)
-        relevance_score = 1 / (order + 1)
+        score = math.log1p(vote_count) + (math.log1p(popularity) * 0.2)
+
+        if project.get('credit_type') == 'cast':
+            raw_order = project.get('order')
+            order = 999 if raw_order is None else max(raw_order, 0)
+            cast_relevance = 1 / math.sqrt(order + 1)
+            score *= 0.85 + (0.15 * cast_relevance)
 
         if project.get('media_type') == 'tv':
             raw_episode_count = project.get('episode_count')
             episode_count = 0 if raw_episode_count is None else max(raw_episode_count, 0)
-            episode_bonus = 1 + min(math.log1p(episode_count) * 0.15, 0.5)
-            return popularity_score * relevance_score * episode_bonus
+            # Keep long-running series slightly visible without overwhelming the base score.
+            score *= 1 + min(math.log1p(episode_count) * 0.02, 0.08)
 
-        return popularity_score * relevance_score
+        return score
 
     def _person_project_release_date_sort_key(self, project):
         release_date = project.get('release_date') or ''
