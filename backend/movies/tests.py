@@ -188,6 +188,37 @@ class TMDbMovieServiceTests(SimpleTestCase):
             },
         )
 
+    @patch('movies.services.os.getenv', return_value='test-token')
+    @patch('movies.services.request.urlopen')
+    def test_get_popular_movies_filters_low_vote_count(self, mock_urlopen, _mock_getenv):
+        response_data = {
+            'results': [
+                {
+                    'id': 101,
+                    'title': 'Aprovado',
+                    'release_date': '2026-03-20',
+                    'overview': 'Filme aprovado.',
+                    'poster_path': '/approved.jpg',
+                    'vote_count': 50,
+                },
+                {
+                    'id': 102,
+                    'title': 'Poucos Votos',
+                    'release_date': '2026-03-19',
+                    'overview': 'Filme com poucos votos.',
+                    'poster_path': '/low-votes.jpg',
+                    'vote_count': 49,
+                },
+            ]
+        }
+        mock_response = MagicMock()
+        mock_response.read.return_value = json.dumps(response_data).encode('utf-8')
+        mock_urlopen.return_value.__enter__.return_value = mock_response
+
+        payload = TMDbMovieService().get_popular_movies()
+
+        self.assertEqual([item['id'] for item in payload['results']], ['101'])
+
     @patch('movies.services.timezone.localdate', return_value=date(2026, 3, 19))
     @patch('movies.services.os.getenv', return_value='test-token')
     @patch('movies.services.request.urlopen')
