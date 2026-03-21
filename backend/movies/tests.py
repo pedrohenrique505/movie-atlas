@@ -989,18 +989,6 @@ class TMDbMovieServiceTests(SimpleTestCase):
                         'episode_count': 36,
                     },
                     {
-                        'id': '101',
-                        'title': 'Inception',
-                        'release_date': '2014-01-01',
-                        'media_type': 'movie',
-                        'poster_image': 'https://image.tmdb.org/t/p/w780/inception-new.jpg',
-                        'credit': 'Producer',
-                        'popularity': 70.0,
-                        'vote_count': 9000,
-                        'order': 4,
-                        'episode_count': 0,
-                    },
-                    {
                         'id': '106',
                         'title': 'Late Night Awards',
                         'release_date': '2024-01-01',
@@ -1357,6 +1345,150 @@ class TMDbMovieServiceTests(SimpleTestCase):
 
         self.assertEqual([project['id'] for project in payload], ['502', '501'])
 
+    def test_build_person_top_works_deduplicates_same_work_between_cast_and_crew(self):
+        payload = TMDbMovieService()._build_person_top_works(
+            [
+                {
+                    'id': '601',
+                    'title': 'One Project',
+                    'release_date': '2021-01-01',
+                    'media_type': 'movie',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/project-crew.jpg',
+                    'credit': 'Director',
+                    'credit_type': 'crew',
+                    'popularity': 90.0,
+                    'vote_count': 3500,
+                    'order': 30,
+                    'episode_count': 0,
+                },
+                {
+                    'id': '601',
+                    'title': 'One Project',
+                    'release_date': '2021-01-01',
+                    'media_type': 'movie',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/project-cast.jpg',
+                    'credit': 'Lead',
+                    'credit_type': 'cast',
+                    'popularity': 90.0,
+                    'vote_count': 3500,
+                    'order': 6,
+                    'episode_count': 0,
+                },
+                {
+                    'id': '602',
+                    'title': 'Second Project',
+                    'release_date': '2020-01-01',
+                    'media_type': 'movie',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/project-2.jpg',
+                    'credit': 'Lead',
+                    'credit_type': 'cast',
+                    'popularity': 40.0,
+                    'vote_count': 900,
+                    'order': 1,
+                    'episode_count': 0,
+                },
+            ]
+        )
+
+        self.assertEqual([project['id'] for project in payload], ['601', '602'])
+        self.assertEqual(payload[0]['credit'], 'Director')
+
+    def test_build_person_top_works_deduplicates_multiple_crew_entries_for_same_work(self):
+        payload = TMDbMovieService()._build_person_top_works(
+            [
+                {
+                    'id': '701',
+                    'title': 'Shared Project',
+                    'release_date': '2019-01-01',
+                    'media_type': 'tv',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/shared-producer.jpg',
+                    'credit': 'Producer',
+                    'credit_type': 'crew',
+                    'popularity': 80.0,
+                    'vote_count': 2400,
+                    'order': 40,
+                    'episode_count': 10,
+                },
+                {
+                    'id': '701',
+                    'title': 'Shared Project',
+                    'release_date': '2019-01-01',
+                    'media_type': 'tv',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/shared-director.jpg',
+                    'credit': 'Director',
+                    'credit_type': 'crew',
+                    'popularity': 120.0,
+                    'vote_count': 2400,
+                    'order': 4,
+                    'episode_count': 10,
+                },
+                {
+                    'id': '702',
+                    'title': 'Another Project',
+                    'release_date': '2018-01-01',
+                    'media_type': 'tv',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/another-project.jpg',
+                    'credit': 'Creator',
+                    'credit_type': 'crew',
+                    'popularity': 70.0,
+                    'vote_count': 1800,
+                    'order': 1,
+                    'episode_count': 8,
+                },
+            ]
+        )
+
+        self.assertEqual([project['id'] for project in payload], ['701', '702'])
+        self.assertEqual(payload[0]['credit'], 'Director')
+
+    def test_build_person_top_works_keeps_highest_ranked_duplicate_entry(self):
+        payload = TMDbMovieService()._build_person_top_works(
+            [
+                {
+                    'id': '801',
+                    'title': 'Duplicate Ranked Project',
+                    'release_date': '2022-01-01',
+                    'media_type': 'movie',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/duplicate-best.jpg',
+                    'credit': 'Director',
+                    'credit_type': 'crew',
+                    'popularity': 110.0,
+                    'vote_count': 6000,
+                    'order': 50,
+                    'episode_count': 0,
+                },
+                {
+                    'id': '801',
+                    'title': 'Duplicate Ranked Project',
+                    'release_date': '2022-01-01',
+                    'media_type': 'movie',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/duplicate-worse.jpg',
+                    'credit': 'Lead',
+                    'credit_type': 'cast',
+                    'popularity': 110.0,
+                    'vote_count': 6000,
+                    'order': 40,
+                    'episode_count': 0,
+                },
+                {
+                    'id': '802',
+                    'title': 'Standalone Project',
+                    'release_date': '2017-01-01',
+                    'media_type': 'movie',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/standalone.jpg',
+                    'credit': 'Lead',
+                    'credit_type': 'cast',
+                    'popularity': 90.0,
+                    'vote_count': 2000,
+                    'order': 1,
+                    'episode_count': 0,
+                },
+            ]
+        )
+
+        self.assertEqual([project['id'] for project in payload], ['801', '802'])
+        self.assertEqual(payload[0]['poster_image'], 'https://image.tmdb.org/t/p/w780/duplicate-best.jpg')
+
     def test_normalize_person_credits_sorts_filmography_by_release_date_desc(self):
         payload = TMDbMovieService()._normalize_person_credits(
             {
@@ -1393,6 +1525,7 @@ class TMDbMovieServiceTests(SimpleTestCase):
             [project['release_date'] for project in payload],
             ['2012-01-01', '2010-01-01'],
         )
+        self.assertEqual([project['id'] for project in payload], ['501', '501'])
         self.assertEqual([project['credit'] for project in payload], ['Producer', 'Lead'])
 
     @patch('movies.services.os.getenv', return_value='test-token')
