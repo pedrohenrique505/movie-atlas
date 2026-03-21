@@ -89,6 +89,8 @@ class TMDbMovieService:
             status_label='tv_show',
             title_fields=('name', 'original_name'),
             date_field='first_air_date',
+            min_vote_count=100,
+            min_vote_average=6.5,
             page=page,
         )
 
@@ -221,6 +223,8 @@ class TMDbMovieService:
         filter_upcoming=False,
         title_fields=('title', 'original_title'),
         date_field='release_date',
+        min_vote_count=None,
+        min_vote_average=None,
         page=1,
     ):
         normalized_page = self._normalize_page_number(page)
@@ -240,6 +244,8 @@ class TMDbMovieService:
             filter_upcoming=filter_upcoming,
             title_fields=title_fields,
             date_field=date_field,
+            min_vote_count=min_vote_count,
+            min_vote_average=min_vote_average,
             page=normalized_page,
             total_pages=payload.get('total_pages'),
         )
@@ -251,6 +257,8 @@ class TMDbMovieService:
         filter_upcoming=False,
         title_fields=('title', 'original_title'),
         date_field='release_date',
+        min_vote_count=None,
+        min_vote_average=None,
         page=1,
         total_pages=None,
     ):
@@ -260,6 +268,13 @@ class TMDbMovieService:
             release_date = item.get(date_field) or ''
 
             if filter_upcoming and not self._is_upcoming_release_date(release_date):
+                continue
+
+            vote_count = self._normalize_vote_count(item.get('vote_count'))
+            vote_average = self._normalize_vote_average(item.get('vote_average'))
+            if min_vote_count is not None and vote_count < min_vote_count:
+                continue
+            if min_vote_average is not None and (vote_average is None or vote_average < min_vote_average):
                 continue
 
             results.append(
@@ -943,6 +958,18 @@ class TMDbMovieService:
         if value in (None, ''):
             return None
         return round(float(value), 1)
+
+    def _normalize_vote_count(self, value):
+        if value in (None, '') or isinstance(value, bool):
+            return 0
+
+        if isinstance(value, int):
+            return value
+
+        if isinstance(value, float):
+            return int(value)
+
+        return 0
 
     def _pick_episode_runtime(self, runtimes):
         if not runtimes:
