@@ -676,13 +676,27 @@ class TMDbMovieService:
         )
 
     def _build_person_top_works(self, credits):
-        top_works = sorted(
+        ranked_works = sorted(
             credits,
             key=self._person_project_rank_score,
             reverse=True,
         )
 
-        return top_works[:12]
+        top_works = []
+        seen_projects = set()
+
+        for project in ranked_works:
+            project_key = (project['media_type'], project['id'])
+            if project_key in seen_projects:
+                continue
+
+            seen_projects.add(project_key)
+            top_works.append(project)
+
+            if len(top_works) >= 12:
+                break
+
+        return top_works
 
     def _public_person_project(self, project):
         return {
