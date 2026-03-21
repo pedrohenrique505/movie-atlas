@@ -88,6 +88,8 @@ class TMDbMovieServiceTests(SimpleTestCase):
                     'first_air_date': '2025-10-01',
                     'overview': 'Uma serie popular.',
                     'poster_path': '/serie.jpg',
+                    'vote_count': 300,
+                    'vote_average': 7.4,
                 }
             ]
         }
@@ -114,6 +116,52 @@ class TMDbMovieServiceTests(SimpleTestCase):
                 'pagination': {'page': 1, 'page_size': 15, 'has_next': False},
             },
         )
+
+    @patch('movies.services.os.getenv', return_value='test-token')
+    @patch('movies.services.request.urlopen')
+    def test_get_popular_tv_shows_filters_low_vote_count_and_score(
+        self,
+        mock_urlopen,
+        _mock_getenv,
+    ):
+        response_data = {
+            'results': [
+                {
+                    'id': 301,
+                    'name': 'Aprovada',
+                    'first_air_date': '2025-10-01',
+                    'overview': 'Serie aprovada.',
+                    'poster_path': '/approved.jpg',
+                    'vote_count': 300,
+                    'vote_average': 7.4,
+                },
+                {
+                    'id': 302,
+                    'name': 'Poucos Votos',
+                    'first_air_date': '2025-09-01',
+                    'overview': 'Serie com poucos votos.',
+                    'poster_path': '/low-votes.jpg',
+                    'vote_count': 99,
+                    'vote_average': 8.1,
+                },
+                {
+                    'id': 303,
+                    'name': 'Score Baixo',
+                    'first_air_date': '2025-08-01',
+                    'overview': 'Serie com score baixo.',
+                    'poster_path': '/low-score.jpg',
+                    'vote_count': 180,
+                    'vote_average': 6.4,
+                },
+            ]
+        }
+        mock_response = MagicMock()
+        mock_response.read.return_value = json.dumps(response_data).encode('utf-8')
+        mock_urlopen.return_value.__enter__.return_value = mock_response
+
+        payload = TMDbMovieService().get_popular_tv_shows()
+
+        self.assertEqual([item['id'] for item in payload['results']], ['301'])
 
     @patch('movies.services.os.getenv', return_value='test-token')
     @patch('movies.services.request.urlopen')
