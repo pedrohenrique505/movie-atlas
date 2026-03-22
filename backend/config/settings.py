@@ -7,21 +7,6 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / '.env')
 
-
-def get_env(*names, default=None):
-    for name in names:
-        value = os.getenv(name)
-        if value not in (None, ''):
-            return value
-    return default
-
-
-def get_bool_env(*names, default=False):
-    value = get_env(*names)
-    if value is None:
-        return default
-    return value.lower() in {'1', 'true', 't', 'yes', 'on'}
-
 SECRET_KEY = 'django-insecure-ij5nf8b*8p+d-jovfe&9u0qf*zg@qlmv_%rb(hmtg!3971%oa('
 DEBUG = True
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
@@ -70,50 +55,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-database_url = get_env('DATABASE_URL')
-postgres_env_configured = any(
-    get_env(name)
-    for name in (
-        'POSTGRES_DB',
-        'POSTGRES_NAME',
-        'PGDATABASE',
-        'POSTGRES_USER',
-        'PGUSER',
-        'POSTGRES_HOST',
-        'PGHOST',
+DATABASES = {
+    'default': dj_database_url.config(
+        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
+        conn_max_age=60,
+        ssl_require=False,
     )
-)
-
-if database_url:
-    DATABASES = {
-        'default': dj_database_url.parse(
-            database_url,
-            conn_max_age=int(get_env('DB_CONN_MAX_AGE', default='60')),
-            ssl_require=get_bool_env('DB_SSL_REQUIRE', default=False),
-        )
-    }
-elif postgres_env_configured:
-    default_database = {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': get_env('POSTGRES_DB', 'POSTGRES_NAME', 'PGDATABASE', default='movie_atlas'),
-        'USER': get_env('POSTGRES_USER', 'PGUSER', default='postgres'),
-        'PASSWORD': get_env('POSTGRES_PASSWORD', 'PGPASSWORD', default='postgres'),
-        'HOST': get_env('POSTGRES_HOST', 'PGHOST', default='127.0.0.1'),
-        'PORT': get_env('POSTGRES_PORT', 'PGPORT', default='5432'),
-        'CONN_MAX_AGE': int(get_env('DB_CONN_MAX_AGE', default='60')),
-    }
-    postgres_sslmode = get_env('POSTGRES_SSLMODE', 'PGSSLMODE')
-    if postgres_sslmode:
-        default_database['OPTIONS'] = {'sslmode': postgres_sslmode}
-
-    DATABASES = {'default': default_database}
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
