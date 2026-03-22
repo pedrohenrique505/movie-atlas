@@ -54,11 +54,33 @@ Instale as dependencias do backend se ainda nao estiverem instaladas nesse ambie
 pip install -r .\backend\requirements.txt
 ```
 
-Crie o arquivo `backend/.env` a partir do exemplo e preencha o token do TMDB:
+Crie o arquivo `backend/.env` a partir do exemplo e preencha o token do TMDB e a configuracao do banco:
 
 ```powershell
 Copy-Item .\backend\.env.example .\backend\.env
 ```
+
+Configure o banco de uma destas formas:
+
+- Local com PostgreSQL:
+
+```env
+POSTGRES_DB=movie_atlas
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_HOST=127.0.0.1
+POSTGRES_PORT=5432
+POSTGRES_SSLMODE=prefer
+```
+
+- Deploy com `DATABASE_URL`:
+
+```env
+DATABASE_URL=postgresql://user:password@host:5432/dbname?sslmode=require
+DB_CONN_MAX_AGE=60
+```
+
+Se `DATABASE_URL` estiver definida, ela tem prioridade. Se ela nao existir, o Django tenta usar as variaveis de PostgreSQL local. Se nenhuma configuracao de Postgres estiver presente, o projeto ainda cai para SQLite como ultimo fallback para nao quebrar o setup atual.
 
 Entre na pasta do backend, rode as migracoes e suba o servidor:
 
@@ -66,6 +88,14 @@ Entre na pasta do backend, rode as migracoes e suba o servidor:
 cd .\backend
 python manage.py migrate
 python manage.py runserver
+```
+
+Para validar qual engine foi carregada:
+
+```powershell
+.\venv\Scripts\Activate.ps1
+cd .\backend
+python manage.py shell -c "from django.conf import settings; print(settings.DATABASES['default']['ENGINE'])"
 ```
 
 Endpoints iniciais:
@@ -76,6 +106,15 @@ Endpoints iniciais:
 - Swagger UI: `http://localhost:8000/api/docs/`
 
 O Django agora carrega automaticamente as variaveis do arquivo `backend/.env` ao iniciar. Assim, `TMDB_API_READ_ACCESS_TOKEN` fica disponivel via `os.environ` sem precisar exportar manualmente no terminal.
+
+### PostgreSQL e deploy
+
+O backend agora esta preparado para usar PostgreSQL com Django por meio do driver `psycopg`.
+
+- Em desenvolvimento, prefira preencher as variaveis `POSTGRES_*` no `backend/.env`
+- Em producao, prefira definir apenas `DATABASE_URL`
+- Para bancos hospedados como Neon, use a connection string Postgres completa e mantenha `sslmode=require` na URL
+- Se a sua `DATABASE_URL` nao trouxer `sslmode=require`, voce pode forcar SSL com `DB_SSL_REQUIRE=true`
 
 ### 2. Frontend
 
@@ -99,6 +138,17 @@ Aplicacao inicial:
 .\venv\Scripts\Activate.ps1
 cd .\backend
 python manage.py test
+```
+
+### Validar a configuracao com `DATABASE_URL`
+
+Voce pode testar a leitura da URL sem abrir conexao real com:
+
+```powershell
+.\venv\Scripts\Activate.ps1
+$env:DATABASE_URL="postgresql://user:password@host:5432/dbname?sslmode=require"
+cd .\backend
+python manage.py shell -c "from django.conf import settings; print(settings.DATABASES['default'])"
 ```
 
 ### Validar o carregamento do `.env`
