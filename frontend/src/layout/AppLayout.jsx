@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 
+import { useAuth } from '../auth/AuthContext'
+import { LoginModal } from '../components/LoginModal'
 import { CloseIcon } from '../components/navigation/CloseIcon'
 import { ArrowIcon } from '../components/navigation/ArrowIcon'
 import { HamburgerIcon } from '../components/navigation/HamburgerIcon'
@@ -17,12 +19,19 @@ const navigationItems = [
 export function AppLayout() {
   const navigate = useNavigate()
   const location = useLocation()
+  const { authenticated, loadingInitial, login, logout, sendVerificationEmail, user } = useAuth()
   const [searchParams] = useSearchParams()
   const [query, setQuery] = useState(searchParams.get('q') ?? '')
   const [isTopbarVisible, setIsTopbarVisible] = useState(true)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isMobileViewport, setIsMobileViewport] = useState(false)
+  const [isLoginOpen, setIsLoginOpen] = useState(false)
+  const [loginError, setLoginError] = useState('')
+  const [isSubmittingLogin, setIsSubmittingLogin] = useState(false)
+  const [verificationNotice, setVerificationNotice] = useState('')
+  const [verificationError, setVerificationError] = useState('')
+  const [isSendingVerification, setIsSendingVerification] = useState(false)
   const searchContainerRef = useRef(null)
   const searchInputRef = useRef(null)
 
@@ -47,6 +56,7 @@ export function AppLayout() {
   useEffect(() => {
     setIsMobileMenuOpen(false)
     setIsSearchOpen(false)
+    setIsLoginOpen(false)
   }, [location.pathname])
 
   useEffect(() => {
@@ -144,6 +154,12 @@ export function AppLayout() {
     }
   }, [isSearchOpen])
 
+  useEffect(() => {
+    if (authenticated) {
+      setLoginError('')
+    }
+  }, [authenticated])
+
   function handleSearchSubmit(event) {
     event.preventDefault()
 
@@ -155,6 +171,48 @@ export function AppLayout() {
 
     const normalizedQuery = query.trim()
     navigate(normalizedQuery ? `/search?q=${encodeURIComponent(normalizedQuery)}` : '/search')
+  }
+
+  async function handleLogin(credentials) {
+    setLoginError('')
+    setVerificationNotice('')
+    setVerificationError('')
+    setIsSubmittingLogin(true)
+
+    try {
+      await login(credentials)
+      setIsLoginOpen(false)
+    } catch (error) {
+      setLoginError(error.message || 'Nao foi possivel entrar com essa conta.')
+    } finally {
+      setIsSubmittingLogin(false)
+    }
+  }
+
+  async function handleLogout() {
+    setVerificationNotice('')
+    setVerificationError('')
+
+    try {
+      await logout()
+    } catch (error) {
+      setVerificationError(error.message || 'Nao foi possivel encerrar a sessao agora.')
+    }
+  }
+
+  async function handleSendVerificationEmail() {
+    setVerificationNotice('')
+    setVerificationError('')
+    setIsSendingVerification(true)
+
+    try {
+      const payload = await sendVerificationEmail()
+      setVerificationNotice(payload.detail)
+    } catch (error) {
+      setVerificationError(error.message || 'Nao foi possivel enviar o e-mail agora.')
+    } finally {
+      setIsSendingVerification(false)
+    }
   }
 
   return (
@@ -193,6 +251,31 @@ export function AppLayout() {
         </nav>
 
         <div className="topbar-tools" ref={searchContainerRef}>
+          <div className="account-tools">
+            {loadingInitial ? (
+              <span className="account-chip account-chip--muted">Conta...</span>
+            ) : authenticated ? (
+              <div className="account-panel">
+                <div className="account-chip">
+                  <span className="account-chip__label">Conta</span>
+                  <strong>{user.username}</strong>
+                </div>
+
+                <button type="button" className="button-link" onClick={handleLogout}>
+                  Sair
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className="button-link primary"
+                onClick={() => setIsLoginOpen(true)}
+              >
+                Entrar
+              </button>
+            )}
+          </div>
+
           <form
             className={`search-shell ${isSearchOpen ? 'search-shell--expanded' : 'search-shell--collapsed'}`.trim()}
             role="search"
@@ -272,10 +355,78 @@ export function AppLayout() {
               </NavLink>
             ))}
           </nav>
+
+          <div className="mobile-nav__account">
+            {loadingInitial ? (
+              <span className="account-chip account-chip--muted">Conta...</span>
+            ) : authenticated ? (
+              <>
+                <div className="account-chip">
+                  <span className="account-chip__label">Conectado</span>
+                  <strong>{user.username}</strong>
+                </div>
+                <button type="button" className="button-link" onClick={handleLogout}>
+                  Sair
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                className="button-link primary"
+                onClick={() => {
+                  setIsMobileMenuOpen(false)
+                  setIsLoginOpen(true)
+                }}
+              >
+                Entrar
+              </button>
+            )}
+          </div>
         </aside>
       </div>
 
+      {authenticated && !user.is_email_verified ? (
+        <section className="account-banner" aria-label="Status da conta">
+          <div className="account-banner__content">
+            <div>
+              <span className="eyebrow">Verificacao pendente</span>
+              <p>
+                Seu e-mail ainda nao foi verificado. Isso bloqueia a criacao de favoritos.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              className="button-link primary"
+              onClick={handleSendVerificationEmail}
+              disabled={isSendingVerification}
+            >
+              {isSendingVerification ? 'Enviando...' : 'Reenviar verificacao'}
+            </button>
+          </div>
+
+          {verificationNotice ? <p className="account-banner__feedback">{verificationNotice}</p> : null}
+          {verificationError ? (
+            <p className="account-banner__feedback account-banner__feedback--error">
+              {verificationError}
+            </p>
+          ) : null}
+        </section>
+      ) : null}
+
       <Outlet />
+
+      <LoginModal
+        open={isLoginOpen}
+        onClose={() => {
+          if (!isSubmittingLogin) {
+            setIsLoginOpen(false)
+          }
+        }}
+        onSubmit={handleLogin}
+        loading={isSubmittingLogin}
+        errorMessage={loginError}
+      />
     </div>
   )
 }
