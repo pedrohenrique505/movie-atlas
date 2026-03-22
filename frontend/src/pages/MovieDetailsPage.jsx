@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 
 import { CastCard } from '../components/CastCard'
 import { DetailsHero } from '../components/DetailsHero'
+import { FavoriteToggleButton } from '../components/FavoriteToggleButton'
 import { HorizontalScroller } from '../components/HorizontalScroller'
 import { MediaPanel } from '../components/MediaPanel'
 import { MovieTrailer } from '../components/MovieTrailer'
@@ -95,7 +96,12 @@ export function MovieDetailsPage() {
             primaryCredit={movie.directors?.[0] ?? null}
             creditLabel="Direção"
             onOpenTrailer={() => setIsTrailerOpen(true)}
-            secondaryAction={<WatchAvailabilityButton link={movie.watch_providers?.link ?? null} />}
+            secondaryAction={
+              <>
+                <FavoriteToggleButton tmdbId={Number(id)} mediaType="movie" />
+                <WatchAvailabilityButton link={movie.watch_providers?.link ?? null} />
+              </>
+            }
           />
 
           <section className="details-section" aria-label="Elenco">

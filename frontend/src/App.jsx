@@ -4,6 +4,7 @@ import './App.css'
 import './auth/auth.css'
 import { AuthProvider } from './auth/AuthContext'
 import { AppLayout } from './layout/AppLayout'
+import { FavoritesPage } from './pages/FavoritesPage'
 import { HomePage } from './pages/HomePage'
 import { MovieDetailsPage } from './pages/MovieDetailsPage'
 import { MoviesPage } from './pages/MoviesPage'
@@ -46,6 +47,7 @@ function App() {
           />
           <Route path="/categories" element={<Navigate to="/movies" replace />} />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/favorites" element={<FavoritesPage />} />
           <Route path="/upcoming" element={<UpcomingPage />} />
           <Route path="/movie/:id" element={<MovieDetailsPage />} />
           <Route path="/tv-show/:id" element={<TvShowDetailsPage />} />

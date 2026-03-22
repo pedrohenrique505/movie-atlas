@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { useAuth } from '../auth/AuthContext'
 import { LoginModal } from '../components/LoginModal'
@@ -19,16 +19,28 @@ const navigationItems = [
 export function AppLayout() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { authenticated, loadingInitial, login, logout, sendVerificationEmail, user } = useAuth()
+  const {
+    authModalMode,
+    authenticated,
+    closeAuthModal,
+    isAuthModalOpen,
+    loadingInitial,
+    login,
+    logout,
+    openAuthModal,
+    register,
+    sendVerificationEmail,
+    setAuthModalMode,
+    user,
+  } = useAuth()
   const [searchParams] = useSearchParams()
   const [query, setQuery] = useState(searchParams.get('q') ?? '')
   const [isTopbarVisible, setIsTopbarVisible] = useState(true)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isMobileViewport, setIsMobileViewport] = useState(false)
-  const [isLoginOpen, setIsLoginOpen] = useState(false)
-  const [loginError, setLoginError] = useState('')
-  const [isSubmittingLogin, setIsSubmittingLogin] = useState(false)
+  const [authError, setAuthError] = useState('')
+  const [isSubmittingAuth, setIsSubmittingAuth] = useState(false)
   const [verificationNotice, setVerificationNotice] = useState('')
   const [verificationError, setVerificationError] = useState('')
   const [isSendingVerification, setIsSendingVerification] = useState(false)
@@ -56,8 +68,8 @@ export function AppLayout() {
   useEffect(() => {
     setIsMobileMenuOpen(false)
     setIsSearchOpen(false)
-    setIsLoginOpen(false)
-  }, [location.pathname])
+    closeAuthModal()
+  }, [closeAuthModal, location.pathname])
 
   useEffect(() => {
     if (typeof window.matchMedia !== 'function') {
@@ -156,7 +168,7 @@ export function AppLayout() {
 
   useEffect(() => {
     if (authenticated) {
-      setLoginError('')
+      setAuthError('')
     }
   }, [authenticated])
 
@@ -173,19 +185,22 @@ export function AppLayout() {
     navigate(normalizedQuery ? `/search?q=${encodeURIComponent(normalizedQuery)}` : '/search')
   }
 
-  async function handleLogin(credentials) {
-    setLoginError('')
+  async function handleAuthSubmit(mode, payload) {
+    setAuthError('')
     setVerificationNotice('')
     setVerificationError('')
-    setIsSubmittingLogin(true)
+    setIsSubmittingAuth(true)
 
     try {
-      await login(credentials)
-      setIsLoginOpen(false)
+      if (mode === 'register') {
+        await register(payload)
+      } else {
+        await login(payload)
+      }
     } catch (error) {
-      setLoginError(error.message || 'Nao foi possivel entrar com essa conta.')
+      setAuthError(error.message || 'Nao foi possivel concluir a autenticacao.')
     } finally {
-      setIsSubmittingLogin(false)
+      setIsSubmittingAuth(false)
     }
   }
 
@@ -261,6 +276,9 @@ export function AppLayout() {
                   <strong>{user.username}</strong>
                 </div>
 
+                <Link className="button-link" to="/favorites">
+                  Favoritos
+                </Link>
                 <button type="button" className="button-link" onClick={handleLogout}>
                   Sair
                 </button>
@@ -269,7 +287,7 @@ export function AppLayout() {
               <button
                 type="button"
                 className="button-link primary"
-                onClick={() => setIsLoginOpen(true)}
+                onClick={() => openAuthModal('login')}
               >
                 Entrar
               </button>
@@ -365,6 +383,9 @@ export function AppLayout() {
                   <span className="account-chip__label">Conectado</span>
                   <strong>{user.username}</strong>
                 </div>
+                <Link className="button-link" to="/favorites">
+                  Favoritos
+                </Link>
                 <button type="button" className="button-link" onClick={handleLogout}>
                   Sair
                 </button>
@@ -375,7 +396,7 @@ export function AppLayout() {
                 className="button-link primary"
                 onClick={() => {
                   setIsMobileMenuOpen(false)
-                  setIsLoginOpen(true)
+                  openAuthModal('login')
                 }}
               >
                 Entrar
@@ -417,15 +438,20 @@ export function AppLayout() {
       <Outlet />
 
       <LoginModal
-        open={isLoginOpen}
+        open={isAuthModalOpen}
+        mode={authModalMode}
         onClose={() => {
-          if (!isSubmittingLogin) {
-            setIsLoginOpen(false)
+          if (!isSubmittingAuth) {
+            closeAuthModal()
           }
         }}
-        onSubmit={handleLogin}
-        loading={isSubmittingLogin}
-        errorMessage={loginError}
+        onModeChange={(nextMode) => {
+          setAuthError('')
+          setAuthModalMode(nextMode)
+        }}
+        onSubmit={handleAuthSubmit}
+        loading={isSubmittingAuth}
+        errorMessage={authError}
       />
     </div>
   )

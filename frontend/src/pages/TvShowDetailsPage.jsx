@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 
 import { CastCard } from '../components/CastCard'
 import { DetailsHero } from '../components/DetailsHero'
+import { FavoriteToggleButton } from '../components/FavoriteToggleButton'
 import { HorizontalScroller } from '../components/HorizontalScroller'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { MediaPanel } from '../components/MediaPanel'
@@ -103,7 +104,10 @@ export function TvShowDetailsPage() {
             primaryCredit={tvShow.creators?.[0] ?? null}
             creditLabel="Criação"
             secondaryAction={
-              <WatchAvailabilityButton link={tvShow.watch_providers?.link ?? null} />
+              <>
+                <FavoriteToggleButton tmdbId={Number(id)} mediaType="tv" />
+                <WatchAvailabilityButton link={tvShow.watch_providers?.link ?? null} />
+              </>
             }
           />
 
