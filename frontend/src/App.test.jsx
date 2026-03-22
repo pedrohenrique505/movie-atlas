@@ -3,10 +3,46 @@ import { MemoryRouter } from 'react-router-dom'
 
 import App from './App'
 
+function jsonResponse(payload, status = 200) {
+  return Promise.resolve({
+    ok: status >= 200 && status < 300,
+    status,
+    json: () => Promise.resolve(payload),
+  })
+}
+
+function createFetchMock(handler, options = {}) {
+  const currentUser = options.currentUser
+  const accountHandlers = {
+    'http://localhost:8000/api/accounts/me/':
+      currentUser !== undefined
+        ? () => jsonResponse(currentUser)
+        : () => jsonResponse({ detail: 'Authentication credentials were not provided.' }, 403),
+  }
+
+  global.fetch = vi.fn((url, requestOptions) => {
+    const accountHandler = accountHandlers[url]
+
+    if (accountHandler) {
+      return accountHandler(requestOptions)
+    }
+
+    return handler(url, requestOptions)
+  })
+}
+
+function renderApp(initialEntry = '/') {
+  return render(
+    <MemoryRouter initialEntries={[initialEntry]}>
+      <App />
+    </MemoryRouter>,
+  )
+}
+
 describe('App routes', () => {
   it('renders the home page', async () => {
     document.title = 'Movie Atlas'
-    global.fetch = vi.fn((url) => {
+    createFetchMock((url) => {
       const payloads = {
         'http://localhost:8000/api/movies/trending?page=1': {
           results: [
@@ -69,6 +105,7 @@ describe('App routes', () => {
               title: 'Upcoming One',
               release_date: '2026-03-21',
               status: 'upcoming',
+              vote_average: 8.4,
               synopsis: '...',
               poster_image: 'https://image.tmdb.org/t/p/w780/upcoming-one.jpg',
               has_trailer: false,
@@ -78,17 +115,10 @@ describe('App routes', () => {
         },
       }
 
-      return Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve(payloads[url]),
-      })
+      return jsonResponse(payloads[url])
     })
 
-    render(
-      <MemoryRouter initialEntries={['/']}>
-        <App />
-      </MemoryRouter>,
-    )
+    renderApp('/')
 
     expect(
       screen.getByRole('heading', {
@@ -114,38 +144,31 @@ describe('App routes', () => {
       'href',
       '/movie/300',
     )
+    expect(await screen.findByLabelText(/nota 8.4/i)).toBeInTheDocument()
     expect(await screen.findByText(/^NP$/i)).toBeInTheDocument()
     expect(await screen.findByText(/data prevista de estreia: 21\/03\/2026/i)).toBeInTheDocument()
     expect(document.title).toBe('Movie Atlas')
   })
 
   it('renders the upcoming page', async () => {
-    global.fetch = vi.fn(() =>
-      Promise.resolve({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            results: [
-              {
-                id: '687163',
-                title: 'Devoradores de Estrelas',
-                release_date: '2026-03-19',
-                status: 'upcoming',
-                synopsis: '...',
-                poster_image: null,
-                has_trailer: false,
-              },
-            ],
-            pagination: { page: 1, page_size: 15, has_next: false },
-          }),
+    createFetchMock(() =>
+      jsonResponse({
+        results: [
+          {
+            id: '687163',
+            title: 'Devoradores de Estrelas',
+            release_date: '2026-03-19',
+            status: 'upcoming',
+            synopsis: '...',
+            poster_image: null,
+            has_trailer: false,
+          },
+        ],
+        pagination: { page: 1, page_size: 15, has_next: false },
       }),
     )
 
-    render(
-      <MemoryRouter initialEntries={['/upcoming']}>
-        <App />
-      </MemoryRouter>,
-    )
+    renderApp('/upcoming')
 
     expect(
       screen.getByRole('heading', {
@@ -158,92 +181,84 @@ describe('App routes', () => {
   })
 
   it('renders the movie details page', async () => {
-    global.fetch = vi.fn(() =>
-      Promise.resolve({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            id: '101',
-            title: 'The Odyssey',
-            synopsis: 'Uma nova adaptacao epica.',
-            release_date: '2026-07-17',
-            runtime: 164,
-            genres: ['Sci-Fi', 'Adventure'],
-            status: 'Released',
-            vote_average: 7.3,
-            poster_image: 'https://image.tmdb.org/t/p/w780/poster.jpg',
-            backdrop_image: 'https://image.tmdb.org/t/p/w1280/backdrop.jpg',
-            images: ['https://image.tmdb.org/t/p/w780/img-1.jpg'],
-            media: {
-              backdrops: [
-                {
-                  preview_image: 'https://image.tmdb.org/t/p/w1280/img-1.jpg',
-                  full_image: 'https://image.tmdb.org/t/p/original/img-1.jpg',
-                },
-              ],
-              posters: [
-                {
-                  preview_image: 'https://image.tmdb.org/t/p/w780/poster-extra.jpg',
-                  full_image: 'https://image.tmdb.org/t/p/original/poster-extra.jpg',
-                },
-              ],
-              videos: [
-                {
-                  name: 'Trailer oficial',
-                  type: 'Trailer',
-                  youtube_key: 'trailer123',
-                  embed_url: 'https://www.youtube.com/embed/trailer123',
-                  thumbnail_image: 'https://img.youtube.com/vi/trailer123/hqdefault.jpg',
-                },
-              ],
+    createFetchMock(() =>
+      jsonResponse({
+        id: '101',
+        title: 'The Odyssey',
+        synopsis: 'Uma nova adaptacao epica.',
+        release_date: '2026-07-17',
+        runtime: 164,
+        genres: ['Sci-Fi', 'Adventure'],
+        status: 'Released',
+        vote_average: 7.3,
+        poster_image: 'https://image.tmdb.org/t/p/w780/poster.jpg',
+        backdrop_image: 'https://image.tmdb.org/t/p/w1280/backdrop.jpg',
+        images: ['https://image.tmdb.org/t/p/w780/img-1.jpg'],
+        media: {
+          backdrops: [
+            {
+              preview_image: 'https://image.tmdb.org/t/p/w1280/img-1.jpg',
+              full_image: 'https://image.tmdb.org/t/p/original/img-1.jpg',
             },
-            cast: [
-              {
-                id: '501',
-                name: 'Matt Damon',
-                character: 'Ryland Grace',
-                profile_image: 'https://image.tmdb.org/t/p/w300/cast-1.jpg',
-              },
-            ],
-            directors: [
-              {
-                id: '777',
-                name: 'Christopher Nolan',
-                department: 'Directing',
-                profile_image: 'https://image.tmdb.org/t/p/w300/director.jpg',
-              },
-            ],
-            trailer: {
+          ],
+          posters: [
+            {
+              preview_image: 'https://image.tmdb.org/t/p/w780/poster-extra.jpg',
+              full_image: 'https://image.tmdb.org/t/p/original/poster-extra.jpg',
+            },
+          ],
+          videos: [
+            {
               name: 'Trailer oficial',
+              type: 'Trailer',
               youtube_key: 'trailer123',
               embed_url: 'https://www.youtube.com/embed/trailer123',
+              thumbnail_image: 'https://img.youtube.com/vi/trailer123/hqdefault.jpg',
             },
-            watch_providers: {
-              link: 'https://www.themoviedb.org/movie/101/watch',
-              categories: [
+          ],
+        },
+        cast: [
+          {
+            id: '501',
+            name: 'Matt Damon',
+            character: 'Ryland Grace',
+            profile_image: 'https://image.tmdb.org/t/p/w300/cast-1.jpg',
+          },
+        ],
+        directors: [
+          {
+            id: '777',
+            name: 'Christopher Nolan',
+            department: 'Directing',
+            profile_image: 'https://image.tmdb.org/t/p/w300/director.jpg',
+          },
+        ],
+        trailer: {
+          name: 'Trailer oficial',
+          youtube_key: 'trailer123',
+          embed_url: 'https://www.youtube.com/embed/trailer123',
+        },
+        watch_providers: {
+          link: 'https://www.themoviedb.org/movie/101/watch',
+          categories: [
+            {
+              key: 'flatrate',
+              label: 'Streaming',
+              providers: [
                 {
-                  key: 'flatrate',
-                  label: 'Streaming',
-                  providers: [
-                    {
-                      id: '8',
-                      name: 'Netflix',
-                      logo_image: 'https://image.tmdb.org/t/p/w300/netflix.jpg',
-                      link: 'https://www.themoviedb.org/movie/101/watch',
-                    },
-                  ],
+                  id: '8',
+                  name: 'Netflix',
+                  logo_image: 'https://image.tmdb.org/t/p/w300/netflix.jpg',
+                  link: 'https://www.themoviedb.org/movie/101/watch',
                 },
               ],
             },
-          }),
+          ],
+        },
       }),
     )
 
-    render(
-      <MemoryRouter initialEntries={['/movie/101']}>
-        <App />
-      </MemoryRouter>,
-    )
+    renderApp('/movie/101')
 
     expect(
       await screen.findByRole('heading', {
@@ -263,32 +278,24 @@ describe('App routes', () => {
   })
 
   it('renders the movies page with api content', async () => {
-    global.fetch = vi.fn(() =>
-      Promise.resolve({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            results: [
-              {
-                id: '901',
-                title: 'Filme Popular',
-                release_date: '2026-05-22',
-                status: 'popular',
-                synopsis: 'Filme popular do momento.',
-                poster_image: 'https://image.tmdb.org/t/p/w780/popular.jpg',
-                has_trailer: false,
-              },
-            ],
-            pagination: { page: 1, page_size: 15, has_next: false },
-          }),
+    createFetchMock(() =>
+      jsonResponse({
+        results: [
+          {
+            id: '901',
+            title: 'Filme Popular',
+            release_date: '2026-05-22',
+            status: 'popular',
+            synopsis: 'Filme popular do momento.',
+            poster_image: 'https://image.tmdb.org/t/p/w780/popular.jpg',
+            has_trailer: false,
+          },
+        ],
+        pagination: { page: 1, page_size: 15, has_next: false },
       }),
     )
 
-    render(
-      <MemoryRouter initialEntries={['/movies']}>
-        <App />
-      </MemoryRouter>,
-    )
+    renderApp('/movies')
 
     expect(
       await screen.findByRole('heading', {
@@ -870,5 +877,105 @@ describe('App routes', () => {
       'http://localhost:8000/api/people/actors?page=2',
       expect.any(Object),
     )
+  })
+
+  it('shows the login action when the user is not authenticated', async () => {
+    delete globalThis.__MOVIE_ATLAS_DISABLE_AUTH_BOOTSTRAP__
+
+    createFetchMock(() =>
+      jsonResponse({
+        results: [],
+        pagination: { page: 1, page_size: 15, has_next: false },
+      }),
+    )
+
+    renderApp('/movies')
+
+    const loginButton = await screen.findByRole('button', { name: /entrar/i })
+
+    expect(loginButton).toBeInTheDocument()
+
+    fireEvent.click(loginButton)
+
+    expect(await screen.findByRole('dialog', { name: /entrar/i })).toBeInTheDocument()
+  })
+
+  it('logs in, loads the current user and allows sending verification email', async () => {
+    delete globalThis.__MOVIE_ATLAS_DISABLE_AUTH_BOOTSTRAP__
+
+    let meRequestCount = 0
+
+    global.fetch = vi.fn((url, options) => {
+      if (url === 'http://localhost:8000/api/accounts/me/') {
+        meRequestCount += 1
+
+        if (meRequestCount === 1) {
+          return jsonResponse({ detail: 'Authentication credentials were not provided.' }, 403)
+        }
+
+        return jsonResponse({
+          id: 7,
+          username: 'moviefan',
+          email: 'moviefan@example.com',
+          is_email_verified: false,
+        })
+      }
+
+      if (url === 'http://localhost:8000/api/accounts/login/') {
+        return jsonResponse({
+          id: 7,
+          username: 'moviefan',
+          email: 'moviefan@example.com',
+          is_email_verified: false,
+        })
+      }
+
+      if (url === 'http://localhost:8000/api/accounts/verify-email/send/') {
+        return jsonResponse({
+          detail: 'E-mail de verificacao enviado com sucesso.',
+          user: {
+            id: 7,
+            username: 'moviefan',
+            email: 'moviefan@example.com',
+            is_email_verified: false,
+          },
+        })
+      }
+
+      if (url === 'http://localhost:8000/api/movies/popular?page=1') {
+        return jsonResponse({
+          results: [],
+          pagination: { page: 1, page_size: 15, has_next: false },
+        })
+      }
+
+      return Promise.reject(new Error(`URL inesperada: ${url}`))
+    })
+
+    renderApp('/movies')
+
+    fireEvent.click(await screen.findByRole('button', { name: /entrar/i }))
+    fireEvent.change(screen.getByLabelText(/usuario/i), {
+      target: { value: 'moviefan' },
+    })
+    fireEvent.change(screen.getByLabelText(/senha/i), {
+      target: { value: 'strong-pass-123' },
+    })
+    fireEvent.click(
+      within(screen.getByRole('dialog', { name: /entrar/i })).getByRole('button', {
+        name: /^entrar$/i,
+      }),
+    )
+
+    expect(await screen.findAllByText(/moviefan/i)).toHaveLength(2)
+    expect(
+      await screen.findByText(/seu e-mail ainda nao foi verificado/i),
+    ).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /reenviar verificacao/i }))
+
+    expect(
+      await screen.findByText(/e-mail de verificacao enviado com sucesso./i),
+    ).toBeInTheDocument()
   })
 })
