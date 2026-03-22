@@ -18,6 +18,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'accounts',
     'corsheaders',
     'rest_framework',
     'drf_spectacular',
@@ -101,3 +102,5 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'Base inicial da API REST para a plataforma Movie Atlas.',
     'VERSION': '0.1.0',
 }
+
+AUTH_USER_MODEL = "accounts.User"
