@@ -14,8 +14,13 @@ export function PersonPage() {
   const [person, setPerson] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
+  const [isBiographyExpanded, setIsBiographyExpanded] = useState(false)
 
   useDocumentTitle(person?.name ? `${person.name} | Movie Atlas` : 'Pessoa | Movie Atlas')
+
+  useEffect(() => {
+    setIsBiographyExpanded(false)
+  }, [id])
 
   useEffect(() => {
     let isMounted = true
@@ -102,7 +107,22 @@ export function PersonPage() {
                 ) : null}
               </div>
 
-              <p className="details-hero__synopsis">{person.biography}</p>
+              {person.biography ? (
+                <div className="person-page__biography">
+                  <p
+                    className={`details-hero__synopsis ${isBiographyExpanded ? '' : 'details-hero__synopsis--clamped'}`.trim()}
+                  >
+                    {person.biography}
+                  </p>
+                  <button
+                    type="button"
+                    className="button-link person-page__biography-toggle"
+                    onClick={() => setIsBiographyExpanded((currentValue) => !currentValue)}
+                  >
+                    {isBiographyExpanded ? 'Ver menos' : 'Ver mais'}
+                  </button>
+                </div>
+              ) : null}
             </div>
           </section>
 
