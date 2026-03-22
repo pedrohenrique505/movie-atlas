@@ -6,6 +6,13 @@ from .models import Favorite
 User = get_user_model()
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "username", "email", "is_email_verified"]
+        read_only_fields = ["id", "is_email_verified"]
+
+
 class FavoriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Favorite
@@ -15,11 +22,12 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
+    is_email_verified = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = User
-        fields = ["id", "username", "email", "password"]
-        read_only_fields = ["id"]
+        fields = ["id", "username", "email", "password", "is_email_verified"]
+        read_only_fields = ["id", "is_email_verified"]
 
     def create(self, validated_data):
         return User.objects.create_user(
@@ -33,8 +41,20 @@ class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ["id", "username", "email", "is_email_verified"]
-        read_only_fields = ["id", "is_email_verified"]
+
+class DetailSerializer(serializers.Serializer):
+    detail = serializers.CharField()
+
+
+class UserDetailSerializer(serializers.Serializer):
+    detail = serializers.CharField()
+    user = UserSerializer()
+
+
+class EmailVerificationSentSerializer(UserDetailSerializer):
+    pass
+
+
+class EmailVerificationSerializer(UserDetailSerializer):
+    pass
+
