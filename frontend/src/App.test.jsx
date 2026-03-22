@@ -891,7 +891,7 @@ describe('App routes', () => {
 
     renderApp('/movies')
 
-    const loginButton = await screen.findByRole('button', { name: /entrar/i })
+    const loginButton = await screen.findByRole('button', { name: /entrar ou criar conta/i })
 
     expect(loginButton).toBeInTheDocument()
 
@@ -958,7 +958,7 @@ describe('App routes', () => {
 
     renderApp('/movies')
 
-    fireEvent.click(await screen.findByRole('button', { name: /entrar/i }))
+    fireEvent.click(await screen.findByRole('button', { name: /entrar ou criar conta/i }))
     fireEvent.change(screen.getByLabelText(/usuario/i), {
       target: { value: 'moviefan' },
     })
@@ -971,7 +971,7 @@ describe('App routes', () => {
       }),
     )
 
-    expect(await screen.findAllByText(/moviefan/i)).toHaveLength(2)
+    expect(await screen.findByText(/moviefan/i)).toBeInTheDocument()
     expect(
       await screen.findByText(/seu e-mail ainda nao foi verificado/i),
     ).toBeInTheDocument()

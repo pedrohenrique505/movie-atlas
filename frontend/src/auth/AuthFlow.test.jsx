@@ -75,7 +75,7 @@ describe('Auth and favorites flow', () => {
 
     renderApp('/movies')
 
-    fireEvent.click(await screen.findByRole('button', { name: /entrar/i }))
+    fireEvent.click(await screen.findByRole('button', { name: /entrar ou criar conta/i }))
     fireEvent.click(screen.getByRole('tab', { name: /criar conta/i }))
     fireEvent.change(screen.getByLabelText(/usuario/i), {
       target: { value: 'newuser' },
@@ -92,7 +92,7 @@ describe('Auth and favorites flow', () => {
       }),
     )
 
-    expect(await screen.findAllByText(/newuser/i)).toHaveLength(2)
+    expect(await screen.findByText(/newuser/i)).toBeInTheDocument()
     expect(await screen.findByText(/seu e-mail ainda nao foi verificado/i)).toBeInTheDocument()
   })
 
@@ -162,7 +162,7 @@ describe('Auth and favorites flow', () => {
 
     const movieView = renderApp('/movie/101')
 
-    fireEvent.click(await screen.findByRole('button', { name: /salvar nos favoritos/i }))
+    fireEvent.click(await screen.findByRole('button', { name: /adicionar aos favoritos/i }))
 
     expect(await screen.findByRole('button', { name: /remover dos favoritos/i })).toBeInTheDocument()
 
