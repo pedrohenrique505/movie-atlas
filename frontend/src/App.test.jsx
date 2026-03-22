@@ -58,6 +58,29 @@ describe('App routes', () => {
           ],
           pagination: { page: 1, page_size: 15, has_next: true },
         },
+        'http://localhost:8000/api/movies/100': {
+          id: '100',
+          title: 'Trending One',
+          original_title: 'Trending One Original',
+          synopsis: 'Uma aventura sci-fi em destaque no catalogo.',
+          release_date: '2026-03-19',
+          runtime: 128,
+          genres: ['Sci-Fi'],
+          status: 'Released',
+          vote_average: 8.1,
+          vote_count: 2450,
+          poster_image: 'https://image.tmdb.org/t/p/w780/trending-one.jpg',
+          backdrop_image: 'https://image.tmdb.org/t/p/w1280/trending-backdrop.jpg',
+          media: { backdrops: [], posters: [], videos: [] },
+          cast: [],
+          directors: [],
+          trailer: {
+            name: 'Trailer oficial',
+            youtube_key: 'featured100',
+            embed_url: 'https://www.youtube.com/embed/featured100',
+          },
+          watch_providers: { link: null, categories: [] },
+        },
         'http://localhost:8000/api/movies/now-playing?page=1': {
           results: [
             {
@@ -120,17 +143,21 @@ describe('App routes', () => {
 
     renderApp('/')
 
-    expect(
-      screen.getByRole('heading', {
-        name: /descubra filmes em alta, em cartaz e os próximos lançamentos/i,
-      }),
-    ).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: /trending one/i })).toBeInTheDocument()
+    expect(await screen.findByText(/uma aventura sci-fi em destaque no catalogo./i)).toBeInTheDocument()
+    expect(await screen.findByLabelText(/nota 8.1/i)).toBeInTheDocument()
+    expect(await screen.findByText(/2.450 votos/i)).toBeInTheDocument()
+    expect(await screen.findByRole('link', { name: /ver detalhes/i })).toHaveAttribute(
+      'href',
+      '/movie/100',
+    )
+    expect(await screen.findByRole('button', { name: /assista ao trailer/i })).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /^home$/i })).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: /movie atlas/i })).toHaveAttribute('href', '/')
-    expect(await screen.findAllByRole('heading', { name: /em cartaz/i })).toHaveLength(2)
+    expect(await screen.findAllByRole('heading', { name: /em cartaz/i })).toHaveLength(1)
     expect(await screen.findAllByRole('heading', { name: /top pessoas em alta/i })).toHaveLength(1)
     expect(await screen.findAllByRole('heading', { name: /filmes mais bem avaliados/i })).toHaveLength(1)
-    expect(await screen.findAllByRole('heading', { name: /próximos lançamentos/i })).toHaveLength(2)
+    expect(await screen.findAllByRole('heading', { name: /pr.ximos lan.amentos/i })).toHaveLength(1)
     expect((await screen.findByText(/now playing one/i)).closest('a')).toHaveAttribute(
       'href',
       '/movie/200',
@@ -511,19 +538,55 @@ describe('App routes', () => {
       configurable: true,
     })
 
-    global.fetch = vi.fn((url) => {
-      const payloads = {
-        'http://localhost:8000/api/movies/trending?page=1': {
-          results: [],
-          pagination: { page: 1, page_size: 15, has_next: false },
-        },
-        'http://localhost:8000/api/movies/now-playing?page=1': {
-          results: [],
-          pagination: { page: 1, page_size: 15, has_next: false },
-        },
-        'http://localhost:8000/api/movies/upcoming?page=1': {
-          results: [],
-          pagination: { page: 1, page_size: 15, has_next: false },
+      global.fetch = vi.fn((url) => {
+        const payloads = {
+          'http://localhost:8000/api/movies/trending?page=1': {
+            results: [
+              {
+                id: '100',
+                title: 'Trending One',
+                release_date: '2026-03-19',
+                status: 'trending',
+                synopsis: '...',
+                poster_image: 'https://image.tmdb.org/t/p/w780/trending-one.jpg',
+                has_trailer: false,
+              },
+            ],
+            pagination: { page: 1, page_size: 15, has_next: false },
+          },
+          'http://localhost:8000/api/movies/100': {
+            id: '100',
+            title: 'Trending One',
+            synopsis: '...',
+            release_date: '2026-03-19',
+            runtime: 128,
+            genres: ['Sci-Fi'],
+            status: 'Released',
+            vote_average: 8.1,
+            vote_count: 2450,
+            poster_image: 'https://image.tmdb.org/t/p/w780/trending-one.jpg',
+            backdrop_image: 'https://image.tmdb.org/t/p/w1280/trending-backdrop.jpg',
+            media: { backdrops: [], posters: [], videos: [] },
+            cast: [],
+            directors: [],
+            trailer: null,
+            watch_providers: { link: null, categories: [] },
+          },
+          'http://localhost:8000/api/movies/now-playing?page=1': {
+            results: [],
+            pagination: { page: 1, page_size: 15, has_next: false },
+          },
+          'http://localhost:8000/api/movies/top-rated?page=1': {
+            results: [],
+            pagination: { page: 1, page_size: 15, has_next: false },
+          },
+          'http://localhost:8000/api/people/trending?page=1': {
+            results: [],
+            pagination: { page: 1, page_size: 15, has_next: false },
+          },
+          'http://localhost:8000/api/movies/upcoming?page=1': {
+            results: [],
+            pagination: { page: 1, page_size: 15, has_next: false },
         },
       }
 
