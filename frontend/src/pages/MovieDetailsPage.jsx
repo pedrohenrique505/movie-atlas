@@ -92,6 +92,8 @@ export function MovieDetailsPage() {
             posterImage={movie.poster_image}
             backdropImage={movie.backdrop_image}
             trailer={movie.trailer}
+            voteAverage={movie.vote_average}
+            voteCount={movie.vote_count}
             metadataItems={buildMovieMetadata(movie)}
             primaryCredit={movie.directors?.[0] ?? null}
             creditLabel="Direção"

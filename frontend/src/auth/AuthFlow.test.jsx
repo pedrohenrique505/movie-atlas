@@ -140,6 +140,7 @@ describe('Auth and favorites flow', () => {
           genres: ['Sci-Fi'],
           status: 'Released',
           vote_average: 7.3,
+          vote_count: 1842,
           poster_image: 'https://image.tmdb.org/t/p/w780/poster.jpg',
           backdrop_image: 'https://image.tmdb.org/t/p/w1280/backdrop.jpg',
           media: { backdrops: [], posters: [], videos: [] },

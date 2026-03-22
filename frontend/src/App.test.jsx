@@ -191,6 +191,7 @@ describe('App routes', () => {
         genres: ['Sci-Fi', 'Adventure'],
         status: 'Released',
         vote_average: 7.3,
+        vote_count: 1842,
         poster_image: 'https://image.tmdb.org/t/p/w780/poster.jpg',
         backdrop_image: 'https://image.tmdb.org/t/p/w1280/backdrop.jpg',
         images: ['https://image.tmdb.org/t/p/w780/img-1.jpg'],
@@ -273,7 +274,8 @@ describe('App routes', () => {
     expect(
       await screen.findByRole('link', { name: /onde posso assistir\?/i }),
     ).toHaveAttribute('href', 'https://www.themoviedb.org/movie/101/watch')
-    expect(screen.queryByText(/nota 7.3/i)).not.toBeInTheDocument()
+    expect(await screen.findByLabelText(/nota 7.3/i)).toBeInTheDocument()
+    expect(await screen.findByText(/1.842 votos/i)).toBeInTheDocument()
     expect(document.title).toBe('The Odyssey | Movie Atlas')
   })
 
