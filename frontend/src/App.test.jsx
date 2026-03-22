@@ -930,6 +930,10 @@ describe('App routes', () => {
         })
       }
 
+      if (url === 'http://localhost:8000/api/accounts/favorites/') {
+        return jsonResponse([])
+      }
+
       if (url === 'http://localhost:8000/api/accounts/verify-email/send/') {
         return jsonResponse({
           detail: 'E-mail de verificacao enviado com sucesso.',
