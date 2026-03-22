@@ -794,6 +794,19 @@
   max-width: 900px;
 }
 
+.details-hero__info h1 {
+  font-size: clamp(2.25rem, 4vw, 2.5rem);
+  line-height: 1.2;
+  max-width: 22ch;
+}
+
+.details-hero__original-title {
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.4;
+  margin-top: -0.45rem;
+}
+
 .details-rating {
   --details-rating-color: #62f58c;
   display: inline-flex;
@@ -1854,6 +1867,10 @@
     gap: 0.85rem;
   }
 
+  .details-hero__info h1 {
+    max-width: none;
+  }
+
   .details-rating {
     gap: 0.75rem;
   }
@@ -1989,6 +2006,11 @@
 
   .details-rating__copy span {
     font-size: 0.82rem;
+  }
+
+  .details-hero__original-title {
+    font-size: 0.92rem;
+    margin-top: -0.35rem;
   }
 
   .details-hero__meta-item,

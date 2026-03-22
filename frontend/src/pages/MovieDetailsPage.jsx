@@ -88,6 +88,7 @@ export function MovieDetailsPage() {
         <>
           <DetailsHero
             title={movie.title}
+            originalTitle={movie.original_title ?? ''}
             synopsis={movie.synopsis}
             posterImage={movie.poster_image}
             backdropImage={movie.backdrop_image}

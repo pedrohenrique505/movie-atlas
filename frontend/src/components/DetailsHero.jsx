@@ -24,6 +24,7 @@ function getRatingTone(value) {
 
 export function DetailsHero({
   title,
+  originalTitle = '',
   synopsis,
   posterImage,
   backdropImage,
@@ -41,6 +42,9 @@ export function DetailsHero({
   const ratingTone = rating === null ? null : getRatingTone(rating)
   const ratingOffset =
     rating === null ? null : RATING_CIRCUMFERENCE - (rating / 10) * RATING_CIRCUMFERENCE
+  const normalizedOriginalTitle = originalTitle.trim()
+  const showOriginalTitle =
+    normalizedOriginalTitle && normalizedOriginalTitle.toLowerCase() !== title.trim().toLowerCase()
 
   return (
     <section className="details-hero" style={heroStyle}>
@@ -59,6 +63,9 @@ export function DetailsHero({
 
         <div className="details-hero__info">
           <h1>{title}</h1>
+          {showOriginalTitle ? (
+            <p className="details-hero__original-title">{normalizedOriginalTitle}</p>
+          ) : null}
 
           {rating !== null ? (
             <div className={`details-rating details-rating--${ratingTone}`.trim()}>
