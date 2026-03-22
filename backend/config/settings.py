@@ -104,3 +104,6 @@ SPECTACULAR_SETTINGS = {
 }
 
 AUTH_USER_MODEL = "accounts.User"
+
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+DEFAULT_FROM_EMAIL = "no-reply@movieatlas.local"
