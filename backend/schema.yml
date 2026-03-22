@@ -4,6 +4,340 @@ info:
   version: 0.1.0
   description: Base inicial da API REST para a plataforma Movie Atlas.
 paths:
+  /api/accounts/favorites/:
+    get:
+      operationId: accounts_favorites_list
+      summary: Lista os favoritos do usuario autenticado
+      tags:
+      - accounts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Favorite'
+              examples:
+                FavoriteListResponse:
+                  value:
+                  - - id: 1
+                      tmdb_id: 550
+                      media_type: movie
+                      created_at: '2026-03-21T22:30:00-03:00'
+                  summary: Favorite list response
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+    post:
+      operationId: accounts_favorites_create
+      summary: Cria um favorito para o usuario autenticado
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Favorite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Favorite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Favorite'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Favorite'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/accounts/favorites/{id}/:
+    delete:
+      operationId: accounts_favorites_delete
+      summary: Remove um favorito do usuario autenticado
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - accounts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '204':
+          description: No response body
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/accounts/login/:
+    post:
+      operationId: accounts_login
+      summary: Autentica um usuario com sessao Django
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Login'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              examples:
+                LoginResponse:
+                  value:
+                    id: 1
+                    username: moviefan
+                    email: moviefan@example.com
+                    is_email_verified: false
+                  summary: Login response
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/accounts/logout/:
+    post:
+      operationId: accounts_logout
+      summary: Encerra a sessao do usuario autenticado
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Detail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Detail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Detail'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+              examples:
+                LogoutResponse:
+                  value:
+                    detail: Logout realizado com sucesso.
+                  summary: Logout response
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/accounts/me/:
+    get:
+      operationId: accounts_me
+      summary: Retorna o usuario autenticado
+      tags:
+      - accounts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/accounts/register/:
+    post:
+      operationId: accounts_register
+      summary: Cria uma conta de usuario
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Register'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Register'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Register'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Register'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/accounts/verify-email/{uidb64}/{token}/:
+    get:
+      operationId: accounts_verify_email_confirm
+      summary: Confirma a verificacao de e-mail por link com token
+      parameters:
+      - in: path
+        name: token
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: uidb64
+        schema:
+          type: string
+        required: true
+      tags:
+      - accounts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailVerification'
+              examples:
+                VerificationConfirmedResponse:
+                  value:
+                    detail: E-mail verificado com sucesso.
+                    user:
+                      id: 1
+                      username: moviefan
+                      email: moviefan@example.com
+                      is_email_verified: true
+                  summary: Verification confirmed response
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/accounts/verify-email/send/:
+    post:
+      operationId: accounts_verify_email_send
+      summary: Envia o e-mail de verificacao para o usuario autenticado
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailVerificationSent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EmailVerificationSent'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EmailVerificationSent'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailVerificationSent'
+              examples:
+                VerificationEmailSentResponse:
+                  value:
+                    detail: E-mail de verificacao enviado com sucesso.
+                    user:
+                      id: 1
+                      username: moviefan
+                      email: moviefan@example.com
+                      is_email_verified: false
+                  summary: Verification email sent response
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
   /api/health:
     get:
       operationId: health_check
@@ -34,12 +368,278 @@ paths:
                     service: movie-atlas-api
                   summary: Health check response
           description: ''
-  /api/movies/upcoming:
+  /api/movies/{movie_id}:
     get:
-      operationId: list_upcoming_movies
-      description: Retorna uma resposta mockada enquanto a integracao real nao foi
-        implementada.
-      summary: Lista proximos lancamentos
+      operationId: retrieve_movie_details
+      description: Consulta a API externa para buscar titulo, sinopse, data, imagens
+        e trailer.
+      summary: Retorna detalhes de um filme por id
+      parameters:
+      - in: path
+        name: movie_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - movies
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  title:
+                    type: string
+                  synopsis:
+                    type: string
+                  release_date:
+                    type: string
+                    format: date
+                  runtime:
+                    type: integer
+                    nullable: true
+                  genres:
+                    type: array
+                    items:
+                      type: string
+                  status:
+                    type: string
+                  vote_average:
+                    type: number
+                    nullable: true
+                  poster_image:
+                    type: string
+                    nullable: true
+                  backdrop_image:
+                    type: string
+                    nullable: true
+                  images:
+                    type: array
+                    items:
+                      type: string
+                  media:
+                    type: object
+                    properties:
+                      backdrops:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            preview_image:
+                              type: string
+                            full_image:
+                              type: string
+                      posters:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            preview_image:
+                              type: string
+                            full_image:
+                              type: string
+                      videos:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                            type:
+                              type: string
+                            youtube_key:
+                              type: string
+                            embed_url:
+                              type: string
+                            thumbnail_image:
+                              type: string
+                  cast:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        character:
+                          type: string
+                        profile_image:
+                          type: string
+                          nullable: true
+                  directors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        department:
+                          type: string
+                        profile_image:
+                          type: string
+                          nullable: true
+                  trailer:
+                    type: object
+                    nullable: true
+                    properties:
+                      name:
+                        type: string
+                      youtube_key:
+                        type: string
+                      embed_url:
+                        type: string
+                  watch_providers:
+                    type: object
+                    properties:
+                      link:
+                        type: string
+                        nullable: true
+                      categories:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            key:
+                              type: string
+                            label:
+                              type: string
+                            providers:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  id:
+                                    type: string
+                                  name:
+                                    type: string
+                                  logo_image:
+                                    type: string
+                                    nullable: true
+                                  link:
+                                    type: string
+                                    nullable: true
+              examples:
+                MovieDetailsResponse:
+                  value:
+                    id: '980489'
+                    title: Gran Turismo 2
+                    synopsis: Exemplo de detalhes de um filme.
+                    release_date: '2026-06-24'
+                    runtime: 118
+                    genres:
+                    - Acao
+                    - Drama
+                    status: Released
+                    vote_average: 7.4
+                    poster_image: https://image.tmdb.org/t/p/w780/example-poster.jpg
+                    backdrop_image: https://image.tmdb.org/t/p/w1280/example-backdrop.jpg
+                    images:
+                    - https://image.tmdb.org/t/p/w780/example-image-1.jpg
+                    - https://image.tmdb.org/t/p/w780/example-image-2.jpg
+                    media:
+                      backdrops:
+                      - preview_image: https://image.tmdb.org/t/p/w1280/example-backdrop-1.jpg
+                        full_image: https://image.tmdb.org/t/p/original/example-backdrop-1.jpg
+                      posters:
+                      - preview_image: https://image.tmdb.org/t/p/w780/example-poster-1.jpg
+                        full_image: https://image.tmdb.org/t/p/original/example-poster-1.jpg
+                      videos:
+                      - name: Trailer oficial
+                        type: Trailer
+                        youtube_key: abc123
+                        embed_url: https://www.youtube.com/embed/abc123
+                        thumbnail_image: https://img.youtube.com/vi/abc123/hqdefault.jpg
+                    cast:
+                    - id: '1'
+                      name: Ator Exemplo
+                      character: Piloto
+                      profile_image: https://image.tmdb.org/t/p/w300/example-cast.jpg
+                    directors:
+                    - id: '2'
+                      name: Diretora Exemplo
+                      department: Directing
+                      profile_image: https://image.tmdb.org/t/p/w300/example-director.jpg
+                    trailer:
+                      name: Trailer oficial
+                      youtube_key: abc123
+                      embed_url: https://www.youtube.com/embed/abc123
+                    watch_providers:
+                      link: https://www.themoviedb.org/movie/980489/watch
+                      categories:
+                      - key: flatrate
+                        label: Streaming
+                        providers:
+                        - id: '8'
+                          name: Netflix
+                          logo_image: https://image.tmdb.org/t/p/w300/netflix.jpg
+                          link: https://www.themoviedb.org/movie/980489/watch
+                  summary: Movie details response
+          description: ''
+        '503':
+          description: Falha de configuracao ou integracao com a API externa.
+  /api/movies/categories:
+    get:
+      operationId: list_movie_categories
+      description: Consulta a API externa para buscar categorias de filmes.
+      summary: Lista categorias de filmes
+      tags:
+      - movies
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      has_next:
+                        type: boolean
+              examples:
+                MovieCategoriesResponse:
+                  value:
+                    results:
+                    - id: '28'
+                      name: Acao
+                    - id: '18'
+                      name: Drama
+                  summary: Movie categories response
+          description: ''
+        '503':
+          description: Falha de configuracao ou integracao com a API externa.
+  /api/movies/now-playing:
+    get:
+      operationId: list_now_playing_movies
+      description: Consulta a API externa de filmes e retorna no maximo 15 resultados.
+      summary: Lista filmes em cartaz
       tags:
       - movies
       security:
@@ -69,28 +669,657 @@ paths:
                           type: string
                         synopsis:
                           type: string
+                        poster_image:
+                          type: string
+                          nullable: true
                         has_trailer:
                           type: boolean
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      has_next:
+                        type: boolean
+              examples:
+                NowPlayingMoviesResponse:
+                  value:
+                    results:
+                    - id: '980489'
+                      title: Gran Turismo 2
+                      release_date: '2026-06-24'
+                      status: listed
+                      synopsis: Exemplo de retorno normalizado da API externa.
+                      poster_image: https://image.tmdb.org/t/p/w780/example-poster.jpg
+                      has_trailer: false
+                    pagination:
+                      page: 1
+                      page_size: 15
+                      has_next: true
+                  summary: Now playing movies response
+          description: ''
+        '503':
+          description: Falha de configuracao ou integracao com a API externa.
+  /api/movies/popular:
+    get:
+      operationId: list_popular_movies
+      description: Consulta a API externa de filmes populares e retorna no maximo
+        15 resultados.
+      summary: Lista filmes populares
+      tags:
+      - movies
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        title:
+                          type: string
+                        release_date:
+                          type: string
+                          format: date
+                        status:
+                          type: string
+                        synopsis:
+                          type: string
+                        poster_image:
+                          type: string
+                          nullable: true
+                        has_trailer:
+                          type: boolean
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      has_next:
+                        type: boolean
+              examples:
+                PopularMoviesResponse:
+                  value:
+                    results:
+                    - id: '980489'
+                      title: Gran Turismo 2
+                      release_date: '2026-06-24'
+                      status: popular
+                      synopsis: Exemplo de retorno normalizado da API externa.
+                      poster_image: https://image.tmdb.org/t/p/w780/example-poster.jpg
+                      has_trailer: false
+                    pagination:
+                      page: 1
+                      page_size: 15
+                      has_next: true
+                  summary: Popular movies response
+          description: ''
+        '503':
+          description: Falha de configuracao ou integracao com a API externa.
+  /api/movies/top-rated:
+    get:
+      operationId: list_top_rated_movies
+      description: Consulta a API externa de filmes melhor avaliados e retorna no
+        maximo 15 resultados.
+      summary: Lista filmes mais bem avaliados
+      tags:
+      - movies
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        title:
+                          type: string
+                        release_date:
+                          type: string
+                          format: date
+                        status:
+                          type: string
+                        synopsis:
+                          type: string
+                        poster_image:
+                          type: string
+                          nullable: true
+                        has_trailer:
+                          type: boolean
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      has_next:
+                        type: boolean
+              examples:
+                TopRatedMoviesResponse:
+                  value:
+                    results:
+                    - id: '980489'
+                      title: Gran Turismo 2
+                      release_date: '2026-06-24'
+                      status: top_rated
+                      synopsis: Exemplo de retorno normalizado da API externa.
+                      poster_image: https://image.tmdb.org/t/p/w780/example-poster.jpg
+                      has_trailer: false
+                    pagination:
+                      page: 1
+                      page_size: 15
+                      has_next: true
+                  summary: Top rated movies response
+          description: ''
+        '503':
+          description: Falha de configuracao ou integracao com a API externa.
+  /api/movies/trending:
+    get:
+      operationId: list_trending_movies
+      description: Consulta a API externa de filmes e retorna no maximo 15 resultados.
+      summary: Lista filmes em tendencia
+      tags:
+      - movies
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        title:
+                          type: string
+                        release_date:
+                          type: string
+                          format: date
+                        status:
+                          type: string
+                        synopsis:
+                          type: string
+                        poster_image:
+                          type: string
+                          nullable: true
+                        has_trailer:
+                          type: boolean
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      has_next:
+                        type: boolean
+              examples:
+                TrendingMoviesResponse:
+                  value:
+                    results:
+                    - id: '980489'
+                      title: Gran Turismo 2
+                      release_date: '2026-06-24'
+                      status: listed
+                      synopsis: Exemplo de retorno normalizado da API externa.
+                      poster_image: https://image.tmdb.org/t/p/w780/example-poster.jpg
+                      has_trailer: false
+                    pagination:
+                      page: 1
+                      page_size: 15
+                      has_next: true
+                  summary: Trending movies response
+          description: ''
+        '503':
+          description: Falha de configuracao ou integracao com a API externa.
+  /api/movies/upcoming:
+    get:
+      operationId: list_upcoming_movies
+      description: Consulta uma API externa de filmes e normaliza a resposta para
+        o frontend.
+      summary: Lista proximos lancamentos
+      tags:
+      - movies
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        media_type:
+                          type: string
+                        title:
+                          type: string
+                          nullable: true
+                        name:
+                          type: string
+                          nullable: true
+                        release_date:
+                          type: string
+                          format: date
+                          nullable: true
+                        status:
+                          type: string
+                          nullable: true
+                        synopsis:
+                          type: string
+                          nullable: true
+                        poster_image:
+                          type: string
+                          nullable: true
+                        has_trailer:
+                          type: boolean
+                          nullable: true
+                        known_for_department:
+                          type: string
+                          nullable: true
+                        profile_image:
+                          type: string
+                          nullable: true
+                        known_for_titles:
+                          type: array
+                          items:
+                            type: string
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      has_next:
+                        type: boolean
               examples:
                 UpcomingMoviesResponse:
                   value:
                     results:
-                    - id: mock-dune-messiah
-                      title: 'Dune: Messiah'
-                      release_date: '2026-12-18'
+                    - id: '980489'
+                      title: Gran Turismo 2
+                      release_date: '2026-06-24'
                       status: upcoming
-                      synopsis: Paul Atreides enfrenta as consequencias politicas
-                        e espirituais de seu imperio.
+                      synopsis: Exemplo de retorno normalizado da API externa.
+                      poster_image: https://image.tmdb.org/t/p/w780/example-poster.jpg
                       has_trailer: false
-                    - id: mock-project-hail-mary
-                      title: Project Hail Mary
-                      release_date: '2026-03-20'
-                      status: upcoming
-                      synopsis: Um professor acorda sozinho em uma missao espacial
-                        para salvar a humanidade.
-                      has_trailer: true
+                    pagination:
+                      page: 1
+                      page_size: 15
+                      has_next: true
                   summary: Upcoming movies response
           description: ''
+        '503':
+          description: Falha de configuracao ou integracao com a API externa.
+  /api/people/{person_id}:
+    get:
+      operationId: retrieve_person_details
+      description: Consulta a API externa para buscar dados basicos de ator ou diretor.
+      summary: Retorna detalhes de uma pessoa por id
+      parameters:
+      - in: path
+        name: person_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - people
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  biography:
+                    type: string
+                  known_for_department:
+                    type: string
+                  birthday:
+                    type: string
+                    format: date
+                    nullable: true
+                  place_of_birth:
+                    type: string
+                  profile_image:
+                    type: string
+                    nullable: true
+                  top_works:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        title:
+                          type: string
+                        release_date:
+                          type: string
+                          format: date
+                        media_type:
+                          type: string
+                        poster_image:
+                          type: string
+                          nullable: true
+                        credit:
+                          type: string
+                        popularity:
+                          type: number
+                        vote_count:
+                          type: integer
+                  credits:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        title:
+                          type: string
+                        release_date:
+                          type: string
+                          format: date
+                        media_type:
+                          type: string
+                        poster_image:
+                          type: string
+                          nullable: true
+                        credit:
+                          type: string
+                        popularity:
+                          type: number
+                        vote_count:
+                          type: integer
+              examples:
+                PersonDetailsResponse:
+                  value:
+                    id: '2'
+                    name: Diretora Exemplo
+                    biography: Exemplo de biografia retornada pela API externa.
+                    known_for_department: Directing
+                    birthday: '1980-06-15'
+                    place_of_birth: Sao Paulo, Brasil
+                    profile_image: https://image.tmdb.org/t/p/w780/example-person.jpg
+                    top_works:
+                    - id: '98'
+                      title: Filme Exemplo
+                      release_date: '2024-06-24'
+                      media_type: movie
+                      poster_image: https://image.tmdb.org/t/p/w780/example-project-poster.jpg
+                      credit: Director
+                      popularity: 88.4
+                      vote_count: 9200
+                    - id: '77'
+                      title: Serie Exemplo
+                      release_date: '2025-04-10'
+                      media_type: tv
+                      poster_image: https://image.tmdb.org/t/p/w780/example-tv-poster.jpg
+                      credit: Executive Producer
+                      popularity: 74.1
+                      vote_count: 4100
+                    credits:
+                    - id: '980489'
+                      title: Gran Turismo 2
+                      release_date: '2026-06-24'
+                      media_type: movie
+                      poster_image: https://image.tmdb.org/t/p/w780/example-project-poster.jpg
+                      credit: Director
+                      popularity: 95.0
+                      vote_count: 120
+                    - id: '98'
+                      title: Filme Exemplo
+                      release_date: '2024-06-24'
+                      media_type: movie
+                      poster_image: https://image.tmdb.org/t/p/w780/example-project-poster.jpg
+                      credit: Director
+                      popularity: 88.4
+                      vote_count: 9200
+                    - id: '77'
+                      title: Serie Exemplo
+                      release_date: '2025-04-10'
+                      media_type: tv
+                      poster_image: https://image.tmdb.org/t/p/w780/example-tv-poster.jpg
+                      credit: Executive Producer
+                      popularity: 74.1
+                      vote_count: 4100
+                  summary: Person details response
+          description: ''
+        '503':
+          description: Falha de configuracao ou integracao com a API externa.
+  /api/people/actors:
+    get:
+      operationId: list_popular_actors
+      description: Consulta a API externa para buscar atores populares.
+      summary: Lista atores populares
+      tags:
+      - people
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        known_for_department:
+                          type: string
+                        profile_image:
+                          type: string
+                          nullable: true
+                        known_for_titles:
+                          type: array
+                          items:
+                            type: string
+              examples:
+                PopularActorsResponse:
+                  value:
+                    results:
+                    - id: '42'
+                      name: Pessoa Exemplo
+                      known_for_department: Acting
+                      profile_image: https://image.tmdb.org/t/p/w300/example-person.jpg
+                      known_for_titles:
+                      - Obra Exemplo
+                      - Outra Obra
+                    pagination:
+                      page: 1
+                      page_size: 15
+                      has_next: true
+                  summary: Popular actors response
+          description: ''
+        '503':
+          description: Falha de configuracao ou integracao com a API externa.
+  /api/people/directors:
+    get:
+      operationId: list_popular_directors
+      description: Consulta a API externa para buscar diretores populares.
+      summary: Lista diretores populares
+      tags:
+      - people
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        known_for_department:
+                          type: string
+                        profile_image:
+                          type: string
+                          nullable: true
+                        known_for_titles:
+                          type: array
+                          items:
+                            type: string
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      has_next:
+                        type: boolean
+              examples:
+                PopularDirectorsResponse:
+                  value:
+                    results:
+                    - id: '42'
+                      name: Pessoa Exemplo
+                      known_for_department: Directing
+                      profile_image: https://image.tmdb.org/t/p/w300/example-person.jpg
+                      known_for_titles:
+                      - Obra Exemplo
+                      - Outra Obra
+                    pagination:
+                      page: 1
+                      page_size: 15
+                      has_next: true
+                  summary: Popular directors response
+          description: ''
+        '503':
+          description: Falha de configuracao ou integracao com a API externa.
+  /api/people/trending:
+    get:
+      operationId: list_trending_people
+      description: Consulta a API externa para buscar pessoas em alta e retorna no
+        maximo 15 resultados.
+      summary: Lista pessoas em tendencia
+      tags:
+      - people
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        known_for_department:
+                          type: string
+                        profile_image:
+                          type: string
+                          nullable: true
+                        known_for_titles:
+                          type: array
+                          items:
+                            type: string
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      has_next:
+                        type: boolean
+              examples:
+                TrendingPeopleResponse:
+                  value:
+                    results:
+                    - id: '42'
+                      name: Pessoa Exemplo
+                      known_for_department: Acting
+                      profile_image: https://image.tmdb.org/t/p/w300/example-person.jpg
+                      known_for_titles:
+                      - Obra Exemplo
+                      - Outra Obra
+                    pagination:
+                      page: 1
+                      page_size: 15
+                      has_next: true
+                  summary: Trending people response
+          description: ''
+        '503':
+          description: Falha de configuracao ou integracao com a API externa.
   /api/schema/:
     get:
       operationId: schema_retrieve
@@ -238,7 +1467,506 @@ paths:
                 type: object
                 additionalProperties: {}
           description: ''
+  /api/search:
+    get:
+      operationId: search_movies
+      description: Consulta a API externa para buscar filmes por titulo.
+      summary: Busca filmes por titulo
+      tags:
+      - search
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        title:
+                          type: string
+                        release_date:
+                          type: string
+                          format: date
+                        status:
+                          type: string
+                        synopsis:
+                          type: string
+                        poster_image:
+                          type: string
+                          nullable: true
+                        has_trailer:
+                          type: boolean
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      has_next:
+                        type: boolean
+              examples:
+                MovieSearchResponse:
+                  value:
+                    results:
+                    - id: '980489'
+                      media_type: movie
+                      title: Gran Turismo 2
+                      release_date: '2026-06-24'
+                      status: search_result
+                      synopsis: Exemplo de filme retornado na busca.
+                      poster_image: https://image.tmdb.org/t/p/w780/example-poster.jpg
+                      has_trailer: false
+                    - id: '42'
+                      media_type: person
+                      name: Pessoa Exemplo
+                      known_for_department: Acting
+                      profile_image: https://image.tmdb.org/t/p/w300/example-person.jpg
+                      known_for_titles:
+                      - Obra Exemplo
+                      - Outra Obra
+                    pagination:
+                      page: 1
+                      page_size: 15
+                      has_next: false
+                  summary: Movie search response
+          description: ''
+        '503':
+          description: Falha de configuracao ou integracao com a API externa.
+  /api/tv-shows/{tv_show_id}:
+    get:
+      operationId: retrieve_tv_show_details
+      description: Consulta a API externa para buscar dados completos de uma serie.
+      summary: Retorna detalhes de uma serie por id
+      parameters:
+      - in: path
+        name: tv_show_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - tv-shows
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  title:
+                    type: string
+                  synopsis:
+                    type: string
+                  release_date:
+                    type: string
+                    format: date
+                  runtime:
+                    type: integer
+                    nullable: true
+                  genres:
+                    type: array
+                    items:
+                      type: string
+                  status:
+                    type: string
+                  vote_average:
+                    type: number
+                    nullable: true
+                  poster_image:
+                    type: string
+                    nullable: true
+                  backdrop_image:
+                    type: string
+                    nullable: true
+                  images:
+                    type: array
+                    items:
+                      type: string
+                  media:
+                    type: object
+                    properties:
+                      backdrops:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            preview_image:
+                              type: string
+                            full_image:
+                              type: string
+                      posters:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            preview_image:
+                              type: string
+                            full_image:
+                              type: string
+                      videos:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                            type:
+                              type: string
+                            youtube_key:
+                              type: string
+                            embed_url:
+                              type: string
+                            thumbnail_image:
+                              type: string
+                  cast:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        character:
+                          type: string
+                        profile_image:
+                          type: string
+                          nullable: true
+                  creators:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        department:
+                          type: string
+                        profile_image:
+                          type: string
+                          nullable: true
+                  trailer:
+                    type: object
+                    nullable: true
+                    properties:
+                      name:
+                        type: string
+                      youtube_key:
+                        type: string
+                      embed_url:
+                        type: string
+                  number_of_seasons:
+                    type: integer
+                    nullable: true
+                  number_of_episodes:
+                    type: integer
+                    nullable: true
+                  production_companies:
+                    type: array
+                    items:
+                      type: string
+                  watch_providers:
+                    type: object
+                    properties:
+                      link:
+                        type: string
+                        nullable: true
+                      categories:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            key:
+                              type: string
+                            label:
+                              type: string
+                            providers:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  id:
+                                    type: string
+                                  name:
+                                    type: string
+                                  logo_image:
+                                    type: string
+                                    nullable: true
+                                  link:
+                                    type: string
+                                    nullable: true
+              examples:
+                TVShowDetailsResponse:
+                  value:
+                    id: '85552'
+                    title: Silo
+                    synopsis: Exemplo de detalhes de uma serie.
+                    release_date: '2023-05-04'
+                    runtime: 49
+                    genres:
+                    - Drama
+                    - Sci-Fi
+                    status: Serie em andamento
+                    vote_average: 8.2
+                    poster_image: https://image.tmdb.org/t/p/w780/example-tv-poster.jpg
+                    backdrop_image: https://image.tmdb.org/t/p/w1280/example-tv-backdrop.jpg
+                    images:
+                    - https://image.tmdb.org/t/p/w780/example-tv-image-1.jpg
+                    - https://image.tmdb.org/t/p/w780/example-tv-image-2.jpg
+                    media:
+                      backdrops:
+                      - preview_image: https://image.tmdb.org/t/p/w1280/example-tv-backdrop-1.jpg
+                        full_image: https://image.tmdb.org/t/p/original/example-tv-backdrop-1.jpg
+                      posters:
+                      - preview_image: https://image.tmdb.org/t/p/w780/example-tv-poster-1.jpg
+                        full_image: https://image.tmdb.org/t/p/original/example-tv-poster-1.jpg
+                      videos:
+                      - name: Trailer oficial
+                        type: Trailer
+                        youtube_key: def456
+                        embed_url: https://www.youtube.com/embed/def456
+                        thumbnail_image: https://img.youtube.com/vi/def456/hqdefault.jpg
+                    cast:
+                    - id: '10'
+                      name: Atriz Exemplo
+                      character: Juliette
+                      profile_image: https://image.tmdb.org/t/p/w300/example-tv-cast.jpg
+                    creators:
+                    - id: '11'
+                      name: Criador Exemplo
+                      department: Creator
+                      profile_image: https://image.tmdb.org/t/p/w300/example-tv-creator.jpg
+                    trailer:
+                      name: Trailer oficial
+                      youtube_key: def456
+                      embed_url: https://www.youtube.com/embed/def456
+                    number_of_seasons: 2
+                    number_of_episodes: 20
+                    production_companies:
+                    - AMC Studios
+                    watch_providers:
+                      link: https://www.themoviedb.org/tv/85552/watch
+                      categories:
+                      - key: flatrate
+                        label: Streaming
+                        providers:
+                        - id: '8'
+                          name: Netflix
+                          logo_image: https://image.tmdb.org/t/p/w300/netflix.jpg
+                          link: https://www.themoviedb.org/tv/85552/watch
+                  summary: TV show details response
+          description: ''
+        '503':
+          description: Falha de configuracao ou integracao com a API externa.
+  /api/tv-shows/popular:
+    get:
+      operationId: list_popular_tv_shows
+      description: Consulta a API externa de TV e retorna no maximo 15 resultados.
+      summary: Lista shows de TV populares
+      tags:
+      - tv-shows
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        title:
+                          type: string
+                        release_date:
+                          type: string
+                          format: date
+                        status:
+                          type: string
+                        synopsis:
+                          type: string
+                        poster_image:
+                          type: string
+                          nullable: true
+                        has_trailer:
+                          type: boolean
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      has_next:
+                        type: boolean
+              examples:
+                PopularTVShowsResponse:
+                  value:
+                    results:
+                    - id: '980489'
+                      title: Gran Turismo 2
+                      release_date: '2026-06-24'
+                      status: tv_show
+                      synopsis: Exemplo de retorno normalizado da API externa.
+                      poster_image: https://image.tmdb.org/t/p/w780/example-poster.jpg
+                      has_trailer: false
+                    pagination:
+                      page: 1
+                      page_size: 15
+                      has_next: true
+                  summary: Popular TV shows response
+          description: ''
+        '503':
+          description: Falha de configuracao ou integracao com a API externa.
 components:
+  schemas:
+    Detail:
+      type: object
+      properties:
+        detail:
+          type: string
+      required:
+      - detail
+    EmailVerification:
+      type: object
+      properties:
+        detail:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+      required:
+      - detail
+      - user
+    EmailVerificationSent:
+      type: object
+      properties:
+        detail:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+      required:
+      - detail
+      - user
+    Favorite:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        tmdb_id:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        media_type:
+          $ref: '#/components/schemas/MediaTypeEnum'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - media_type
+      - tmdb_id
+    Login:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - password
+      - username
+    MediaTypeEnum:
+      enum:
+      - movie
+      - tv
+      type: string
+      description: |-
+        * `movie` - Movie
+        * `tv` - TV
+    Register:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          title: Usuário
+          description: Obrigatório. 150 caracteres ou menos. Letras, números e @/./+/-/_
+            apenas.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        password:
+          type: string
+          writeOnly: true
+          minLength: 8
+        is_email_verified:
+          type: boolean
+          readOnly: true
+      required:
+      - email
+      - id
+      - is_email_verified
+      - password
+      - username
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          title: Usuário
+          description: Obrigatório. 150 caracteres ou menos. Letras, números e @/./+/-/_
+            apenas.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        is_email_verified:
+          type: boolean
+          readOnly: true
+      required:
+      - email
+      - id
+      - is_email_verified
+      - username
   securitySchemes:
     basicAuth:
       type: http
