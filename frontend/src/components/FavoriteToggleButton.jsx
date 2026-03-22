@@ -1,12 +1,16 @@
 import { useState } from 'react'
 
 import { useAuth } from '../auth/AuthContext'
+import { FavoriteIcon } from './navigation/FavoriteIcon'
 
 export function FavoriteToggleButton({
   tmdbId,
   mediaType,
+  variant = 'button',
   activeLabel = 'Remover dos favoritos',
   inactiveLabel = 'Salvar nos favoritos',
+  activeTooltip = activeLabel,
+  inactiveTooltip = 'Adicionar aos favoritos',
 }) {
   const { authenticated, favoritesLoaded, openAuthModal, toggleFavorite, user, isFavorite } =
     useAuth()
@@ -15,8 +19,18 @@ export function FavoriteToggleButton({
 
   const active = isFavorite(tmdbId, mediaType)
   const isDisabled = isSubmitting || (authenticated && !favoritesLoaded)
+  const isIconVariant = variant === 'icon'
+  const tooltip = isSubmitting
+    ? 'Atualizando favoritos'
+    : authenticated && !favoritesLoaded
+      ? 'Carregando favoritos'
+      : active
+        ? activeTooltip
+        : inactiveTooltip
 
-  async function handleClick() {
+  async function handleClick(event) {
+    event.preventDefault()
+    event.stopPropagation()
     setFeedbackMessage('')
 
     if (!authenticated) {
@@ -42,20 +56,33 @@ export function FavoriteToggleButton({
   }
 
   return (
-    <div className="favorite-action">
+    <div className={`favorite-action ${isIconVariant ? 'favorite-action--icon' : ''}`.trim()}>
       <button
         type="button"
-        className={`button-link ${active ? 'primary' : ''}`.trim()}
+        className={
+          isIconVariant
+            ? `favorite-button ${active ? 'favorite-button--active' : ''}`.trim()
+            : `button-link ${active ? 'primary' : ''}`.trim()
+        }
         onClick={handleClick}
         disabled={isDisabled}
+        title={tooltip}
+        aria-label={tooltip}
       >
-        {isSubmitting
-          ? 'Atualizando...'
-          : authenticated && !favoritesLoaded
-            ? 'Carregando...'
-            : active
-              ? activeLabel
-              : inactiveLabel}
+        {isIconVariant ? (
+          <>
+            <FavoriteIcon active={active} />
+            <span className="sr-only">{tooltip}</span>
+          </>
+        ) : isSubmitting ? (
+          'Atualizando...'
+        ) : authenticated && !favoritesLoaded ? (
+          'Carregando...'
+        ) : active ? (
+          activeLabel
+        ) : (
+          inactiveLabel
+        )}
       </button>
 
       {feedbackMessage ? <p className="favorite-action__feedback">{feedbackMessage}</p> : null}

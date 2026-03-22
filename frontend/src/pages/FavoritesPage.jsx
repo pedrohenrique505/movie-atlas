@@ -132,6 +132,7 @@ export function FavoritesPage() {
                 movie={item}
                 to={buildFavoriteRoute(item)}
                 datePrefix={item.media_type === 'tv' ? 'Primeira exibicao' : 'Estreia'}
+                showFavoriteAction={false}
               />
               <div className="favorites-grid__actions">
                 <FavoriteToggleButton

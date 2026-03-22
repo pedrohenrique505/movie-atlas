@@ -598,6 +598,68 @@
   min-height: 0;
 }
 
+.poster-card__rating {
+  --rating-color: #7ddf95;
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 1;
+  display: inline-grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  background: rgba(6, 6, 6, 0.88);
+  color: #f8f8f2;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.poster-card__rating--danger {
+  --rating-color: #ff5d5d;
+}
+
+.poster-card__rating--warning {
+  --rating-color: #f6c453;
+}
+
+.poster-card__rating--success {
+  --rating-color: #62f58c;
+}
+
+.poster-card__rating-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.poster-card__rating-track,
+.poster-card__rating-progress {
+  fill: none;
+  stroke-width: 3;
+}
+
+.poster-card__rating-track {
+  stroke: rgba(248, 248, 242, 0.14);
+}
+
+.poster-card__rating-progress {
+  stroke: var(--rating-color);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 220ms ease;
+}
+
+.poster-card__rating span {
+  position: relative;
+  z-index: 1;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
 .poster-card__visual {
   display: flex;
   align-items: flex-end;
@@ -1619,6 +1681,11 @@
     padding: 0.85rem 0.85rem 0.95rem;
   }
 
+  .poster-card__rating {
+    width: 2.8rem;
+    height: 2.8rem;
+  }
+
   .poster-card__content h3,
   .cast-card__content h3 {
     font-size: 0.98rem;
@@ -1675,6 +1742,7 @@
   .search-shell {
     max-width: 100%;
   }
+
 }
 
 @media (max-width: 560px) {
@@ -1731,6 +1799,17 @@
   .poster-card__content,
   .cast-card__content {
     padding: 0.8rem 0.8rem 0.9rem;
+  }
+
+  .poster-card__rating {
+    top: 0.6rem;
+    right: 0.6rem;
+    width: 2.55rem;
+    height: 2.55rem;
+  }
+
+  .poster-card__rating span {
+    font-size: 0.68rem;
   }
 
   .poster-card__content h3,

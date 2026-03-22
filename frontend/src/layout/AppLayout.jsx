@@ -5,6 +5,7 @@ import { useAuth } from '../auth/AuthContext'
 import { LoginModal } from '../components/LoginModal'
 import { CloseIcon } from '../components/navigation/CloseIcon'
 import { ArrowIcon } from '../components/navigation/ArrowIcon'
+import { ProfileIcon } from '../components/navigation/ProfileIcon'
 import { HamburgerIcon } from '../components/navigation/HamburgerIcon'
 import { SearchIcon } from '../components/navigation/SearchIcon'
 import { useTypingPlaceholder } from '../hooks/useTypingPlaceholder'
@@ -38,6 +39,7 @@ export function AppLayout() {
   const [isTopbarVisible, setIsTopbarVisible] = useState(true)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false)
   const [isMobileViewport, setIsMobileViewport] = useState(false)
   const [authError, setAuthError] = useState('')
   const [isSubmittingAuth, setIsSubmittingAuth] = useState(false)
@@ -45,6 +47,7 @@ export function AppLayout() {
   const [verificationError, setVerificationError] = useState('')
   const [isSendingVerification, setIsSendingVerification] = useState(false)
   const searchContainerRef = useRef(null)
+  const accountMenuRef = useRef(null)
   const searchInputRef = useRef(null)
 
   const placeholderExamples = useMemo(
@@ -68,6 +71,7 @@ export function AppLayout() {
   useEffect(() => {
     setIsMobileMenuOpen(false)
     setIsSearchOpen(false)
+    setIsAccountMenuOpen(false)
     closeAuthModal()
   }, [closeAuthModal, location.pathname])
 
@@ -161,6 +165,32 @@ export function AppLayout() {
   }, [isSearchOpen])
 
   useEffect(() => {
+    if (!isAccountMenuOpen) {
+      return undefined
+    }
+
+    function handlePointerDown(event) {
+      if (!accountMenuRef.current?.contains(event.target)) {
+        setIsAccountMenuOpen(false)
+      }
+    }
+
+    function handleKeyDown(event) {
+      if (event.key === 'Escape') {
+        setIsAccountMenuOpen(false)
+      }
+    }
+
+    window.addEventListener('pointerdown', handlePointerDown)
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      window.removeEventListener('pointerdown', handlePointerDown)
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isAccountMenuOpen])
+
+  useEffect(() => {
     if (isSearchOpen) {
       searchInputRef.current?.focus()
     }
@@ -230,6 +260,25 @@ export function AppLayout() {
     }
   }
 
+  const accountTriggerLabel = loadingInitial
+    ? 'Carregando conta'
+    : authenticated
+      ? `Conta de ${user.username}`
+      : 'Entrar ou criar conta'
+
+  function handleAccountTrigger() {
+    if (loadingInitial) {
+      return
+    }
+
+    if (!authenticated) {
+      openAuthModal('login')
+      return
+    }
+
+    setIsAccountMenuOpen((currentValue) => !currentValue)
+  }
+
   return (
     <div className="shell">
       <header
@@ -265,39 +314,12 @@ export function AppLayout() {
           ))}
         </nav>
 
-        <div className="topbar-tools" ref={searchContainerRef}>
-          <div className="account-tools">
-            {loadingInitial ? (
-              <span className="account-chip account-chip--muted">Conta...</span>
-            ) : authenticated ? (
-              <div className="account-panel">
-                <div className="account-chip">
-                  <span className="account-chip__label">Conta</span>
-                  <strong>{user.username}</strong>
-                </div>
-
-                <Link className="button-link" to="/favorites">
-                  Favoritos
-                </Link>
-                <button type="button" className="button-link" onClick={handleLogout}>
-                  Sair
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                className="button-link primary"
-                onClick={() => openAuthModal('login')}
-              >
-                Entrar
-              </button>
-            )}
-          </div>
-
+        <div className="topbar-tools">
           <form
             className={`search-shell ${isSearchOpen ? 'search-shell--expanded' : 'search-shell--collapsed'}`.trim()}
             role="search"
             onSubmit={handleSearchSubmit}
+            ref={searchContainerRef}
           >
             {isMobileViewport && isSearchOpen ? (
               <button
@@ -335,6 +357,50 @@ export function AppLayout() {
               <SearchIcon />
             </button>
           </form>
+
+          <div className="account-tools" ref={accountMenuRef}>
+            <button
+              type="button"
+              className={`account-trigger ${authenticated ? 'account-trigger--active' : ''}`.trim()}
+              aria-label={accountTriggerLabel}
+              title={accountTriggerLabel}
+              aria-expanded={authenticated ? isAccountMenuOpen : undefined}
+              aria-haspopup={authenticated ? 'menu' : 'dialog'}
+              onClick={handleAccountTrigger}
+              disabled={loadingInitial}
+            >
+              <ProfileIcon />
+            </button>
+
+            {authenticated && isAccountMenuOpen ? (
+              <div className="account-menu" role="menu" aria-label="Conta">
+                <div className="account-chip">
+                  <span className="account-chip__label">Conta</span>
+                  <strong>{user.username}</strong>
+                </div>
+
+                <Link
+                  className="button-link"
+                  to="/favorites"
+                  role="menuitem"
+                  onClick={() => setIsAccountMenuOpen(false)}
+                >
+                  Favoritos
+                </Link>
+                <button
+                  type="button"
+                  className="button-link"
+                  role="menuitem"
+                  onClick={async () => {
+                    setIsAccountMenuOpen(false)
+                    await handleLogout()
+                  }}
+                >
+                  Sair
+                </button>
+              </div>
+            ) : null}
+          </div>
         </div>
       </header>
 
