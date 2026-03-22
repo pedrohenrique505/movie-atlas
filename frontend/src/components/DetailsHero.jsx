@@ -58,7 +58,6 @@ export function DetailsHero({
         </div>
 
         <div className="details-hero__info">
-          <p className="eyebrow">Detalhes</p>
           <h1>{title}</h1>
 
           {rating !== null ? (
