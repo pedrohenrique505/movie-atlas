@@ -6,6 +6,8 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { usePaginatedCollection } from '../hooks/usePaginatedCollection'
 import { api } from '../services/api'
 
+const DEFAULT_SORT_BY = 'popularity.desc'
+
 const SORT_OPTIONS = [
   { value: 'original_name.asc', label: 'Alfabética: A → Z' },
   { value: 'original_name.desc', label: 'Alfabética: Z → A' },
@@ -20,11 +22,11 @@ const SORT_OPTIONS = [
 export function TvShowsPage() {
   const [genres, setGenres] = useState([])
   const [selectedGenreId, setSelectedGenreId] = useState('')
-  const [selectedSortBy, setSelectedSortBy] = useState('popularity.desc')
+  const [selectedSortBy, setSelectedSortBy] = useState(DEFAULT_SORT_BY)
   const [isLoadingGenres, setIsLoadingGenres] = useState(true)
   const [genreErrorMessage, setGenreErrorMessage] = useState('')
 
-  useDocumentTitle('Series | Movie Atlas')
+  useDocumentTitle('Séries | Movie Atlas')
 
   useEffect(() => {
     let isMounted = true
@@ -42,7 +44,7 @@ export function TvShowsPage() {
       } catch (error) {
         if (isMounted) {
           setGenreErrorMessage(
-            error instanceof Error ? error.message : 'Nao foi possivel carregar os generos.',
+            error instanceof Error ? error.message : 'Não foi possível carregar os gêneros.',
           )
         }
       } finally {
@@ -59,7 +61,14 @@ export function TvShowsPage() {
     }
   }, [])
 
-  const shouldUseDiscover = selectedGenreId || selectedSortBy !== 'popularity.desc'
+  const shouldUseDiscover = selectedGenreId || selectedSortBy !== DEFAULT_SORT_BY
+  const selectedSortOption = SORT_OPTIONS.find((option) => option.value === selectedSortBy)
+  const selectedGenre = genres.find((genre) => genre.id === selectedGenreId)
+
+  function clearFilters() {
+    setSelectedSortBy(DEFAULT_SORT_BY)
+    setSelectedGenreId('')
+  }
 
   const shows = usePaginatedCollection(
     ({ page, paginated }) =>
@@ -72,8 +81,8 @@ export function TvShowsPage() {
           })
         : api.getPopularTvShows({ page, paginated }),
     shouldUseDiscover
-      ? 'Nao foi possivel carregar as series com os filtros selecionados.'
-      : 'Nao foi possivel carregar as series populares.',
+      ? 'Não foi possível carregar as séries com os filtros selecionados.'
+      : 'Não foi possível carregar as séries populares.',
     `${selectedGenreId || 'all'}:${selectedSortBy}`,
   )
 
@@ -84,12 +93,20 @@ export function TvShowsPage() {
           <div className="catalog-filter-card">
             <div className="catalog-filter-card__header">
               <h2>Filtros</h2>
+              {shouldUseDiscover ? (
+                <button type="button" className="button-link catalog-filter-reset" onClick={clearFilters}>
+                  Limpar filtros
+                </button>
+              ) : null}
             </div>
 
             <div className="catalog-filter-card__section">
               <p className="eyebrow">Ordenação</p>
               <label className="catalog-filter-field">
                 <span className="catalog-filter-field__label">Ordenar por</span>
+                <span className="catalog-filter-field__hint">
+                  Escolha como as séries devem aparecer na lista.
+                </span>
                 <select
                   className="catalog-filter-select"
                   value={selectedSortBy}
@@ -108,12 +125,15 @@ export function TvShowsPage() {
               <p className="eyebrow">Gêneros</p>
               <label className="catalog-filter-field">
                 <span className="catalog-filter-field__label">Filtrar por gênero</span>
+                <span className="catalog-filter-field__hint">
+                  Mostre apenas séries do gênero selecionado.
+                </span>
                 <select
                   className="catalog-filter-select"
                   value={selectedGenreId}
                   onChange={(event) => setSelectedGenreId(event.target.value)}
                 >
-                  <option value="">Todos</option>
+                  <option value="">Todos os gêneros</option>
                   {genres.map((genre) => (
                     <option key={genre.id} value={genre.id}>
                       {genre.name}
@@ -128,6 +148,16 @@ export function TvShowsPage() {
                   {genreErrorMessage}
                 </p>
               ) : null}
+            </div>
+
+            <div className="catalog-filter-card__section">
+              <p className="eyebrow">Aplicado</p>
+              <p className="catalog-filter-summary">
+                Ordenação: {selectedSortOption?.label ?? 'Popularidade: maior → menor'}
+              </p>
+              <p className="catalog-filter-summary">
+                Gênero: {selectedGenre?.name ?? 'Todos os gêneros'}
+              </p>
             </div>
           </div>
         </aside>

@@ -87,6 +87,8 @@ describe('TvShowsPage', () => {
 
     expect(await screen.findByText(/serie ordenada/i)).toBeInTheDocument()
     expect(screen.queryByText(/serie popular/i)).not.toBeInTheDocument()
+    expect(screen.getByText(/ordenação: avaliação: menor → maior/i)).toBeInTheDocument()
+    expect(screen.getByText(/gênero: todos os gêneros/i)).toBeInTheDocument()
     expect(global.fetch).toHaveBeenCalledWith(
       'http://localhost:8000/api/tv-shows/discover?sort_by=vote_average.asc&page=1',
       expect.any(Object),
@@ -160,6 +162,7 @@ describe('TvShowsPage', () => {
     })
 
     expect(await screen.findByText(/drama recente/i)).toBeInTheDocument()
+    expect(screen.getByText(/gênero: drama/i)).toBeInTheDocument()
     expect(global.fetch).toHaveBeenCalledWith(
       'http://localhost:8000/api/tv-shows/discover?sort_by=first_air_date.desc&with_genres=18&page=1',
       expect.any(Object),
