@@ -62,9 +62,7 @@ export function FavoritesPage() {
       } catch (error) {
         if (active) {
           setErrorMessage(
-            error instanceof Error
-              ? error.message
-              : 'Nao foi possivel carregar seus favoritos.',
+            error instanceof Error ? error.message : 'Nao foi possivel carregar seus favoritos.',
           )
         }
       } finally {
@@ -83,16 +81,6 @@ export function FavoritesPage() {
 
   return (
     <main className="app-shell favorites-page">
-      <section className="page-heading page-heading--compact">
-        <div className="page-copy">
-          <span className="eyebrow">Conta</span>
-          <h1>Meus favoritos</h1>
-          <p className="lead">
-            Reuna aqui os filmes e as series que voce quer acompanhar com mais facilidade.
-          </p>
-        </div>
-      </section>
-
       {!authenticated ? (
         <section className="status-panel favorites-empty">
           <p>Entre na sua conta para ver e salvar seus favoritos.</p>

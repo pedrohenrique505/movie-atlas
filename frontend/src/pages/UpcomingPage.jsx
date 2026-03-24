@@ -14,12 +14,6 @@ export function UpcomingPage() {
 
   return (
     <main className="app-shell">
-      <section className="page-heading page-heading--compact">
-        <div className="page-copy">
-          <h1>Próximos lançamentos</h1>
-        </div>
-      </section>
-
       <MovieListSection
         movies={upcoming.items}
         isLoading={upcoming.isLoading}

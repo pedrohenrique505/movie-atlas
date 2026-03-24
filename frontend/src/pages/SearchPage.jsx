@@ -58,12 +58,6 @@ export function SearchPage() {
 
   return (
     <main className="app-shell">
-      <section className="page-heading page-heading--compact">
-        <div className="page-copy">
-          <h1>{query ? `Resultados para "${query}"` : 'Buscar no catálogo'}</h1>
-        </div>
-      </section>
-
       {!query ? (
         <CollectionFeedback
           isLoading={false}

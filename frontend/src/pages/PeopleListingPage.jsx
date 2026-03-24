@@ -14,12 +14,6 @@ export function PeopleListingPage({
 
   return (
     <main className="app-shell">
-      <section className="page-heading page-heading--compact">
-        <div className="page-copy">
-          <h1>{title}</h1>
-        </div>
-      </section>
-
       <PeopleListSection
         people={people.items}
         isLoading={people.isLoading}
