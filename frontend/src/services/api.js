@@ -188,6 +188,24 @@ export const api = {
     const data = await requestPaginatedList('/tv-shows/popular', page)
     return data.results
   },
+  getTvGenres() {
+    return request('/tv-shows/categories').then((data) => data?.results ?? [])
+  },
+  async discoverTvShows(options = {}) {
+    const page = options.page ?? 1
+    const genreId = options.genreId ?? ''
+    const sortBy = options.sortBy ?? 'popularity.desc'
+    const discoverPath =
+      `/tv-shows/discover?with_genres=${encodeURIComponent(genreId)}` +
+      `&sort_by=${encodeURIComponent(sortBy)}`
+
+    if (options.paginated) {
+      return requestPaginatedList(discoverPath, page)
+    }
+
+    const data = await requestPaginatedList(discoverPath, page)
+    return data.results
+  },
   async getPopularActors(options = {}) {
     const page = options.page ?? 1
     if (options.paginated) {

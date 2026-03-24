@@ -1371,6 +1371,58 @@
   font-size: 0.95rem;
 }
 
+.catalog-layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 280px) minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.catalog-sidebar {
+  position: sticky;
+  top: 5.5rem;
+}
+
+.catalog-filter-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.1rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.catalog-filter-card__section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.catalog-filter-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.catalog-filter-pill--selected,
+.catalog-filter-pill--selected:hover {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #08110b;
+  box-shadow: 0 12px 24px rgba(80, 250, 123, 0.18);
+}
+
+.catalog-filter-status {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.catalog-results {
+  min-width: 0;
+}
+
 .media-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -1692,6 +1744,14 @@
 @media (max-width: 860px) {
   .shell {
     padding: 0 1rem 2rem;
+  }
+
+  .catalog-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .catalog-sidebar {
+    position: static;
   }
 
   .app-shell,
