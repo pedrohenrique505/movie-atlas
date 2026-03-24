@@ -116,24 +116,30 @@ class TMDbMovieService:
             page=page,
         )
 
-    def get_movie_categories(self):
-        payload = self._request(
-            '/genre/movie/list',
-            {
-                'language': self.language,
-            },
+    def discover_tv_shows(self, page=1, with_genres='', sort_by='popularity.desc'):
+        params = {
+            'include_adult': 'false',
+            'sort_by': sort_by or 'popularity.desc',
+        }
+        if with_genres:
+            params['with_genres'] = with_genres
+
+        return self._get_media_list(
+            '/discover/tv',
+            status_label='tv_discover',
+            title_fields=('name', 'original_name'),
+            date_field='first_air_date',
+            min_vote_count=100,
+            min_vote_average=6.5,
+            page=page,
+            extra_params=params,
         )
 
-        results = [
-            {
-                'id': str(item['id']),
-                'name': item.get('name') or '',
-            }
-            for item in payload.get('genres', [])
-            if item.get('name')
-        ]
+    def get_movie_categories(self):
+        return self._get_genre_categories('/genre/movie/list')
 
-        return {'results': results}
+    def get_tv_categories(self):
+        return self._get_genre_categories('/genre/tv/list')
 
     def get_popular_actors(self, page=1):
         return self._get_people_list('Acting', page=page)
@@ -229,6 +235,25 @@ class TMDbMovieService:
             raise MovieServiceError(
                 'Falha ao consultar a API externa de filmes.'
             ) from exc
+
+    def _get_genre_categories(self, path):
+        payload = self._request(
+            path,
+            {
+                'language': self.language,
+            },
+        )
+
+        results = [
+            {
+                'id': str(item['id']),
+                'name': item.get('name') or '',
+            }
+            for item in payload.get('genres', [])
+            if item.get('name')
+        ]
+
+        return {'results': results}
 
     def _get_movie_list(self, path, status_label, filter_upcoming=False, page=1):
         return self._get_media_list(

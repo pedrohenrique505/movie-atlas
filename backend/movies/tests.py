@@ -1920,6 +1920,51 @@ class PopularTvShowsIntegrationTests(APITestCase):
         mock_get_popular_tv_shows.assert_called_once_with(page=4)
 
 
+class TvCategoriesIntegrationTests(APITestCase):
+    @patch('movies.views.TMDbMovieService.get_tv_categories')
+    def test_tv_categories_endpoint_returns_service_payload(self, mock_get_tv_categories):
+        mock_get_tv_categories.return_value = {
+            'results': [
+                {'id': '18', 'name': 'Drama'},
+                {'id': '10765', 'name': 'Sci-Fi & Fantasy'},
+            ]
+        }
+
+        response = self.client.get('/api/tv-shows/categories')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), mock_get_tv_categories.return_value)
+
+
+class DiscoverTvShowsIntegrationTests(APITestCase):
+    @patch('movies.views.TMDbMovieService.discover_tv_shows')
+    def test_discover_tv_shows_endpoint_returns_service_payload(self, mock_discover_tv_shows):
+        mock_discover_tv_shows.return_value = {
+            'results': [
+                {
+                    'id': '811',
+                    'title': 'Serie Filtrada',
+                    'release_date': '2026-03-11',
+                    'status': 'tv_discover',
+                    'synopsis': 'Serie retornada pelo discover.',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/serie-discover.jpg',
+                    'has_trailer': False,
+                }
+            ],
+            'pagination': {'page': 3, 'page_size': 15, 'has_next': True},
+        }
+
+        response = self.client.get('/api/tv-shows/discover?with_genres=18&sort_by=vote_average.desc&page=3')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), mock_discover_tv_shows.return_value)
+        mock_discover_tv_shows.assert_called_once_with(
+            page=3,
+            with_genres='18',
+            sort_by='vote_average.desc',
+        )
+
+
 class MovieCategoriesIntegrationTests(APITestCase):
     @patch('movies.views.TMDbMovieService.get_movie_categories')
     def test_movie_categories_endpoint_returns_service_payload(self, mock_get_movie_categories):

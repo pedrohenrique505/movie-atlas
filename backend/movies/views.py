@@ -93,6 +93,19 @@ def build_discover_movies_example():
     return build_movie_list_example(status='discover')
 
 
+def build_tv_categories_example():
+    return {
+        'results': [
+            {'id': '18', 'name': 'Drama'},
+            {'id': '10765', 'name': 'Sci-Fi & Fantasy'},
+        ]
+    }
+
+
+def build_discover_tv_shows_example():
+    return build_movie_list_example(status='tv_discover')
+
+
 def get_page_number(request):
     try:
         page = int(request.query_params.get('page', 1))
@@ -881,6 +894,72 @@ class PopularTvShowsView(APIView):
         return Response(payload)
 
 
+class DiscoverTvShowsView(APIView):
+    @extend_schema(
+        operation_id='discover_tv_shows',
+        summary='Lista series por descoberta',
+        description='Consulta a API externa de descoberta de series, com suporte a ordenacao e filtro with_genres.',
+        responses={
+            200: OpenApiResponse(
+                response={
+                    'type': 'object',
+                    'properties': {
+                        'results': {
+                            'type': 'array',
+                            'items': {
+                                'type': 'object',
+                                'properties': {
+                                    'id': {'type': 'string'},
+                                    'title': {'type': 'string'},
+                                    'release_date': {'type': 'string', 'format': 'date'},
+                                    'status': {'type': 'string'},
+                                    'synopsis': {'type': 'string'},
+                                    'poster_image': {'type': 'string', 'nullable': True},
+                                    'has_trailer': {'type': 'boolean'},
+                                },
+                            },
+                        },
+                        'pagination': {
+                            'type': 'object',
+                            'properties': {
+                                'page': {'type': 'integer'},
+                                'page_size': {'type': 'integer'},
+                                'has_next': {'type': 'boolean'},
+                            },
+                        },
+                    },
+                },
+                examples=[
+                    OpenApiExample(
+                        'Discover TV shows response',
+                        value=build_discover_tv_shows_example(),
+                    )
+                ],
+            ),
+            503: OpenApiResponse(description='Falha de configuracao ou integracao com a API externa.'),
+        },
+    )
+    def get(self, request):
+        service = TMDbMovieService()
+        page = get_page_number(request)
+        with_genres = (request.query_params.get('with_genres') or '').strip()
+        sort_by = (request.query_params.get('sort_by') or 'popularity.desc').strip()
+
+        try:
+            payload = service.discover_tv_shows(
+                page=page,
+                with_genres=with_genres,
+                sort_by=sort_by,
+            )
+        except MovieServiceError as exc:
+            return Response(
+                {'detail': str(exc)},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        return Response(payload)
+
+
 class MovieCategoriesView(APIView):
     @extend_schema(
         operation_id='list_movie_categories',
@@ -926,6 +1005,52 @@ class MovieCategoriesView(APIView):
 
         try:
             payload = service.get_movie_categories()
+        except MovieServiceError as exc:
+            return Response(
+                {'detail': str(exc)},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        return Response(payload)
+
+
+class TvCategoriesView(APIView):
+    @extend_schema(
+        operation_id='list_tv_categories',
+        summary='Lista categorias de series',
+        description='Consulta a API externa para buscar categorias de series.',
+        responses={
+            200: OpenApiResponse(
+                response={
+                    'type': 'object',
+                    'properties': {
+                        'results': {
+                            'type': 'array',
+                            'items': {
+                                'type': 'object',
+                                'properties': {
+                                    'id': {'type': 'string'},
+                                    'name': {'type': 'string'},
+                                },
+                            },
+                        },
+                    },
+                },
+                examples=[
+                    OpenApiExample(
+                        'TV categories response',
+                        value=build_tv_categories_example(),
+                    )
+                ],
+            ),
+            503: OpenApiResponse(description='Falha de configuracao ou integracao com a API externa.'),
+        },
+    )
+    def get(self, request):
+        service = TMDbMovieService()
+
+        try:
+            payload = service.get_tv_categories()
         except MovieServiceError as exc:
             return Response(
                 {'detail': str(exc)},
