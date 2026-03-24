@@ -10,14 +10,14 @@ import { api } from '../services/api'
 const DEFAULT_SORT_BY = 'popularity.desc'
 
 const SORT_OPTIONS = [
-  { value: 'original_name.asc', label: 'A-Z' },
-  { value: 'original_name.desc', label: 'Z-A' },
-  { value: 'popularity.desc', label: 'Popularidade desc' },
-  { value: 'popularity.asc', label: 'Popularidade asc' },
-  { value: 'vote_average.desc', label: 'Avaliacao desc' },
-  { value: 'vote_average.asc', label: 'Avaliacao asc' },
-  { value: 'first_air_date.desc', label: 'Lancamento desc' },
-  { value: 'first_air_date.asc', label: 'Lancamento asc' },
+  { value: 'original_name.asc', label: 'Alfabética: A → Z' },
+  { value: 'original_name.desc', label: 'Alfabética: Z → A' },
+  { value: 'popularity.desc', label: 'Popularidade: maior → menor' },
+  { value: 'popularity.asc', label: 'Popularidade: menor → maior' },
+  { value: 'vote_average.desc', label: 'Avaliação: maior → menor' },
+  { value: 'vote_average.asc', label: 'Avaliação: menor → maior' },
+  { value: 'first_air_date.desc', label: 'Lançamento: mais recente → mais antigo' },
+  { value: 'first_air_date.asc', label: 'Lançamento: mais antigo → mais recente' },
 ]
 
 export function TvShowsPage() {
@@ -27,7 +27,7 @@ export function TvShowsPage() {
   const [isLoadingGenres, setIsLoadingGenres] = useState(true)
   const [genreErrorMessage, setGenreErrorMessage] = useState('')
 
-  useDocumentTitle('Series | Movie Atlas')
+  useDocumentTitle('Séries | Movie Atlas')
 
   useEffect(() => {
     let isMounted = true
@@ -45,7 +45,7 @@ export function TvShowsPage() {
       } catch (error) {
         if (isMounted) {
           setGenreErrorMessage(
-            error instanceof Error ? error.message : 'Nao foi possivel carregar os generos.',
+            error instanceof Error ? error.message : 'Não foi possível carregar os gêneros.',
           )
         }
       } finally {
@@ -75,8 +75,8 @@ export function TvShowsPage() {
           })
         : api.getPopularTvShows({ page, paginated }),
     shouldUseDiscover
-      ? 'Nao foi possivel carregar as series com os filtros selecionados.'
-      : 'Nao foi possivel carregar as series populares.',
+      ? 'Não foi possível carregar as séries com os filtros selecionados.'
+      : 'Não foi possível carregar as séries populares.',
     `${selectedGenreId || 'all'}:${selectedSortBy}`,
   )
 
@@ -101,10 +101,10 @@ export function TvShowsPage() {
             movies={shows.items}
             isLoading={shows.isLoading}
             errorMessage={shows.isLoading ? shows.errorMessage : ''}
-            emptyMessage="Nenhuma serie encontrada."
+            emptyMessage="Nenhuma série encontrada."
             variant="poster"
             gridClassName="movie-grid--five movie-grid--posters"
-            ariaLabel="Lista de series"
+            ariaLabel="Lista de séries"
             buildItemPath={(show) => `/tv-show/${show.id}`}
           />
 

@@ -153,7 +153,7 @@ describe('TvShowsPage', () => {
     fireEvent.change(screen.getByRole('combobox', { name: /ordenar por/i }), {
       target: { value: 'first_air_date.desc' },
     })
-    fireEvent.change(screen.getByRole('combobox', { name: /filtrar por genero/i }), {
+    fireEvent.change(screen.getByRole('combobox', { name: /filtrar por gênero/i }), {
       target: { value: '18' },
     })
 

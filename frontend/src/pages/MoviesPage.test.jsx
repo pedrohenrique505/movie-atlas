@@ -153,7 +153,7 @@ describe('MoviesPage', () => {
     fireEvent.change(screen.getByRole('combobox', { name: /ordenar por/i }), {
       target: { value: 'release_date.desc' },
     })
-    fireEvent.change(screen.getByRole('combobox', { name: /filtrar por genero/i }), {
+    fireEvent.change(screen.getByRole('combobox', { name: /filtrar por gênero/i }), {
       target: { value: '28' },
     })
 

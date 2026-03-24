@@ -10,14 +10,14 @@ import { api } from '../services/api'
 const DEFAULT_SORT_BY = 'popularity.desc'
 
 const SORT_OPTIONS = [
-  { value: 'original_title.asc', label: 'A-Z' },
-  { value: 'original_title.desc', label: 'Z-A' },
-  { value: 'popularity.desc', label: 'Popularidade desc' },
-  { value: 'popularity.asc', label: 'Popularidade asc' },
-  { value: 'vote_average.desc', label: 'Avaliacao desc' },
-  { value: 'vote_average.asc', label: 'Avaliacao asc' },
-  { value: 'release_date.desc', label: 'Lancamento desc' },
-  { value: 'release_date.asc', label: 'Lancamento asc' },
+  { value: 'original_title.asc', label: 'Alfabética: A → Z' },
+  { value: 'original_title.desc', label: 'Alfabética: Z → A' },
+  { value: 'popularity.desc', label: 'Popularidade: maior → menor' },
+  { value: 'popularity.asc', label: 'Popularidade: menor → maior' },
+  { value: 'vote_average.desc', label: 'Avaliação: maior → menor' },
+  { value: 'vote_average.asc', label: 'Avaliação: menor → maior' },
+  { value: 'release_date.desc', label: 'Lançamento: mais recente → mais antigo' },
+  { value: 'release_date.asc', label: 'Lançamento: mais antigo → mais recente' },
 ]
 
 export function MoviesPage() {
@@ -45,7 +45,7 @@ export function MoviesPage() {
       } catch (error) {
         if (isMounted) {
           setGenreErrorMessage(
-            error instanceof Error ? error.message : 'Nao foi possivel carregar os generos.',
+            error instanceof Error ? error.message : 'Não foi possível carregar os gêneros.',
           )
         }
       } finally {
@@ -75,8 +75,8 @@ export function MoviesPage() {
           })
         : api.getPopularMovies({ page, paginated }),
     shouldUseDiscover
-      ? 'Nao foi possivel carregar os filmes com os filtros selecionados.'
-      : 'Nao foi possivel carregar os filmes populares.',
+      ? 'Não foi possível carregar os filmes com os filtros selecionados.'
+      : 'Não foi possível carregar os filmes populares.',
     `${selectedGenreId || 'all'}:${selectedSortBy}`,
   )
 
@@ -103,7 +103,7 @@ export function MoviesPage() {
             errorMessage={movies.isLoading ? movies.errorMessage : ''}
             emptyMessage={
               selectedGenreId
-                ? 'Nenhum filme encontrado para este genero.'
+                ? 'Nenhum filme encontrado para este gênero.'
                 : 'Nenhum filme popular encontrado.'
             }
             variant="poster"

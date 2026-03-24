@@ -15,7 +15,7 @@ export function CatalogFiltersCard({
       </div>
 
       <div className="catalog-filter-card__section">
-        <h3 className="catalog-filter-section-title">Ordenacao</h3>
+        <h3 className="catalog-filter-section-title">Ordenação</h3>
         <label className="catalog-filter-field">
           <span className="catalog-filter-field__label">Ordenar por</span>
           <select
@@ -33,15 +33,15 @@ export function CatalogFiltersCard({
       </div>
 
       <div className="catalog-filter-card__section">
-        <h3 className="catalog-filter-section-title">Generos</h3>
+        <h3 className="catalog-filter-section-title">Gêneros</h3>
         <label className="catalog-filter-field">
-          <span className="catalog-filter-field__label">Filtrar por genero</span>
+          <span className="catalog-filter-field__label">Filtrar por gênero</span>
           <select
             className="catalog-filter-select"
             value={selectedGenreId}
             onChange={(event) => onGenreChange(event.target.value)}
           >
-            <option value="">Todos</option>
+            <option value="">Todos os gêneros</option>
             {genres.map((genre) => (
               <option key={genre.id} value={genre.id}>
                 {genre.name}
@@ -50,7 +50,7 @@ export function CatalogFiltersCard({
           </select>
         </label>
 
-        {isLoadingGenres ? <p className="catalog-filter-status">Carregando generos...</p> : null}
+        {isLoadingGenres ? <p className="catalog-filter-status">Carregando gêneros...</p> : null}
         {genreErrorMessage ? (
           <p className="catalog-filter-status error" role="alert">
             {genreErrorMessage}
