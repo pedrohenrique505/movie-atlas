@@ -90,4 +90,77 @@ describe('TvShowsPage', () => {
       expect.any(Object),
     )
   })
+
+  it('combines genre and sorting filters on the tv shows page', async () => {
+    createFetchMock((url) => {
+      if (url === 'http://localhost:8000/api/tv-shows/categories') {
+        return jsonResponse({
+          results: [
+            { id: '18', name: 'Drama' },
+            { id: '10765', name: 'Sci-Fi & Fantasy' },
+          ],
+        })
+      }
+
+      if (url === 'http://localhost:8000/api/tv-shows/popular?page=1') {
+        return jsonResponse({
+          results: [
+            {
+              id: '801',
+              title: 'Serie Popular',
+              release_date: '2025-10-01',
+              status: 'tv_show',
+              synopsis: 'Serie em destaque.',
+              poster_image: 'https://image.tmdb.org/t/p/w780/serie.jpg',
+              has_trailer: false,
+            },
+          ],
+          pagination: { page: 1, page_size: 15, has_next: false },
+        })
+      }
+
+      if (
+        url ===
+        'http://localhost:8000/api/tv-shows/discover?sort_by=first_air_date.desc&with_genres=18&page=1'
+      ) {
+        return jsonResponse({
+          results: [
+            {
+              id: '812',
+              title: 'Drama Recente',
+              release_date: '2026-04-14',
+              status: 'tv_discover',
+              synopsis: 'Serie filtrada por genero e ordenacao.',
+              poster_image: 'https://image.tmdb.org/t/p/w780/drama-recente.jpg',
+              has_trailer: false,
+            },
+          ],
+          pagination: { page: 1, page_size: 15, has_next: false },
+        })
+      }
+
+      throw new Error(`Unhandled URL: ${url}`)
+    })
+
+    render(
+      <MemoryRouter initialEntries={['/tv-shows']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(await screen.findByText(/serie popular/i)).toBeInTheDocument()
+
+    fireEvent.change(screen.getByRole('combobox', { name: /ordenar por/i }), {
+      target: { value: 'first_air_date.desc' },
+    })
+    fireEvent.change(screen.getByRole('combobox', { name: /filtrar por genero/i }), {
+      target: { value: '18' },
+    })
+
+    expect(await screen.findByText(/drama recente/i)).toBeInTheDocument()
+    expect(global.fetch).toHaveBeenCalledWith(
+      'http://localhost:8000/api/tv-shows/discover?sort_by=first_air_date.desc&with_genres=18&page=1',
+      expect.any(Object),
+    )
+  })
 })

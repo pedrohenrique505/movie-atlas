@@ -90,4 +90,77 @@ describe('MoviesPage', () => {
       expect.any(Object),
     )
   })
+
+  it('combines genre and sorting filters on the movies page', async () => {
+    createFetchMock((url) => {
+      if (url === 'http://localhost:8000/api/movies/categories') {
+        return jsonResponse({
+          results: [
+            { id: '28', name: 'Acao' },
+            { id: '18', name: 'Drama' },
+          ],
+        })
+      }
+
+      if (url === 'http://localhost:8000/api/movies/popular?page=1') {
+        return jsonResponse({
+          results: [
+            {
+              id: '901',
+              title: 'Filme Popular',
+              release_date: '2026-05-22',
+              status: 'popular',
+              synopsis: 'Filme popular do momento.',
+              poster_image: 'https://image.tmdb.org/t/p/w780/popular.jpg',
+              has_trailer: false,
+            },
+          ],
+          pagination: { page: 1, page_size: 15, has_next: false },
+        })
+      }
+
+      if (
+        url ===
+        'http://localhost:8000/api/movies/discover?sort_by=release_date.desc&with_genres=28&page=1'
+      ) {
+        return jsonResponse({
+          results: [
+            {
+              id: '903',
+              title: 'Acao Recente',
+              release_date: '2026-07-01',
+              status: 'discover',
+              synopsis: 'Filme filtrado por genero e ordenacao.',
+              poster_image: 'https://image.tmdb.org/t/p/w780/action-recent.jpg',
+              has_trailer: false,
+            },
+          ],
+          pagination: { page: 1, page_size: 15, has_next: false },
+        })
+      }
+
+      throw new Error(`Unhandled URL: ${url}`)
+    })
+
+    render(
+      <MemoryRouter initialEntries={['/movies']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(await screen.findByText(/filme popular/i)).toBeInTheDocument()
+
+    fireEvent.change(screen.getByRole('combobox', { name: /ordenar por/i }), {
+      target: { value: 'release_date.desc' },
+    })
+    fireEvent.change(screen.getByRole('combobox', { name: /filtrar por genero/i }), {
+      target: { value: '28' },
+    })
+
+    expect(await screen.findByText(/acao recente/i)).toBeInTheDocument()
+    expect(global.fetch).toHaveBeenCalledWith(
+      'http://localhost:8000/api/movies/discover?sort_by=release_date.desc&with_genres=28&page=1',
+      expect.any(Object),
+    )
+  })
 })
