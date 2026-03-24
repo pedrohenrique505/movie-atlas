@@ -195,9 +195,13 @@ export const api = {
     const page = options.page ?? 1
     const genreId = options.genreId ?? ''
     const sortBy = options.sortBy ?? 'popularity.desc'
-    const discoverPath =
-      `/tv-shows/discover?with_genres=${encodeURIComponent(genreId)}` +
-      `&sort_by=${encodeURIComponent(sortBy)}`
+    const query = new URLSearchParams({ sort_by: sortBy })
+
+    if (genreId) {
+      query.set('with_genres', genreId)
+    }
+
+    const discoverPath = `/tv-shows/discover?${query.toString()}`
 
     if (options.paginated) {
       return requestPaginatedList(discoverPath, page)
