@@ -7,10 +7,14 @@ import { usePaginatedCollection } from '../hooks/usePaginatedCollection'
 import { api } from '../services/api'
 
 const SORT_OPTIONS = [
-  { value: 'title.asc', label: 'Alfabetica' },
-  { value: 'popularity.desc', label: 'Popularidade' },
-  { value: 'vote_average.desc', label: 'Avaliacao' },
-  { value: 'first_air_date.desc', label: 'Lancamento' },
+  { value: 'original_name.asc', label: 'Alfabética: A → Z' },
+  { value: 'original_name.desc', label: 'Alfabética: Z → A' },
+  { value: 'popularity.desc', label: 'Popularidade: maior → menor' },
+  { value: 'popularity.asc', label: 'Popularidade: menor → maior' },
+  { value: 'vote_average.desc', label: 'Avaliação: maior → menor' },
+  { value: 'vote_average.asc', label: 'Avaliação: menor → maior' },
+  { value: 'first_air_date.desc', label: 'Lançamento: mais recente → mais antigo' },
+  { value: 'first_air_date.asc', label: 'Lançamento: mais antigo → mais recente' },
 ]
 
 export function TvShowsPage() {

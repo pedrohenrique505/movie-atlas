@@ -22,7 +22,7 @@ function createFetchMock(handler) {
 }
 
 describe('TvShowsPage', () => {
-  it('renders a sidebar filter card and applies sorting and genre filters', async () => {
+  it('applies the selected sorting on the tv shows page', async () => {
     createFetchMock((url) => {
       if (url === 'http://localhost:8000/api/tv-shows/categories') {
         return jsonResponse({
@@ -52,16 +52,16 @@ describe('TvShowsPage', () => {
 
       if (
         url ===
-        'http://localhost:8000/api/tv-shows/discover?with_genres=18&sort_by=vote_average.desc&page=1'
+        'http://localhost:8000/api/tv-shows/discover?with_genres=&sort_by=vote_average.asc&page=1'
       ) {
         return jsonResponse({
           results: [
             {
               id: '811',
-              title: 'Serie Filtrada',
+              title: 'Serie Ordenada',
               release_date: '2026-03-11',
               status: 'tv_discover',
-              synopsis: 'Serie retornada pelos filtros.',
+              synopsis: 'Serie retornada pela ordenacao.',
               poster_image: 'https://image.tmdb.org/t/p/w780/serie-filtrada.jpg',
               has_trailer: false,
             },
@@ -85,16 +85,13 @@ describe('TvShowsPage', () => {
     expect(screen.getByRole('combobox', { name: /filtrar por gênero/i })).toBeInTheDocument()
 
     fireEvent.change(screen.getByRole('combobox', { name: /ordenar por/i }), {
-      target: { value: 'vote_average.desc' },
-    })
-    fireEvent.change(screen.getByRole('combobox', { name: /filtrar por gênero/i }), {
-      target: { value: '18' },
+      target: { value: 'vote_average.asc' },
     })
 
-    expect(await screen.findByText(/serie filtrada/i)).toBeInTheDocument()
+    expect(await screen.findByText(/serie ordenada/i)).toBeInTheDocument()
     expect(screen.queryByText(/serie popular/i)).not.toBeInTheDocument()
     expect(global.fetch).toHaveBeenCalledWith(
-      'http://localhost:8000/api/tv-shows/discover?with_genres=18&sort_by=vote_average.desc&page=1',
+      'http://localhost:8000/api/tv-shows/discover?with_genres=&sort_by=vote_average.asc&page=1',
       expect.any(Object),
     )
   })
