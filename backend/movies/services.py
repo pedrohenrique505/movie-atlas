@@ -85,6 +85,23 @@ class TMDbMovieService:
             page=page,
         )
 
+    def discover_movies(self, page=1, with_genres=''):
+        params = {
+            'include_adult': 'false',
+            'include_video': 'false',
+            'sort_by': 'popularity.desc',
+        }
+        if with_genres:
+            params['with_genres'] = with_genres
+
+        return self._get_media_list(
+            '/discover/movie',
+            status_label='discover',
+            min_vote_count=50,
+            page=page,
+            extra_params=params,
+        )
+
     def get_top_rated_movies(self, page=1):
         return self._get_media_list('/movie/top_rated', status_label='top_rated', page=page)
 
@@ -231,12 +248,16 @@ class TMDbMovieService:
         min_vote_count=None,
         min_vote_average=None,
         page=1,
+        extra_params=None,
     ):
         normalized_page = self._normalize_page_number(page)
         params = {
             'language': self.language,
             'page': normalized_page,
         }
+
+        if extra_params:
+            params.update(extra_params)
 
         if path in {'/movie/upcoming', '/movie/now_playing'}:
             params['region'] = self.region

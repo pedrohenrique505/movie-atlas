@@ -1,6 +1,7 @@
 from django.urls import path
 
 from .views import (
+    DiscoverMoviesView,
     MovieDetailsView,
     MovieCategoriesView,
     NowPlayingMoviesView,
@@ -22,6 +23,7 @@ urlpatterns = [
     path('movies/categories', MovieCategoriesView.as_view(), name='movies-categories'),
     path('movies/trending', TrendingMoviesView.as_view(), name='movies-trending'),
     path('people/trending', TrendingPeopleView.as_view(), name='people-trending'),
+    path('movies/discover', DiscoverMoviesView.as_view(), name='movies-discover'),
     path('movies/popular', PopularMoviesView.as_view(), name='movies-popular'),
     path('movies/top-rated', TopRatedMoviesView.as_view(), name='movies-top-rated'),
     path('movies/now-playing', NowPlayingMoviesView.as_view(), name='movies-now-playing'),

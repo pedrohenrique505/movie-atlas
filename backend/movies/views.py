@@ -89,6 +89,10 @@ def build_categories_example():
     }
 
 
+def build_discover_movies_example():
+    return build_movie_list_example(status='discover')
+
+
 def get_page_number(request):
     try:
         page = int(request.query_params.get('page', 1))
@@ -627,6 +631,67 @@ class PopularMoviesView(APIView):
 
         try:
             payload = service.get_popular_movies(page=page)
+        except MovieServiceError as exc:
+            return Response(
+                {'detail': str(exc)},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        return Response(payload)
+
+
+class DiscoverMoviesView(APIView):
+    @extend_schema(
+        operation_id='discover_movies',
+        summary='Lista filmes por descoberta',
+        description='Consulta a API externa de descoberta de filmes, com suporte ao filtro with_genres.',
+        responses={
+            200: OpenApiResponse(
+                response={
+                    'type': 'object',
+                    'properties': {
+                        'results': {
+                            'type': 'array',
+                            'items': {
+                                'type': 'object',
+                                'properties': {
+                                    'id': {'type': 'string'},
+                                    'title': {'type': 'string'},
+                                    'release_date': {'type': 'string', 'format': 'date'},
+                                    'status': {'type': 'string'},
+                                    'synopsis': {'type': 'string'},
+                                    'poster_image': {'type': 'string', 'nullable': True},
+                                    'has_trailer': {'type': 'boolean'},
+                                },
+                            },
+                        },
+                        'pagination': {
+                            'type': 'object',
+                            'properties': {
+                                'page': {'type': 'integer'},
+                                'page_size': {'type': 'integer'},
+                                'has_next': {'type': 'boolean'},
+                            },
+                        },
+                    },
+                },
+                examples=[
+                    OpenApiExample(
+                        'Discover movies response',
+                        value=build_discover_movies_example(),
+                    )
+                ],
+            ),
+            503: OpenApiResponse(description='Falha de configuracao ou integracao com a API externa.'),
+        },
+    )
+    def get(self, request):
+        service = TMDbMovieService()
+        page = get_page_number(request)
+        with_genres = (request.query_params.get('with_genres') or '').strip()
+
+        try:
+            payload = service.discover_movies(page=page, with_genres=with_genres)
         except MovieServiceError as exc:
             return Response(
                 {'detail': str(exc)},

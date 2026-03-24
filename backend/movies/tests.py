@@ -1936,6 +1936,31 @@ class MovieCategoriesIntegrationTests(APITestCase):
         self.assertEqual(response.json(), mock_get_movie_categories.return_value)
 
 
+class DiscoverMoviesIntegrationTests(APITestCase):
+    @patch('movies.views.TMDbMovieService.discover_movies')
+    def test_discover_movies_endpoint_returns_service_payload(self, mock_discover_movies):
+        mock_discover_movies.return_value = {
+            'results': [
+                {
+                    'id': '901',
+                    'title': 'Filme Filtrado',
+                    'release_date': '2026-05-22',
+                    'status': 'discover',
+                    'synopsis': 'Filme retornado pelo discover.',
+                    'poster_image': 'https://image.tmdb.org/t/p/w780/discover.jpg',
+                    'has_trailer': False,
+                }
+            ],
+            'pagination': {'page': 2, 'page_size': 15, 'has_next': True},
+        }
+
+        response = self.client.get('/api/movies/discover?with_genres=28&page=2')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), mock_discover_movies.return_value)
+        mock_discover_movies.assert_called_once_with(page=2, with_genres='28')
+
+
 class MovieDetailsIntegrationTests(APITestCase):
     @patch('movies.views.TMDbMovieService.get_movie_details')
     def test_movie_details_endpoint_returns_service_payload(self, mock_get_movie_details):
