@@ -80,11 +80,16 @@ describe('TvShowsPage', () => {
     )
 
     expect(await screen.findByText(/serie popular/i)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /popularidade/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /drama/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /filtros/i })).toBeInTheDocument()
+    expect(screen.getByRole('combobox', { name: /ordenar por/i })).toBeInTheDocument()
+    expect(screen.getByRole('combobox', { name: /filtrar por gênero/i })).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: /avaliacao/i }))
-    fireEvent.click(screen.getByRole('button', { name: /drama/i }))
+    fireEvent.change(screen.getByRole('combobox', { name: /ordenar por/i }), {
+      target: { value: 'vote_average.desc' },
+    })
+    fireEvent.change(screen.getByRole('combobox', { name: /filtrar por gênero/i }), {
+      target: { value: '18' },
+    })
 
     expect(await screen.findByText(/serie filtrada/i)).toBeInTheDocument()
     expect(screen.queryByText(/serie popular/i)).not.toBeInTheDocument()

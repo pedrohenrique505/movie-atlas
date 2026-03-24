@@ -78,49 +78,47 @@ export function TvShowsPage() {
       <section className="catalog-layout">
         <aside className="catalog-sidebar">
           <div className="catalog-filter-card">
-            <div className="catalog-filter-card__section">
-              <p className="eyebrow">Ordenar por</p>
-              <div className="catalog-filter-list">
-                {SORT_OPTIONS.map((option) => (
-                  <button
-                    key={option.value}
-                    type="button"
-                    className={`filter-chip catalog-filter-pill ${selectedSortBy === option.value ? 'catalog-filter-pill--selected' : ''}`.trim()}
-                    onClick={() => setSelectedSortBy(option.value)}
-                    aria-pressed={selectedSortBy === option.value}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
+            <div className="catalog-filter-card__header">
+              <h2>Filtros</h2>
             </div>
 
             <div className="catalog-filter-card__section">
-              <p className="eyebrow">Generos</p>
-              <div className="catalog-filter-list">
-                <button
-                  type="button"
-                  className={`filter-chip catalog-filter-pill ${selectedGenreId ? '' : 'catalog-filter-pill--selected'}`.trim()}
-                  onClick={() => setSelectedGenreId('')}
-                  aria-pressed={!selectedGenreId}
+              <p className="eyebrow">Ordenação</p>
+              <label className="catalog-filter-field">
+                <span className="catalog-filter-field__label">Ordenar por</span>
+                <select
+                  className="catalog-filter-select"
+                  value={selectedSortBy}
+                  onChange={(event) => setSelectedSortBy(event.target.value)}
                 >
-                  Todos
-                </button>
+                  {SORT_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
 
-                {genres.map((genre) => (
-                  <button
-                    key={genre.id}
-                    type="button"
-                    className={`filter-chip catalog-filter-pill ${selectedGenreId === genre.id ? 'catalog-filter-pill--selected' : ''}`.trim()}
-                    onClick={() => setSelectedGenreId(genre.id)}
-                    aria-pressed={selectedGenreId === genre.id}
-                  >
-                    {genre.name}
-                  </button>
-                ))}
-              </div>
+            <div className="catalog-filter-card__section">
+              <p className="eyebrow">Gêneros</p>
+              <label className="catalog-filter-field">
+                <span className="catalog-filter-field__label">Filtrar por gênero</span>
+                <select
+                  className="catalog-filter-select"
+                  value={selectedGenreId}
+                  onChange={(event) => setSelectedGenreId(event.target.value)}
+                >
+                  <option value="">Todos</option>
+                  {genres.map((genre) => (
+                    <option key={genre.id} value={genre.id}>
+                      {genre.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
 
-              {isLoadingGenres ? <p className="catalog-filter-status">Carregando generos...</p> : null}
+              {isLoadingGenres ? <p className="catalog-filter-status">Carregando gêneros...</p> : null}
               {genreErrorMessage ? (
                 <p className="catalog-filter-status error" role="alert">
                   {genreErrorMessage}
