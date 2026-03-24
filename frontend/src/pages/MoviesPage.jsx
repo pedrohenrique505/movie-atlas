@@ -1,14 +1,23 @@
 import { useEffect, useState } from 'react'
 
+import { CatalogFiltersCard } from '../components/CatalogFiltersCard'
 import { LoadMoreSection } from '../components/LoadMoreSection'
 import { MovieListSection } from '../components/MovieListSection'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { usePaginatedCollection } from '../hooks/usePaginatedCollection'
 import { api } from '../services/api'
 
+const SORT_OPTIONS = [
+  { value: 'popularity.desc', label: 'Popularidade' },
+  { value: 'original_title.asc', label: 'Alfabetica' },
+  { value: 'vote_average.desc', label: 'Avaliacao' },
+  { value: 'release_date.desc', label: 'Lancamento' },
+]
+
 export function MoviesPage() {
   const [genres, setGenres] = useState([])
   const [selectedGenreId, setSelectedGenreId] = useState('')
+  const [selectedSortBy, setSelectedSortBy] = useState('popularity.desc')
   const [isLoadingGenres, setIsLoadingGenres] = useState(true)
   const [genreErrorMessage, setGenreErrorMessage] = useState('')
 
@@ -60,65 +69,44 @@ export function MoviesPage() {
 
   return (
     <main className="app-shell">
-      <section className="page-heading page-heading--compact">
-        <div className="page-copy">
-          <h1>{selectedGenreId ? 'Filmes por genero' : 'Filmes populares'}</h1>
+      <section className="catalog-layout">
+        <aside className="catalog-sidebar">
+          <CatalogFiltersCard
+            sortOptions={SORT_OPTIONS}
+            selectedSortBy={selectedSortBy}
+            onSortChange={setSelectedSortBy}
+            genres={genres}
+            selectedGenreId={selectedGenreId}
+            onGenreChange={setSelectedGenreId}
+            isLoadingGenres={isLoadingGenres}
+            genreErrorMessage={genreErrorMessage}
+          />
+        </aside>
+
+        <div className="catalog-results">
+          <MovieListSection
+            movies={movies.items}
+            isLoading={movies.isLoading}
+            errorMessage={movies.isLoading ? movies.errorMessage : ''}
+            emptyMessage={
+              selectedGenreId
+                ? 'Nenhum filme encontrado para este genero.'
+                : 'Nenhum filme popular encontrado.'
+            }
+            variant="poster"
+            gridClassName="movie-grid--five movie-grid--posters"
+            ariaLabel="Lista de filmes"
+          />
+
+          <LoadMoreSection
+            hasItems={movies.items.length > 0}
+            hasNextPage={movies.hasNextPage}
+            isLoadingMore={movies.isLoadingMore}
+            errorMessage={!movies.isLoading ? movies.errorMessage : ''}
+            onLoadMore={movies.loadMore}
+          />
         </div>
       </section>
-
-      <section className="movie-filters" aria-label="Filtros de genero dos filmes">
-        <div className="movie-filters__scroller" role="list">
-          <button
-            type="button"
-            className={`filter-chip movie-filters__pill ${selectedGenreId ? '' : 'movie-filters__pill--selected'}`.trim()}
-            onClick={() => setSelectedGenreId('')}
-            aria-pressed={!selectedGenreId}
-          >
-            Todos
-          </button>
-
-          {genres.map((genre) => (
-            <button
-              key={genre.id}
-              type="button"
-              className={`filter-chip movie-filters__pill ${selectedGenreId === genre.id ? 'movie-filters__pill--selected' : ''}`.trim()}
-              onClick={() => setSelectedGenreId(genre.id)}
-              aria-pressed={selectedGenreId === genre.id}
-            >
-              {genre.name}
-            </button>
-          ))}
-        </div>
-
-        {isLoadingGenres ? <p className="movie-filters__status">Carregando generos...</p> : null}
-        {genreErrorMessage ? (
-          <p className="movie-filters__status error" role="alert">
-            {genreErrorMessage}
-          </p>
-        ) : null}
-      </section>
-
-      <MovieListSection
-        movies={movies.items}
-        isLoading={movies.isLoading}
-        errorMessage={movies.isLoading ? movies.errorMessage : ''}
-        emptyMessage={
-          selectedGenreId
-            ? 'Nenhum filme encontrado para este genero.'
-            : 'Nenhum filme popular encontrado.'
-        }
-        variant="poster"
-        gridClassName="movie-grid--five movie-grid--posters"
-        ariaLabel={selectedGenreId ? 'Lista de filmes filtrados por genero' : 'Lista de filmes populares'}
-      />
-
-      <LoadMoreSection
-        hasItems={movies.items.length > 0}
-        hasNextPage={movies.hasNextPage}
-        isLoadingMore={movies.isLoadingMore}
-        errorMessage={!movies.isLoading ? movies.errorMessage : ''}
-        onLoadMore={movies.loadMore}
-      />
     </main>
   )
 }

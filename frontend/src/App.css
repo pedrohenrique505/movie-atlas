@@ -1406,17 +1406,18 @@
   font-size: 1.05rem;
 }
 
-.catalog-filter-reset {
-  min-height: 2.35rem;
-  padding: 0.5rem 0.85rem;
-  font-size: 0.88rem;
-}
-
 .catalog-filter-card__section {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
   padding-top: 0.1rem;
+}
+
+.catalog-filter-section-title {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.94rem;
+  line-height: 1.2;
 }
 
 .catalog-filter-field {
@@ -1430,23 +1431,10 @@
   font-size: 0.92rem;
 }
 
-.catalog-filter-field__hint {
-  color: var(--muted);
-  font-size: 0.82rem;
-  line-height: 1.4;
-}
-
 .catalog-filter-status {
   margin: 0;
   color: var(--muted);
   font-size: 0.95rem;
-}
-
-.catalog-filter-summary {
-  margin: 0;
-  color: var(--text);
-  font-size: 0.92rem;
-  line-height: 1.45;
 }
 
 .catalog-filter-select {

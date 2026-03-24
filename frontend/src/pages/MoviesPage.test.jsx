@@ -22,7 +22,7 @@ function createFetchMock(handler) {
 }
 
 describe('MoviesPage', () => {
-  it('renders genre pills and filters the listing with with_genres', async () => {
+  it('renders the sidebar filters and filters the listing by genre', async () => {
     createFetchMock((url) => {
       if (url === 'http://localhost:8000/api/movies/categories') {
         return jsonResponse({
@@ -78,13 +78,16 @@ describe('MoviesPage', () => {
 
     expect(await screen.findByText(/filme popular/i)).toBeInTheDocument()
 
-    const actionPill = await screen.findByRole('button', { name: /acao/i })
-    fireEvent.click(actionPill)
+    expect(screen.getByRole('heading', { name: /filtros/i })).toBeInTheDocument()
+    expect(screen.getByRole('combobox', { name: /ordenar por/i })).toBeInTheDocument()
+    expect(screen.getByRole('combobox', { name: /filtrar por genero/i })).toBeInTheDocument()
 
-    expect(await screen.findByRole('heading', { name: /filmes por genero/i })).toBeInTheDocument()
+    fireEvent.change(screen.getByRole('combobox', { name: /filtrar por genero/i }), {
+      target: { value: '28' },
+    })
+
     expect(await screen.findByText(/filme de acao/i)).toBeInTheDocument()
     expect(screen.queryByText(/filme popular/i)).not.toBeInTheDocument()
-    expect(actionPill).toHaveAttribute('aria-pressed', 'true')
     expect(global.fetch).toHaveBeenCalledWith(
       'http://localhost:8000/api/movies/discover?with_genres=28&page=1',
       expect.any(Object),
