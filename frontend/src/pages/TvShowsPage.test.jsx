@@ -22,7 +22,7 @@ function createFetchMock(handler) {
 }
 
 describe('TvShowsPage', () => {
-  it('renders the sidebar filters and applies tv filters', async () => {
+  it('applies the selected sorting on the tv shows page', async () => {
     createFetchMock((url) => {
       if (url === 'http://localhost:8000/api/tv-shows/categories') {
         return jsonResponse({
@@ -50,19 +50,16 @@ describe('TvShowsPage', () => {
         })
       }
 
-      if (
-        url ===
-        'http://localhost:8000/api/tv-shows/discover?sort_by=first_air_date.desc&with_genres=18&page=1'
-      ) {
+      if (url === 'http://localhost:8000/api/tv-shows/discover?sort_by=vote_average.asc&page=1') {
         return jsonResponse({
           results: [
             {
-              id: '812',
-              title: 'Drama Recente',
-              release_date: '2026-04-14',
+              id: '811',
+              title: 'Serie Ordenada',
+              release_date: '2026-03-11',
               status: 'tv_discover',
-              synopsis: 'Serie filtrada por genero e ordenacao.',
-              poster_image: 'https://image.tmdb.org/t/p/w780/drama-recente.jpg',
+              synopsis: 'Serie retornada pela ordenacao.',
+              poster_image: 'https://image.tmdb.org/t/p/w780/serie-filtrada.jpg',
               has_trailer: false,
             },
           ],
@@ -80,20 +77,16 @@ describe('TvShowsPage', () => {
     )
 
     expect(await screen.findByText(/serie popular/i)).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: /filtros/i })).toBeInTheDocument()
     expect(screen.getByRole('combobox', { name: /ordenar por/i })).toBeInTheDocument()
-    expect(screen.getByRole('combobox', { name: /filtrar por genero/i })).toBeInTheDocument()
 
     fireEvent.change(screen.getByRole('combobox', { name: /ordenar por/i }), {
-      target: { value: 'first_air_date.desc' },
-    })
-    fireEvent.change(screen.getByRole('combobox', { name: /filtrar por genero/i }), {
-      target: { value: '18' },
+      target: { value: 'vote_average.asc' },
     })
 
-    expect(await screen.findByText(/drama recente/i)).toBeInTheDocument()
+    expect(await screen.findByText(/serie ordenada/i)).toBeInTheDocument()
+    expect(screen.queryByText(/serie popular/i)).not.toBeInTheDocument()
     expect(global.fetch).toHaveBeenCalledWith(
-      'http://localhost:8000/api/tv-shows/discover?sort_by=first_air_date.desc&with_genres=18&page=1',
+      'http://localhost:8000/api/tv-shows/discover?sort_by=vote_average.asc&page=1',
       expect.any(Object),
     )
   })

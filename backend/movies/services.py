@@ -85,11 +85,11 @@ class TMDbMovieService:
             page=page,
         )
 
-    def discover_movies(self, page=1, with_genres=''):
+    def discover_movies(self, page=1, with_genres='', sort_by='popularity.desc'):
         params = {
             'include_adult': 'false',
             'include_video': 'false',
-            'sort_by': 'popularity.desc',
+            'sort_by': sort_by or 'popularity.desc',
         }
         if with_genres:
             params['with_genres'] = with_genres

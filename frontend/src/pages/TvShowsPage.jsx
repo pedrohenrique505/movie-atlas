@@ -10,10 +10,14 @@ import { api } from '../services/api'
 const DEFAULT_SORT_BY = 'popularity.desc'
 
 const SORT_OPTIONS = [
-  { value: 'popularity.desc', label: 'Popularidade' },
-  { value: 'original_name.asc', label: 'Alfabetica' },
-  { value: 'vote_average.desc', label: 'Avaliacao' },
-  { value: 'first_air_date.desc', label: 'Lancamento' },
+  { value: 'original_name.asc', label: 'A-Z' },
+  { value: 'original_name.desc', label: 'Z-A' },
+  { value: 'popularity.desc', label: 'Popularidade desc' },
+  { value: 'popularity.asc', label: 'Popularidade asc' },
+  { value: 'vote_average.desc', label: 'Avaliacao desc' },
+  { value: 'vote_average.asc', label: 'Avaliacao asc' },
+  { value: 'first_air_date.desc', label: 'Lancamento desc' },
+  { value: 'first_air_date.asc', label: 'Lancamento asc' },
 ]
 
 export function TvShowsPage() {

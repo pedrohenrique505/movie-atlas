@@ -151,7 +151,14 @@ export const api = {
   async discoverMovies(options = {}) {
     const page = options.page ?? 1
     const genreId = options.genreId ?? ''
-    const discoverPath = `/movies/discover?with_genres=${encodeURIComponent(genreId)}`
+    const sortBy = options.sortBy ?? 'popularity.desc'
+    const query = new URLSearchParams({ sort_by: sortBy })
+
+    if (genreId) {
+      query.set('with_genres', genreId)
+    }
+
+    const discoverPath = `/movies/discover?${query.toString()}`
 
     if (options.paginated) {
       return requestPaginatedList(discoverPath, page)

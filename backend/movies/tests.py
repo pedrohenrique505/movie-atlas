@@ -1999,11 +1999,15 @@ class DiscoverMoviesIntegrationTests(APITestCase):
             'pagination': {'page': 2, 'page_size': 15, 'has_next': True},
         }
 
-        response = self.client.get('/api/movies/discover?with_genres=28&page=2')
+        response = self.client.get('/api/movies/discover?with_genres=28&sort_by=vote_average.asc&page=2')
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), mock_discover_movies.return_value)
-        mock_discover_movies.assert_called_once_with(page=2, with_genres='28')
+        mock_discover_movies.assert_called_once_with(
+            page=2,
+            with_genres='28',
+            sort_by='vote_average.asc',
+        )
 
 
 class MovieDetailsIntegrationTests(APITestCase):

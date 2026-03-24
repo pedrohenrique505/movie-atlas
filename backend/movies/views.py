@@ -657,7 +657,7 @@ class DiscoverMoviesView(APIView):
     @extend_schema(
         operation_id='discover_movies',
         summary='Lista filmes por descoberta',
-        description='Consulta a API externa de descoberta de filmes, com suporte ao filtro with_genres.',
+        description='Consulta a API externa de descoberta de filmes, com suporte a ordenacao e filtro with_genres.',
         responses={
             200: OpenApiResponse(
                 response={
@@ -702,9 +702,14 @@ class DiscoverMoviesView(APIView):
         service = TMDbMovieService()
         page = get_page_number(request)
         with_genres = (request.query_params.get('with_genres') or '').strip()
+        sort_by = (request.query_params.get('sort_by') or 'popularity.desc').strip()
 
         try:
-            payload = service.discover_movies(page=page, with_genres=with_genres)
+            payload = service.discover_movies(
+                page=page,
+                with_genres=with_genres,
+                sort_by=sort_by,
+            )
         except MovieServiceError as exc:
             return Response(
                 {'detail': str(exc)},

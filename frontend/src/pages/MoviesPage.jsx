@@ -7,17 +7,23 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { usePaginatedCollection } from '../hooks/usePaginatedCollection'
 import { api } from '../services/api'
 
+const DEFAULT_SORT_BY = 'popularity.desc'
+
 const SORT_OPTIONS = [
-  { value: 'popularity.desc', label: 'Popularidade' },
-  { value: 'original_title.asc', label: 'Alfabetica' },
-  { value: 'vote_average.desc', label: 'Avaliacao' },
-  { value: 'release_date.desc', label: 'Lancamento' },
+  { value: 'original_title.asc', label: 'A-Z' },
+  { value: 'original_title.desc', label: 'Z-A' },
+  { value: 'popularity.desc', label: 'Popularidade desc' },
+  { value: 'popularity.asc', label: 'Popularidade asc' },
+  { value: 'vote_average.desc', label: 'Avaliacao desc' },
+  { value: 'vote_average.asc', label: 'Avaliacao asc' },
+  { value: 'release_date.desc', label: 'Lancamento desc' },
+  { value: 'release_date.asc', label: 'Lancamento asc' },
 ]
 
 export function MoviesPage() {
   const [genres, setGenres] = useState([])
   const [selectedGenreId, setSelectedGenreId] = useState('')
-  const [selectedSortBy, setSelectedSortBy] = useState('popularity.desc')
+  const [selectedSortBy, setSelectedSortBy] = useState(DEFAULT_SORT_BY)
   const [isLoadingGenres, setIsLoadingGenres] = useState(true)
   const [genreErrorMessage, setGenreErrorMessage] = useState('')
 
@@ -56,15 +62,22 @@ export function MoviesPage() {
     }
   }, [])
 
+  const shouldUseDiscover = selectedGenreId || selectedSortBy !== DEFAULT_SORT_BY
+
   const movies = usePaginatedCollection(
     ({ page, paginated }) =>
-      selectedGenreId
-        ? api.discoverMovies({ page, paginated, genreId: selectedGenreId })
+      shouldUseDiscover
+        ? api.discoverMovies({
+            page,
+            paginated,
+            genreId: selectedGenreId,
+            sortBy: selectedSortBy,
+          })
         : api.getPopularMovies({ page, paginated }),
-    selectedGenreId
-      ? 'Nao foi possivel carregar os filmes do genero selecionado.'
+    shouldUseDiscover
+      ? 'Nao foi possivel carregar os filmes com os filtros selecionados.'
       : 'Nao foi possivel carregar os filmes populares.',
-    selectedGenreId || 'popular',
+    `${selectedGenreId || 'all'}:${selectedSortBy}`,
   )
 
   return (
