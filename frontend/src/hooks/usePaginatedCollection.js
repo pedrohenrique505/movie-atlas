@@ -15,7 +15,7 @@ function mergeUniqueItems(previousItems, nextItems) {
   return mergedItems
 }
 
-export function usePaginatedCollection(fetchPage, fallbackErrorMessage) {
+export function usePaginatedCollection(fetchPage, fallbackErrorMessage, resetKey = 'default') {
   const [items, setItems] = useState([])
   const [page, setPage] = useState(1)
   const [hasNextPage, setHasNextPage] = useState(false)
@@ -23,6 +23,9 @@ export function usePaginatedCollection(fetchPage, fallbackErrorMessage) {
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const requestIdRef = useRef(0)
+  const fetchPageRef = useRef(fetchPage)
+
+  fetchPageRef.current = fetchPage
 
   useEffect(() => {
     let isMounted = true
@@ -34,7 +37,7 @@ export function usePaginatedCollection(fetchPage, fallbackErrorMessage) {
         setIsLoading(true)
         setErrorMessage('')
 
-        const payload = await fetchPage({ page: 1, paginated: true })
+        const payload = await fetchPageRef.current({ page: 1, paginated: true })
 
         if (!isMounted || requestId !== requestIdRef.current) {
           return
@@ -63,7 +66,7 @@ export function usePaginatedCollection(fetchPage, fallbackErrorMessage) {
     return () => {
       isMounted = false
     }
-  }, [fetchPage, fallbackErrorMessage])
+  }, [fallbackErrorMessage, resetKey])
 
   async function loadMore() {
     if (isLoading || isLoadingMore || !hasNextPage) {
@@ -76,7 +79,7 @@ export function usePaginatedCollection(fetchPage, fallbackErrorMessage) {
       setIsLoadingMore(true)
       setErrorMessage('')
 
-      const payload = await fetchPage({ page: nextPage, paginated: true })
+      const payload = await fetchPageRef.current({ page: nextPage, paginated: true })
 
       setItems((currentItems) => mergeUniqueItems(currentItems, payload.results ?? []))
       setPage(payload.pagination?.page ?? nextPage)

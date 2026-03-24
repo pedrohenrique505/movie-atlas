@@ -1337,6 +1337,40 @@
   transform: translateY(-1px);
 }
 
+.movie-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-bottom: 1.5rem;
+}
+
+.movie-filters__scroller {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding-bottom: 0.35rem;
+  scrollbar-width: thin;
+}
+
+.movie-filters__pill {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.movie-filters__pill--selected,
+.movie-filters__pill--selected:hover {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #08110b;
+  box-shadow: 0 12px 24px rgba(80, 250, 123, 0.18);
+}
+
+.movie-filters__status {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
 .media-tabs {
   display: flex;
   flex-wrap: wrap;

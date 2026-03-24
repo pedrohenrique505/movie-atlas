@@ -145,6 +145,21 @@ export const api = {
     const data = await requestPaginatedList('/movies/popular', page)
     return data.results
   },
+  getMovieGenres() {
+    return this.getMovieCategories()
+  },
+  async discoverMovies(options = {}) {
+    const page = options.page ?? 1
+    const genreId = options.genreId ?? ''
+    const discoverPath = `/movies/discover?with_genres=${encodeURIComponent(genreId)}`
+
+    if (options.paginated) {
+      return requestPaginatedList(discoverPath, page)
+    }
+
+    const data = await requestPaginatedList(discoverPath, page)
+    return data.results
+  },
   async getTopRatedMovies(options = {}) {
     const page = options.page ?? 1
     if (options.paginated) {
